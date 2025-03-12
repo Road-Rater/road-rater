@@ -1,5 +1,10 @@
+@file:Suppress("ChromeOsAbiSupport")
+
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 plugins {
     alias(libs.plugins.ksp)
@@ -11,6 +16,29 @@ plugins {
     alias(libs.plugins.spotless.gradle)
 }
 
+val supportedAbis = setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+
+fun getCommitCount(): Int {
+    val process = ProcessBuilder("git", "rev-list", "--count", "HEAD")
+        .redirectErrorStream(true)
+        .start()
+    return process.inputStream.bufferedReader().use { it.readText().trim().toInt() }
+}
+
+fun getFormattedBuildTime(): String {
+    val now = Instant.now()
+    val formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss")
+        .withZone(ZoneId.systemDefault())
+    return formatter.format(now)
+}
+
+fun getGitSha(): String {
+    val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+        .redirectErrorStream(true)
+        .start()
+    return process.inputStream.bufferedReader().use { it.readText().trim() }
+}
+
 android {
     namespace = "com.roadrater"
     compileSdk = 35
@@ -20,7 +48,21 @@ android {
         minSdk = 28
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.1.0"
+
+        buildConfigField("String", "COMMIT_COUNT", "\"${getCommitCount()}\"")
+        buildConfigField("String", "BUILD_TIME", "\"${getFormattedBuildTime()}\"")
+        buildConfigField("String", "COMMIT_SHA", "\"${getGitSha()}\"")
+
+        ndk {
+            abiFilters += supportedAbis
+        }
+
+        buildFeatures {
+            viewBinding = true
+            buildConfig = true
+            shaders = false
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -32,6 +74,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+        }
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-${getCommitCount()}"
         }
     }
     compileOptions {
