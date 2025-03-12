@@ -16,6 +16,11 @@ plugins {
     alias(libs.plugins.spotless.gradle)
 }
 
+pluginManager.apply {
+    apply(libs.plugins.google.services.get().pluginId)
+    apply(libs.plugins.firebase.crashlytics.get().pluginId)
+}
+
 val supportedAbis = setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
 
 fun getCommitCount(): Int {
@@ -133,6 +138,9 @@ dependencies {
     implementation(libs.room.runtime)
     ksp(libs.room.compiler)
     implementation(libs.room.ktx)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 }
 
 spotless {

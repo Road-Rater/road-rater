@@ -21,6 +21,9 @@ coil = "3.0.0-alpha10"
 room = "2.6.1"
 spotless = "7.0.0"
 ktlint-core = "1.5.0"
+firebase-bom = "33.10.0"
+googleservices_version = "4.4.2"
+crashlytics_version = "3.0.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -78,6 +81,10 @@ jsoup = "org.jsoup:jsoup:1.18.1"
 
 ktlint-core = { module = "com.pinterest.ktlint:ktlint-cli", version.ref = "ktlint-core" }
 
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+
 [bundles]
 koin = ["koin-core", "koin-android", "koin-compose"]
 voyager = ["voyager-navigator", "voyager-transitions", "voyager-screenmodel", "voyager-tab"]
@@ -92,4 +99,5 @@ serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref 
 ksp = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.26" }
 room = { id = "androidx.room", version.ref = "room" }
 spotless-gradle = { id = "com.diffplug.spotless", version.ref = "spotless" }
-
+google-services = { id = "com.google.gms.google-services", version.ref = "googleservices_version" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics_version" }
