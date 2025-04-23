@@ -16,6 +16,7 @@ import com.roadrater.preferences.preference.collectAsState
 import com.roadrater.ui.home.HomeScreen
 import com.roadrater.ui.theme.DarkMode
 import com.roadrater.ui.theme.RoadRaterTheme
+import com.roadrater.utils.FirebaseConfig
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
@@ -23,6 +24,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        FirebaseConfig.init(applicationContext)
+        FirebaseConfig.setAnalyticsEnabled(true)
+        FirebaseConfig.setCrashlyticsEnabled(true)
+
         setContent {
             val dark by appearancePreferences.darkMode.collectAsState()
             val isSystemInDarkTheme = isSystemInDarkTheme()

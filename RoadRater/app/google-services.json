@@ -1,0 +1,97 @@
+{
+  "project_info": {
+    "project_number": "681841403130",
+    "project_id": "road-rater-nz",
+    "storage_bucket": "road-rater-nz.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:681841403130:android:f52f51c4afe3ad1ccc5543",
+        "android_client_info": {
+          "package_name": "com.roadrater"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "681841403130-64lpmtps1fftk696397gnlo8ba0d7stu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAK7uwSoyf01UQ6OBDRtQt_u_NR1MWZo1A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "681841403130-64lpmtps1fftk696397gnlo8ba0d7stu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:681841403130:android:cae21966b368daefcc5543",
+        "android_client_info": {
+          "package_name": "com.roadrater.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "681841403130-64lpmtps1fftk696397gnlo8ba0d7stu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAK7uwSoyf01UQ6OBDRtQt_u_NR1MWZo1A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "681841403130-64lpmtps1fftk696397gnlo8ba0d7stu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:681841403130:android:c77c7f963cd8203acc5543",
+        "android_client_info": {
+          "package_name": "com.roadrater.preview"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "681841403130-64lpmtps1fftk696397gnlo8ba0d7stu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAK7uwSoyf01UQ6OBDRtQt_u_NR1MWZo1A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "681841403130-64lpmtps1fftk696397gnlo8ba0d7stu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
