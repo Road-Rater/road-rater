@@ -1,5 +1,5 @@
 [versions]
-agp = "8.9.0"
+agp = "8.9.1"
 kotlin = "2.0.21"
 coreKtx = "1.10.1"
 junit = "4.13.2"
@@ -21,7 +21,7 @@ coil = "3.0.0-alpha10"
 room = "2.6.1"
 spotless = "7.0.0"
 ktlint-core = "1.5.0"
-firebase-bom = "33.10.0"
+firebase-bom = "33.12.0"
 googleservices_version = "4.4.2"
 crashlytics_version = "3.0.3"
 
@@ -84,6 +84,7 @@ ktlint-core = { module = "com.pinterest.ktlint:ktlint-cli", version.ref = "ktlin
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-auth = { module = "com.google.firebase:firebase-auth" }
 
 [bundles]
 koin = ["koin-core", "koin-android", "koin-compose"]

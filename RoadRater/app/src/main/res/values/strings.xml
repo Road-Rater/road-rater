@@ -16,4 +16,15 @@
     <string name="crash_screen_logs_title">Crash logs:</string>
     <string name="crash_screen_share">Share crash logs</string>
     <string name="crash_screen_restart">Restart the app</string>
+
+    <!-- Onboarding -->
+    <string name="pref_onboarding_guide">Onboarding guide</string>
+    <string name="onboarding_heading">Welcome to Road Rater!</string>
+    <string name="onboarding_description">Just before you start, Let\'s set some things up first shall we.</string>
+    <string name="onboarding_nickname_taken">This nickname is already in use.</string>
+    <string name="onboarding_action_next">Next</string>
+    <string name="onboarding_action_finish">Get started</string>
+    <string name="onboarding_action_skip">Skip</string>
+
+    <string name="information_required_plain">*required</string>
 </resources>
