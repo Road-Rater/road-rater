@@ -22,7 +22,7 @@ class GoogleAuthUiClient(
     suspend fun signIn(): IntentSender? {
         val result = try {
             oneTapClient.beginSignIn(
-                buildSignInRequest()
+                buildSignInRequest(),
             ).await()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -43,17 +43,17 @@ class GoogleAuthUiClient(
                     UserData(
                         userId = uid,
                         username = displayName,
-                        profilePictureUrl = photoUrl?.toString()
+                        profilePictureUrl = photoUrl?.toString(),
                     )
                 },
-                errorMessage = null
+                errorMessage = null,
             )
         } catch (e: Exception) {
             e.printStackTrace()
             if (e is CancellationException) throw e
             SignInResult(
                 data = null,
-                errorMessage = e.message
+                errorMessage = e.message,
             )
         }
     }
@@ -72,7 +72,7 @@ class GoogleAuthUiClient(
         UserData(
             userId = uid,
             username = displayName,
-            profilePictureUrl = photoUrl?.toString()
+            profilePictureUrl = photoUrl?.toString(),
         )
     }
 
@@ -83,7 +83,7 @@ class GoogleAuthUiClient(
                     .setSupported(true)
                     .setFilterByAuthorizedAccounts(false)
                     .setServerClientId(context.getString(R.string.web_client_id))
-                    .build()
+                    .build(),
             )
             .setAutoSelectEnabled(true)
             .build()

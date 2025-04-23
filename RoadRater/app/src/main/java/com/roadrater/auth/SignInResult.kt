@@ -2,11 +2,11 @@ package com.roadrater.auth
 
 data class SignInResult(
     val data: UserData?,
-    val errorMessage: String?
+    val errorMessage: String?,
 )
 
 data class UserData(
     val userId: String,
     val username: String?,
-    val profilePictureUrl: String?
+    val profilePictureUrl: String?,
 )
