@@ -142,6 +142,9 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.google.auth)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 }
 
 spotless {

@@ -14,7 +14,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "681841403130-64lpmtps1fftk696397gnlo8ba0d7stu.apps.googleusercontent.com",
+          "client_id": "681841403130-s2p33608svkctgih6m0tbba578ooniio.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -43,7 +43,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "681841403130-64lpmtps1fftk696397gnlo8ba0d7stu.apps.googleusercontent.com",
+          "client_id": "681841403130-ki4v6j9fpd1n75nefn2s91toro6hbc6g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.roadrater.debug",
+            "certificate_hash": "d6f0398a663041d5a06aeb2b85073f6e14d5971f"
+          }
+        },
+        {
+          "client_id": "681841403130-s2p33608svkctgih6m0tbba578ooniio.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -72,7 +80,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "681841403130-64lpmtps1fftk696397gnlo8ba0d7stu.apps.googleusercontent.com",
+          "client_id": "681841403130-s2p33608svkctgih6m0tbba578ooniio.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
