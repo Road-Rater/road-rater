@@ -1,5 +1,7 @@
 package com.roadrater.di
 
+import com.roadrater.di.SupabaseModule
+import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest

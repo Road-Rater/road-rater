@@ -25,7 +25,7 @@ import soup.compose.material.motion.animation.rememberSlideDistance
 
 @Composable
 fun OnboardingScreen(
-    state: SignInState,
+    viewModel: SignInViewModel,
     onSignInClick: () -> Unit,
     onComplete: () -> Unit,
 ) {
@@ -34,7 +34,7 @@ fun OnboardingScreen(
     var currentStep by rememberSaveable { mutableIntStateOf(0) }
     val steps = remember {
         listOf(
-            LoginStep(state, onSignInClick),
+            LoginStep(viewModel, onSignInClick),
             NicknameStep(),
             RegisterCarsStep(),
         )

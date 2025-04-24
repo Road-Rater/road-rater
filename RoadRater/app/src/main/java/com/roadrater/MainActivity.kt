@@ -1,6 +1,7 @@
 package com.roadrater
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -11,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -80,7 +82,6 @@ class MainActivity : ComponentActivity() {
         val navigator = LocalNavigator.currentOrThrow
 
         val viewModel = viewModel<SignInViewModel>()
-        val state by viewModel.state.collectAsStateWithLifecycle()
 
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartIntentSenderForResult(),
@@ -91,6 +92,7 @@ class MainActivity : ComponentActivity() {
                             intent = result.data ?: return@launch,
                         )
                         viewModel.onSignInResult(signInResult)
+                        Log.e("Supababy", "SignInResult: ${signInResult.data}, error: ${signInResult.errorMessage}")
                     }
                 }
             },
@@ -100,7 +102,7 @@ class MainActivity : ComponentActivity() {
             if (!generalPreferences.loggedIn.get() && navigator.lastItem !is WelcomeScreen) {
                 navigator.push(
                     WelcomeScreen(
-                        state = state,
+                        viewModel = viewModel,
                         onSignInClick = {
                             lifecycleScope.launch {
                                 val signInIntentSender = googleAuthUiClient.signIn()

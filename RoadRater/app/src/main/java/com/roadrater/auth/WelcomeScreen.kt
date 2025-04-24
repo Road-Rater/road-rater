@@ -12,7 +12,7 @@ import com.roadrater.presentation.Screen
 import org.koin.compose.koinInject
 
 class WelcomeScreen(
-    val state: SignInState,
+    val viewModel: SignInViewModel,
     val onSignInClick: () -> Unit,
 ) : Screen() {
 
@@ -60,7 +60,7 @@ class WelcomeScreen(
         )
 
         OnboardingScreen(
-            state = state,
+            viewModel = viewModel,
             onSignInClick = onSignInClick,
             onComplete = finishOnboarding,
 //            onRestoreBackup = {
