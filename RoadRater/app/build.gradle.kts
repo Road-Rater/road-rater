@@ -145,6 +145,15 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.google.auth)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.supabase.bom)
+    implementation(libs.postgrest.kt)
+    implementation(libs.supabase.kt)
+    implementation(libs.storage.kt)
+    implementation(libs.realtime.kt)
+    implementation(libs.gotrue.kt)
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.utils)
 }
 
 spotless {
