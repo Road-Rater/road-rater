@@ -150,7 +150,7 @@ dependencies {
     implementation(libs.supabase.kt)
     implementation(libs.storage.kt)
     implementation(libs.realtime.kt)
-    //implementation(libs.gotrue.kt)
+    // implementation(libs.gotrue.kt)
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.utils)

@@ -1,9 +1,7 @@
 package com.roadrater.auth
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -97,7 +95,7 @@ internal class NicknameStep : OnboardingStep {
                                         .update(
                                             {
                                                 set("nickname", nickname)
-                                            }
+                                            },
                                         ) {
                                             filter {
                                                 eq("uid", currentUser.userId)
@@ -111,7 +109,7 @@ internal class NicknameStep : OnboardingStep {
                         }
                     }
                 },
-                enabled = nicknameAvailable
+                enabled = nicknameAvailable,
             ) {
                 Text("Select")
             }

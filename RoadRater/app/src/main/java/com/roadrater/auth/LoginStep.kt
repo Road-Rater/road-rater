@@ -1,6 +1,5 @@
 package com.roadrater.auth
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,11 +28,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.google.android.gms.auth.api.identity.Identity
 import com.roadrater.database.entities.TableUser
-import com.roadrater.di.SupabaseModule
-import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.ui.theme.spacing
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -75,7 +71,6 @@ internal class LoginStep(
                             if (existingUsers.data.isEmpty() || existingUsers.data == "[]") {
                                 val response = supabaseClient.postgrest["users"].insert(TableUser(id, name, null, email))
                             }
-
                         } catch (e: Exception) {
                         }
                     }
@@ -122,19 +117,19 @@ internal class LoginStep(
     @Composable
     fun UserCard(
         user: UserData?,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
     ) {
         if (user == null) return
 
         Card(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
         ) {
             Row(
                 modifier = Modifier
                     .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 user.profilePictureUrl?.let { imageUrl ->
                     Image(
@@ -142,21 +137,21 @@ internal class LoginStep(
                         contentDescription = "User profile image",
                         modifier = Modifier
                             .size(56.dp)
-                            .clip(CircleShape)
+                            .clip(CircleShape),
                     )
                 }
 
                 Column(
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     Text(
                         text = user.username ?: "No name",
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
                     )
                     Text(
                         text = "ID: ${user.email}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

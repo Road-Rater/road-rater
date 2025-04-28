@@ -8,7 +8,7 @@ data class Car(
     val make: String?,
     val model: String?,
     val year: String?,
-    //val lastChecked: String?,
+    // val lastChecked: String?,
 )
 
 @Serializable
@@ -16,4 +16,3 @@ data class WatchedCar(
     val number_plate: String,
     val uid: String,
 )
-

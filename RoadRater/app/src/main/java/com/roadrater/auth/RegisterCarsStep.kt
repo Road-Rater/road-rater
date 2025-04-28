@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -51,7 +50,6 @@ internal class RegisterCarsStep : OnboardingStep {
         val supabaseClient = koinInject<SupabaseClient>()
         val currentUser = GoogleAuthUiClient(context, Identity.getSignInClient(context)).getSignedInUser()
 
-
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
@@ -78,7 +76,7 @@ internal class RegisterCarsStep : OnboardingStep {
                         if (currentUser?.userId == null) return@Button
                         watchCar(currentUser.userId, car, supabaseClient)
                         cars = cars + car // add the new car to the list
-                        car = ""          // clear the text field
+                        car = "" // clear the text field
                         _isComplete = true
                     }
                 },
@@ -91,14 +89,14 @@ internal class RegisterCarsStep : OnboardingStep {
                 Text(
                     text = "Cars you're watching:",
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(top = 16.dp)
+                    modifier = Modifier.padding(top = 16.dp),
                 )
 
                 for (addedCar in cars) {
                     Text(
                         text = addedCar,
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(vertical = 4.dp)
+                        modifier = Modifier.padding(vertical = 4.dp),
                     )
                 }
             }
@@ -110,26 +108,28 @@ internal class RegisterCarsStep : OnboardingStep {
         println("Watching car: $numberPlate")
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                supabaseClient.from("cars").upsert(Car(
-                    number_plate = numberPlate,
-                    make = null,
-                    model = null,
-                    year = null,
-                ))
+                supabaseClient.from("cars").upsert(
+                    Car(
+                        number_plate = numberPlate,
+                        make = null,
+                        model = null,
+                        year = null,
+                    ),
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
             }
 
             try {
-                supabaseClient.from("watched_cars").upsert(WatchedCar(
-                    number_plate = numberPlate,
-                    uid = uid,
-                ))
+                supabaseClient.from("watched_cars").upsert(
+                    WatchedCar(
+                        number_plate = numberPlate,
+                        uid = uid,
+                    ),
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-
         }
     }
-
 }
