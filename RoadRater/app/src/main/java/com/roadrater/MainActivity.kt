@@ -92,14 +92,13 @@ class MainActivity : ComponentActivity() {
                             intent = result.data ?: return@launch,
                         )
                         viewModel.onSignInResult(signInResult)
-                        Log.e("Supababy", "SignInResult: ${signInResult.data}, error: ${signInResult.errorMessage}")
                     }
                 }
             },
         )
 
         LaunchedEffect(Unit) {
-            if (!generalPreferences.loggedIn.get() && navigator.lastItem !is WelcomeScreen) {
+            if (!generalPreferences.onboardingComplete.get() && navigator.lastItem !is WelcomeScreen) {
                 navigator.push(
                     WelcomeScreen(
                         viewModel = viewModel,

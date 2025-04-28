@@ -19,7 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import com.roadrater.R
+import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.ui.theme.spacing
+import org.koin.compose.koinInject
 import soup.compose.material.motion.animation.materialSharedAxisX
 import soup.compose.material.motion.animation.rememberSlideDistance
 
@@ -40,6 +42,8 @@ fun OnboardingScreen(
         )
     }
     val isLastStep = currentStep == steps.lastIndex
+
+    val preferences = koinInject<GeneralPreferences>()
 
     BackHandler(enabled = currentStep != 0, onBack = { currentStep-- })
 

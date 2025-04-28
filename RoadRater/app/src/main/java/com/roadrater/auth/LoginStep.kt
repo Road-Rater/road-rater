@@ -58,6 +58,10 @@ internal class LoginStep(
         val state by viewModel.state.collectAsState()
         var user by remember { mutableStateOf<UserData?>(null) }
 
+        LaunchedEffect(Unit) {
+            GoogleAuthUiClient(context, Identity.getSignInClient(context)).signOut()
+        }
+
         LaunchedEffect(state.isSignInSuccessful) {
             if (state.isSignInSuccessful) {
                 user = GoogleAuthUiClient(context, Identity.getSignInClient(context)).getSignedInUser()
@@ -68,13 +72,11 @@ internal class LoginStep(
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
                             val existingUsers = supabaseClient.postgrest["users"].select { filter { eq("uid", id) } }
-
-                            if (existingUsers.data.isEmpty()) {
+                            if (existingUsers.data.isEmpty() || existingUsers.data == "[]") {
                                 val response = supabaseClient.postgrest["users"].insert(TableUser(id, name, null, email))
                             }
 
                         } catch (e: Exception) {
-                            Log.e("Supababy", "Error checking/inserting user: ${e.message}")
                         }
                     }
                 }

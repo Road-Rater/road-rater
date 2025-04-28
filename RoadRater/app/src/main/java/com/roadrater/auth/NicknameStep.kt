@@ -1,5 +1,6 @@
 package com.roadrater.auth
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -22,8 +24,14 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.auth.api.identity.Identity
 import com.roadrater.R
+import com.roadrater.database.entities.TableUser
 import com.roadrater.ui.theme.spacing
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 internal class NicknameStep : OnboardingStep {
 
@@ -36,11 +44,14 @@ internal class NicknameStep : OnboardingStep {
     override fun Content() {
         val context = LocalContext.current
         val handler = LocalUriHandler.current
+        val scope = rememberCoroutineScope()
 
-        var nicknameAvailable: Boolean = true
-        var nickname by remember { mutableStateOf("") }
-        val nameAlreadyExists = remember(nickname) { nicknameAvailable(nickname) }
+        var nicknameAvailable by remember { mutableStateOf(true) }
+        val currentUser = GoogleAuthUiClient(context, Identity.getSignInClient(context)).getSignedInUser()
+        val defaultNickname = currentUser?.username ?: ""
+        var nickname by remember { mutableStateOf(defaultNickname) }
         val focusRequester = remember { FocusRequester() }
+        val supabaseClient = koinInject<SupabaseClient>()
 
         Column(
             modifier = Modifier.padding(16.dp),
@@ -52,42 +63,68 @@ internal class NicknameStep : OnboardingStep {
                 modifier = Modifier
                     .focusRequester(focusRequester),
                 value = nickname,
-                onValueChange = { nickname = it },
+                onValueChange = { newNickname ->
+                    nickname = newNickname
+                    scope.launch {
+                        nicknameAvailable = nicknameAvailable(newNickname, supabaseClient)
+                    }
+                },
                 label = {
                     Text("Nickname")
                 },
                 supportingText = {
-                    val msgRes = if (nickname.isNotEmpty() && nameAlreadyExists) {
+                    val msgRes = if (nickname.isNotEmpty() && !nicknameAvailable) {
                         R.string.onboarding_nickname_taken
                     } else {
                         R.string.information_required_plain
                     }
                     Text(text = stringResource(msgRes))
                 },
-                isError = nickname.isNotEmpty() && nameAlreadyExists,
+                isError = nickname.isNotEmpty() && !nicknameAvailable,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 singleLine = true,
             )
 
             Button(
-                modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    nicknameAvailable = nicknameAvailable(nickname)
-                    _isComplete = true
+                    if (currentUser == null) return@Button
+                    scope.launch {
+                        if (nicknameAvailable) {
+                            scope.launch {
+                                try {
+                                    supabaseClient
+                                        .from("users")
+                                        .update(
+                                            {
+                                                set("nickname", nickname)
+                                            }
+                                        ) {
+                                            filter {
+                                                eq("uid", currentUser.userId)
+                                            }
+                                        }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+                            _isComplete = true
+                        }
+                    }
                 },
+                enabled = nicknameAvailable
             ) {
                 Text("Select")
-            }
-
-            if (!nicknameAvailable) {
-                Text("This nickname is already in use.")
             }
         }
     }
 
-    private fun nicknameAvailable(
-        nickname: String,
-    ): Boolean {
-        return false
+    suspend fun nicknameAvailable(nickname: String, supabaseClient: SupabaseClient): Boolean {
+        return try {
+            val response = supabaseClient.from("users").select { filter { eq("nickname", nickname) } }.decodeList<TableUser>()
+            response.isEmpty()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
     }
 }
