@@ -29,6 +29,7 @@ import cafe.adriel.voyager.navigator.tab.TabNavigator
 import com.roadrater.presentation.Screen
 import com.roadrater.presentation.util.Tab
 import com.roadrater.ui.home.tabs.HomeTab
+import com.roadrater.ui.home.tabs.MoreTab
 import com.roadrater.ui.home.tabs.ProfileTab
 import kotlinx.coroutines.launch
 import soup.compose.material.motion.animation.materialFadeThroughIn
@@ -45,6 +46,7 @@ object HomeScreen : Screen() {
         val tabs = buildList {
             add(HomeTab)
             add(ProfileTab)
+            add(MoreTab)
         }
 
         val navigator = LocalNavigator.currentOrThrow
