@@ -132,10 +132,10 @@ internal class RegisterCarsStep : OnboardingStep {
     fun CarWatchingCard(car: Car) {
         Card(
             modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(4.dp)
+            elevation = CardDefaults.cardElevation(4.dp),
         ) {
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
             ) {
                 Text(text = "Plate: ${car.number_plate}", style = MaterialTheme.typography.bodyLarge)
                 if (!car.make.isNullOrBlank()) {

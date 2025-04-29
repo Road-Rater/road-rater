@@ -26,7 +26,7 @@ object GetCarInfo {
             number_plate = returnedPlateNumber,
             make = make,
             model = model,
-            year = year
+            year = year,
         )
     }
 }
