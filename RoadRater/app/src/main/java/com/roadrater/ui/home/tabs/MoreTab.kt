@@ -28,7 +28,6 @@ import com.roadrater.presentation.util.Tab
 import com.roadrater.ui.MyReviews
 import com.roadrater.ui.WatchedCarsScreen
 
-
 object MoreTab : Tab {
     private fun readResolve(): Any = HomeTab
 
