@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -26,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.google.android.gms.auth.api.identity.Identity
 import com.roadrater.database.entities.Car
 import com.roadrater.database.entities.WatchedCar
+import com.roadrater.presentation.components.CarWatchingCard
 import com.roadrater.ui.theme.spacing
 import com.roadrater.utils.GetCarInfo
 import io.github.jan.supabase.SupabaseClient
@@ -100,7 +99,7 @@ internal class RegisterCarsStep : OnboardingStep {
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     cars.forEach { addedCar ->
-                        CarWatchingCard(addedCar)
+                        CarWatchingCard(addedCar, {})
                     }
                 }
             }
@@ -126,28 +125,5 @@ internal class RegisterCarsStep : OnboardingStep {
             }
         }
         return car
-    }
-
-    @Composable
-    fun CarWatchingCard(car: Car) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(4.dp),
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-            ) {
-                Text(text = "Plate: ${car.number_plate}", style = MaterialTheme.typography.bodyLarge)
-                if (!car.make.isNullOrBlank()) {
-                    Text(text = "Make: ${car.make}", style = MaterialTheme.typography.bodyMedium)
-                }
-                if (!car.model.isNullOrBlank()) {
-                    Text(text = "Model: ${car.model}", style = MaterialTheme.typography.bodyMedium)
-                }
-                if (car.year != null) {
-                    Text(text = "Year: ${car.year}", style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-        }
     }
 }
