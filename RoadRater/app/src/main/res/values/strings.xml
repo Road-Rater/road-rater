@@ -1,16 +1,26 @@
 <resources>
     <string name="app_name">Road Rater</string>
 
-    //Tab Titles
+    <!-- Generic -->
+    <string name="select">Select</string>
+
+
+    <!-- Tab Titles -->
     <string name="profile_tab">Profile</string>
     <string name="home_tab">Home</string>
+    <string name="watched_cars">Watched Cars</string>
+    <string name="stats">Stats</string>
+    <string name="my_reviews">My Reviews</string>
+    <string name="settings">Settings</string>
+    <string name="about">About</string>
+    <string name="help">Help</string>
 
-    //App Theme
+    <!-- App Theme -->
     <string name="pref_appearance_darkmode_system">System</string>
     <string name="pref_appearance_darkmode_light">Light</string>
     <string name="pref_appearance_darkmode_dark">Dark</string>
 
-    //Crash screen
+    <!-- Crash screen -->
     <string name="crash_screen_title">Oops</string>
     <string name="crash_screen_subtitle">Looks like %s experienced an unexpected error.</string>
     <string name="crash_screen_logs_title">Crash logs:</string>
@@ -21,12 +31,27 @@
     <string name="pref_onboarding_guide">Onboarding guide</string>
     <string name="onboarding_heading">Welcome to Road Rater!</string>
     <string name="onboarding_description">Just before you start, Let\'s set some things up first shall we.</string>
-    <string name="onboarding_nickname_taken">This nickname is already in use.</string>
     <string name="onboarding_action_next">Next</string>
     <string name="onboarding_action_finish">Get started</string>
     <string name="onboarding_action_skip">Skip</string>
-
     <string name="information_required_plain">*required</string>
+
+    <string name="login_google_title">Login or create an account using Google</string>
+    <string name="login_google">Login with Google</string>
+    <string name="login_guest">Continue as Guest</string>
+    <string name="name_unknown">No name</string>
+    <string name="id">ID: %s</string>
+
+    <string name="select_nickname_title">Select a nickname, this is the name others will know you by</string>
+    <string name="nickname">Nickname</string>
+    <string name="onboarding_nickname_taken">This nickname is already in use.</string>
+
+    <string name="watchlist_cars_title">Add any cars which you want to be notified about</string>
+    <string name="number_plate">Number Plate</string>
+    <string name="add_car">Add Car</string>
+    <string name="watchlist_title">Cars you\'re watching:</string>
+
+
 
     <string name="web_client_id">681841403130-s2p33608svkctgih6m0tbba578ooniio.apps.googleusercontent.com</string>
 </resources>

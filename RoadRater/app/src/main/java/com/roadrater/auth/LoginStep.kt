@@ -24,9 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.google.android.gms.auth.api.identity.Identity
+import com.roadrater.R
 import com.roadrater.database.entities.TableUser
 import com.roadrater.ui.theme.spacing
 import io.github.jan.supabase.SupabaseClient
@@ -83,7 +85,7 @@ internal class LoginStep(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         ) {
-            Text("Login or create an account using Google")
+            Text(stringResource(R.string.login_google_title))
 
             if (user != null) {
                 UserCard(user)
@@ -94,7 +96,7 @@ internal class LoginStep(
                         onSignInClick()
                     },
                 ) {
-                    Text("Login with Google")
+                    Text(stringResource(R.string.login_google))
                 }
             }
 
@@ -109,7 +111,7 @@ internal class LoginStep(
                     _isComplete = true
                 },
             ) {
-                Text("Continue as Guest")
+                Text(stringResource(R.string.login_guest))
             }
         }
     }
@@ -145,11 +147,11 @@ internal class LoginStep(
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Text(
-                        text = user.username ?: "No name",
+                        text = user.username ?: stringResource(R.string.name_unknown),
                         style = MaterialTheme.typography.titleMedium,
                     )
                     Text(
-                        text = "ID: ${user.email}",
+                        text = stringResource(R.string.id, user.email?: ""),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

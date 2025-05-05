@@ -17,10 +17,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import com.roadrater.R
 import com.roadrater.presentation.components.LogoHeader
 import com.roadrater.presentation.components.TextPreferenceWidget
 import com.roadrater.presentation.util.ScrollbarLazyColumn
@@ -69,21 +71,21 @@ object MoreTab : Tab {
 
                 item {
                     TextPreferenceWidget(
-                        title = "Watched Cars",
+                        title = stringResource(R.string.watched_cars),
                         icon = Icons.AutoMirrored.Outlined.Label,
                         onPreferenceClick = { navigator.push(WatchedCarsScreen) },
                     )
                 }
                 item {
                     TextPreferenceWidget(
-                        title = "Stats",
+                        title = stringResource(R.string.stats),
                         icon = Icons.Outlined.QueryStats,
                         onPreferenceClick = { },
                     )
                 }
                 item {
                     TextPreferenceWidget(
-                        title = "My Reviews",
+                        title = stringResource(R.string.my_reviews),
                         icon = Icons.Outlined.Storage,
                         onPreferenceClick = { navigator.push(MyReviews) },
                     )
@@ -93,21 +95,21 @@ object MoreTab : Tab {
 
                 item {
                     TextPreferenceWidget(
-                        title = "Settings",
+                        title = stringResource(R.string.settings),
                         icon = Icons.Outlined.Settings,
                         onPreferenceClick = { },
                     )
                 }
                 item {
                     TextPreferenceWidget(
-                        title = "About",
+                        title = stringResource(R.string.about),
                         icon = Icons.Outlined.Info,
                         onPreferenceClick = { },
                     )
                 }
                 item {
                     TextPreferenceWidget(
-                        title = "Help",
+                        title = stringResource(R.string.help),
                         icon = Icons.AutoMirrored.Outlined.HelpOutline,
                         onPreferenceClick = { },
                     )

@@ -19,9 +19,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.auth.api.identity.Identity
+import com.roadrater.R
 import com.roadrater.database.entities.Car
 import com.roadrater.database.entities.WatchedCar
 import com.roadrater.presentation.components.CarWatchingCard
@@ -56,7 +58,7 @@ internal class RegisterCarsStep : OnboardingStep {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         ) {
-            Text("Add any cars which you want to be notified about")
+            Text(stringResource(R.string.watchlist_cars_title))
 
             OutlinedTextField(
                 modifier = Modifier
@@ -65,7 +67,7 @@ internal class RegisterCarsStep : OnboardingStep {
                 value = car,
                 onValueChange = { car = it },
                 label = {
-                    Text("Number Plate")
+                    Text(stringResource(R.string.number_plate))
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 singleLine = true,
@@ -87,12 +89,12 @@ internal class RegisterCarsStep : OnboardingStep {
                     }
                 },
             ) {
-                Text("Add Car")
+                Text(stringResource(R.string.add_car))
             }
 
             if (cars.isNotEmpty()) {
                 Text(
-                    text = "Cars you're watching:",
+                    text = stringResource(R.string.watchlist_title),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(top = 16.dp),
                 )
@@ -108,7 +110,6 @@ internal class RegisterCarsStep : OnboardingStep {
 
     // Simple watchCar function
     private fun watchCar(uid: String, numberPlate: String, supabaseClient: SupabaseClient): Car {
-        println("Watching car: $numberPlate")
         val car = GetCarInfo.getCarInfo(numberPlate)
 
         CoroutineScope(Dispatchers.IO).launch {

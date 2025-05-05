@@ -110,7 +110,7 @@ class CrashActivity : ComponentActivity() {
         logcat: String,
     ) {
         withContext(NonCancellable) {
-            val file = File(applicationContext.cacheDir, "KMD_staff_tools_logs.txt")
+            val file = File(applicationContext.cacheDir, "road_rater_logs.txt")
             if (file.exists()) file.delete()
             file.createNewFile()
             file.appendText(concatLogs(collectDeviceInfo(), exceptionString, logcat))
