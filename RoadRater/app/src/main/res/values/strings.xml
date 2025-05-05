@@ -3,6 +3,8 @@
 
     <!-- Generic -->
     <string name="select">Select</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
 
 
     <!-- Tab Titles -->
@@ -50,6 +52,9 @@
     <string name="number_plate">Number Plate</string>
     <string name="add_car">Add Car</string>
     <string name="watchlist_title">Cars you\'re watching:</string>
+    <string name="add_car_watchlist">Add Car to Watchlist</string>
+    <string name="remove_car_dialog_title">Remove?</string>
+    <string name="remove_car_dialog_body">Do you really want to remove %s from your watched list?</string>
 
 
 

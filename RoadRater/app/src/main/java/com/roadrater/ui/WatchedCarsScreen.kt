@@ -26,11 +26,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.google.android.gms.auth.api.identity.Identity
+import com.roadrater.R
 import com.roadrater.auth.GoogleAuthUiClient
 import com.roadrater.presentation.Screen
 import com.roadrater.presentation.components.CarWatchingCard
@@ -59,7 +61,7 @@ object WatchedCarsScreen : Screen() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(text = "Watched Cars") },
+                    title = { Text(text = stringResource(R.string.watched_cars)) },
                     navigationIcon = {
                         IconButton(onClick = { navigator.pop() }) {
                             Icon(Icons.AutoMirrored.Outlined.ArrowBack, null)
@@ -80,7 +82,7 @@ object WatchedCarsScreen : Screen() {
                     OutlinedTextField(
                         value = numberPlate,
                         onValueChange = { numberPlate = it },
-                        label = { Text("Number Plate") },
+                        label = { Text(stringResource(R.string.number_plate)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
@@ -92,7 +94,7 @@ object WatchedCarsScreen : Screen() {
                         },
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text("Add Car to Watchlist")
+                        Text(stringResource(R.string.add_car_watchlist))
                     }
 
                     if (watchedCars.isNotEmpty()) {
@@ -129,24 +131,24 @@ object WatchedCarsScreen : Screen() {
     ) {
         AlertDialog(
             onDismissRequest = onDismissRequest,
+            title = {
+                Text(text = stringResource(R.string.remove_car_dialog_title))
+            },
+            text = {
+                Text(text = stringResource(R.string.remove_car_dialog_body, numberPlate))
+            },
             confirmButton = {
                 TextButton(onClick = {
                     onConfirm()
                     onDismissRequest()
                 }) {
-                    Text(text = "Confirm")
+                    Text(text = stringResource(R.string.confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismissRequest) {
-                    Text(text = "Cancel")
+                    Text(text = stringResource(R.string.cancel))
                 }
-            },
-            title = {
-                Text(text = "Remove?")
-            },
-            text = {
-                Text(text = "Do you really want to remove $numberPlate from your watched list?")
             },
         )
     }
