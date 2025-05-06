@@ -151,7 +151,7 @@ internal class LoginStep(
                         style = MaterialTheme.typography.titleMedium,
                     )
                     Text(
-                        text = stringResource(R.string.id, user.email?: ""),
+                        text = stringResource(R.string.id, user.email ?: ""),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
