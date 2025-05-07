@@ -9,11 +9,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -38,9 +40,8 @@ import com.roadrater.utils.FirebaseConfig
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
-class MainActivity : ComponentActivity() {
+class MainActivity : BaseActivity() {
     private val generalPreferences by inject<GeneralPreferences>()
-    private val appearancePreferences by inject<AppearancePreferences>()
 
     private val googleAuthUiClient by lazy {
         GoogleAuthUiClient(
@@ -58,12 +59,17 @@ class MainActivity : ComponentActivity() {
         setContent {
             val dark by appearancePreferences.themeMode.collectAsState()
             val isSystemInDarkTheme = isSystemInDarkTheme()
-            enableEdgeToEdge(
-                SystemBarStyle.auto(
-                    lightScrim = Color.White.toArgb(),
-                    darkScrim = Color.White.toArgb(),
-                ) { dark == ThemeMode.DARK || (dark == ThemeMode.SYSTEM && isSystemInDarkTheme) },
-            )
+            val statusBarBackgroundColor = MaterialTheme.colorScheme.surface
+
+            LaunchedEffect(isSystemInDarkTheme, statusBarBackgroundColor) {
+                // Draw edge-to-edge and set system bars color to transparent
+                val lightStyle = SystemBarStyle.light(Color.Transparent.toArgb(), Color.Black.toArgb())
+                val darkStyle = SystemBarStyle.dark(Color.Transparent.toArgb())
+                enableEdgeToEdge(
+                    statusBarStyle = if (statusBarBackgroundColor.luminance() > 0.5) lightStyle else darkStyle,
+                    navigationBarStyle = if (isSystemInDarkTheme) darkStyle else lightStyle,
+                )
+            }
 
             TachiyomiTheme {
                 Navigator(
