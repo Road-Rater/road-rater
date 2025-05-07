@@ -98,11 +98,11 @@ fun RoadRaterTheme(content: @Composable () -> Unit) {
     val preferences = koinInject<AppearancePreferences>()
     val darkMode by preferences.themeMode.collectAsState()
     val darkTheme = isSystemInDarkTheme()
-    //val dynamicColor by preferences.materialYou.collectAsState()
+    // val dynamicColor by preferences.materialYou.collectAsState()
     val context = LocalContext.current
 
     val colorScheme = when {
-        //dynamicColor &&
+        // dynamicColor &&
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             when (darkMode) {
                 ThemeMode.DARK -> dynamicDarkColorScheme(context)

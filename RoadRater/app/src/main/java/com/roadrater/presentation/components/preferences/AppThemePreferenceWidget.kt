@@ -48,7 +48,6 @@ import com.roadrater.ui.theme.AppTheme
 import com.roadrater.ui.theme.spacing
 import com.roadrater.utils.DeviceUtil
 import com.roadrater.utils.isDynamicColorAvailable
-import org.koin.compose.koinInject
 
 @Composable
 internal fun AppThemePreferenceWidget(
@@ -110,7 +109,7 @@ private fun AppThemesList(
                     text = stringResource(appTheme.titleRes),
                     modifier = Modifier
                         .fillMaxWidth(),
-                    //.secondaryItemAlpha(),
+                    // .secondaryItemAlpha(),
                     textAlign = TextAlign.Center,
                     maxLines = 2,
                     minLines = 2,
@@ -255,7 +254,7 @@ fun AppThemePreviewItem(
 @Composable
 private fun AppThemesListPreview() {
     var appTheme by remember { mutableStateOf(AppTheme.DEFAULT) }
-    //Inject.addSingleton(fullType<UiPreferences>(), UiPreferences(InMemoryPreferenceStore()))
+    // Inject.addSingleton(fullType<UiPreferences>(), UiPreferences(InMemoryPreferenceStore()))
     TachiyomiTheme(appTheme = appTheme) {
         Surface {
             AppThemesList(

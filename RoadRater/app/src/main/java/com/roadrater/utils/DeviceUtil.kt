@@ -88,7 +88,7 @@ object DeviceUtil {
                 .getDeclaredMethod("get", String::class.java)
                 .invoke(null, key) as String
         } catch (e: Exception) {
-            //logcat(LogPriority.WARN, e) { "Unable to use SystemProperties.get()" }
+            // logcat(LogPriority.WARN, e) { "Unable to use SystemProperties.get()" }
             null
         }
     }

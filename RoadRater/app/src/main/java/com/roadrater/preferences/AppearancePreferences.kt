@@ -1,10 +1,8 @@
 package com.roadrater.preferences
 
-import android.os.Build
 import com.roadrater.preferences.preference.PreferenceStore
 import com.roadrater.preferences.preference.getEnum
 import com.roadrater.ui.theme.AppTheme
-import com.roadrater.ui.theme.DarkMode
 import com.roadrater.ui.theme.ThemeMode
 import com.roadrater.utils.DeviceUtil
 import com.roadrater.utils.isDynamicColorAvailable

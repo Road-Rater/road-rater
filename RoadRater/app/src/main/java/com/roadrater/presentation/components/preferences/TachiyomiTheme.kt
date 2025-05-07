@@ -5,10 +5,9 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.ui.platform.LocalContext
-import org.koin.compose.koinInject
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import com.roadrater.preferences.AppearancePreferences
 import com.roadrater.preferences.preference.collectAsState
 import com.roadrater.presentation.BaseColorScheme
@@ -26,6 +25,7 @@ import com.roadrater.presentation.YinYangColorScheme
 import com.roadrater.presentation.YotsubaColorScheme
 import com.roadrater.ui.theme.AppTheme
 import com.roadrater.ui.theme.ThemeMode
+import org.koin.compose.koinInject
 
 @Composable
 fun TachiyomiTheme(
@@ -71,7 +71,6 @@ private fun getThemeColorScheme(
     themeMode: ThemeMode,
     isAmoled: Boolean,
 ): ColorScheme {
-
     val colorScheme = if (appTheme == AppTheme.MONET) {
         MonetColorScheme(LocalContext.current)
     } else {

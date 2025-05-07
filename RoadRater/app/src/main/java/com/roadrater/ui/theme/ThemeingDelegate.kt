@@ -3,7 +3,6 @@ package com.roadrater.ui.theme
 import android.app.Activity
 import com.roadrater.R
 import com.roadrater.preferences.AppearancePreferences
-import org.koin.android.ext.android.inject
 import kotlin.getValue
 
 interface ThemingDelegate {

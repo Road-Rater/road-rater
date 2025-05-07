@@ -1,7 +1,6 @@
 package com.roadrater
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -15,7 +14,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -28,14 +26,10 @@ import com.google.android.gms.auth.api.identity.Identity
 import com.roadrater.auth.GoogleAuthUiClient
 import com.roadrater.auth.SignInViewModel
 import com.roadrater.auth.WelcomeScreen
-import com.roadrater.preferences.AppearancePreferences
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.preferences.preference.collectAsState
 import com.roadrater.presentation.components.preferences.TachiyomiTheme
 import com.roadrater.ui.home.HomeScreen
-import com.roadrater.ui.theme.DarkMode
-import com.roadrater.ui.theme.RoadRaterTheme
-import com.roadrater.ui.theme.ThemeMode
 import com.roadrater.utils.FirebaseConfig
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -77,7 +71,7 @@ class MainActivity : BaseActivity() {
                     disposeBehavior = NavigatorDisposeBehavior(disposeNestedNavigators = false, disposeSteps = true),
                 ) {
                     SlideTransition(navigator = it)
-                    //ShowOnboarding()
+                    // ShowOnboarding()
                 }
             }
         }
