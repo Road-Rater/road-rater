@@ -9,8 +9,15 @@ import com.roadrater.presentation.crash.CrashActivity
 import com.roadrater.presentation.crash.GlobalExceptionHandler
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
+import org.koin.android.ext.android.inject
+import org.koin.core.component.inject
+import androidx.compose.runtime.getValue
+import com.roadrater.preferences.AppearancePreferences
+import com.roadrater.ui.theme.setAppCompatDelegateThemeMode
 
 class App : Application() {
+    private val appearancePreferences by inject<AppearancePreferences>()
+
     override fun onCreate() {
         super.onCreate()
         Thread.setDefaultUncaughtExceptionHandler(
@@ -27,5 +34,7 @@ class App : Application() {
                 SupabaseModule,
             )
         }
+
+        setAppCompatDelegateThemeMode(appearancePreferences.themeMode.get())
     }
 }

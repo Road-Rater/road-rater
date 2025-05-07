@@ -29,9 +29,11 @@ import com.roadrater.auth.WelcomeScreen
 import com.roadrater.preferences.AppearancePreferences
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.preferences.preference.collectAsState
+import com.roadrater.presentation.components.preferences.TachiyomiTheme
 import com.roadrater.ui.home.HomeScreen
 import com.roadrater.ui.theme.DarkMode
 import com.roadrater.ui.theme.RoadRaterTheme
+import com.roadrater.ui.theme.ThemeMode
 import com.roadrater.utils.FirebaseConfig
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -54,22 +56,22 @@ class MainActivity : ComponentActivity() {
         FirebaseConfig.setCrashlyticsEnabled(true)
 
         setContent {
-            val dark by appearancePreferences.darkMode.collectAsState()
+            val dark by appearancePreferences.themeMode.collectAsState()
             val isSystemInDarkTheme = isSystemInDarkTheme()
             enableEdgeToEdge(
                 SystemBarStyle.auto(
                     lightScrim = Color.White.toArgb(),
                     darkScrim = Color.White.toArgb(),
-                ) { dark == DarkMode.Dark || (dark == DarkMode.System && isSystemInDarkTheme) },
+                ) { dark == ThemeMode.DARK || (dark == ThemeMode.SYSTEM && isSystemInDarkTheme) },
             )
 
-            RoadRaterTheme {
+            TachiyomiTheme {
                 Navigator(
                     screen = HomeScreen,
                     disposeBehavior = NavigatorDisposeBehavior(disposeNestedNavigators = false, disposeSteps = true),
                 ) {
                     SlideTransition(navigator = it)
-                    ShowOnboarding()
+                    //ShowOnboarding()
                 }
             }
         }

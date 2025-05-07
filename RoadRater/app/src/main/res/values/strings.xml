@@ -5,6 +5,7 @@
     <string name="select">Select</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
+    <string name="selected">Selected</string>
 
 
     <!-- Tab Titles -->
@@ -62,6 +63,29 @@
     <string name="review_btn">Write a Review</string>
     <string name="no_results">No results found</string>
 
+    <!-- Preferences -->
+    <string name="pref_settings_title">Settings</string>
+    <string name="pref_general_title">General</string>
+    <string name="pref_general_summary">Store Number, Store Name</string>
+    <string name="pref_data_title">Data</string>
+    <string name="pref_data_summary">Database, storage locations</string>
+    <string name="pref_about_title">About</string>
+    <string name="pref_appearance_title">Appearance</string>
+    <string name="pref_appearance_summary">Theme, tabs</string>
+    <string name="pref_appearance_category_theme">Theme</string>
+
+    <string name="label_default">Default</string>
+    <string name="theme_monet">Dynamic</string>
+    <string name="theme_greenapple">Green Apple</string>
+    <string name="theme_lavender">Lavender</string>
+    <string name="theme_midnightdusk">Midnight Dusk</string>
+    <string name="theme_nord">Nord</string>
+    <string name="theme_strawberrydaiquiri">Strawberry Daiquiri</string>
+    <string name="theme_tako">Tako</string>
+    <string name="theme_tealturquoise">Teal &amp; Turquoise</string>
+    <string name="theme_yinyang">Yin &amp; Yang</string>
+    <string name="theme_yotsuba">Yotsuba</string>
+    <string name="theme_tidalwave">Tidal Wave</string>
 
 
     <string name="web_client_id">681841403130-s2p33608svkctgih6m0tbba578ooniio.apps.googleusercontent.com</string>

@@ -1,4 +1,4 @@
-package com.roadrater.presentation.components
+package com.roadrater.presentation.components.preferences
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
