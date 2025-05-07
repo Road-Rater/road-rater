@@ -454,7 +454,7 @@
     <!--===============-->
 
     == Splash Theme ==
-    <style name="Theme.Tachiyomi.SplashScreen" parent="Theme.SplashScreen">
+    <style name="Base.Tachiyomi.SplashScreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_image</item>
         <item name="windowSplashScreenBackground">@color/splash</item>
         <item name="postSplashScreenTheme">@style/Theme.Tachiyomi</item>
@@ -463,5 +463,7 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
     </style>
+
+    <style name="Theme.Tachiyomi.SplashScreen" parent="Base.Tachiyomi.SplashScreen" />
 
 </resources>

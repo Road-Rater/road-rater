@@ -7,8 +7,7 @@
     <color name="divider_default">@color/md_black_1000_12</color>
 
     <!-- Blue Theme -->
-    <!--    <color name="accent_blue">#54759E</color>-->
-    <color name="accent_blue">#202125</color>
+    <color name="accent_blue">#54759E</color>
 
     <!-- AMOLED Mode -->
     <color name="amoled_background">#000000</color>
