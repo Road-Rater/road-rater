@@ -37,6 +37,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,11 +45,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import com.google.android.gms.auth.api.identity.Identity
 import com.roadrater.R
+import com.roadrater.auth.GoogleAuthUiClient
+import com.roadrater.database.entities.Review
 import com.roadrater.presentation.util.Tab
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Order
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 object MyReviews : Tab {
     private fun readResolve(): Any = MyReviews
@@ -66,6 +78,10 @@ object MyReviews : Tab {
 
     @Composable
     override fun Content() {
+        val context = LocalContext.current
+        val supabaseClient = koinInject<SupabaseClient>()
+        val currentUser = GoogleAuthUiClient(context, Identity.getSignInClient(context)).getSignedInUser()
+        val reviews = remember { mutableStateOf<List<Review>>(emptyList()) }
         val labels = listOf("All", "Speeding", "Safe", "Reckless")
         var selectedLabel by remember { mutableStateOf("All") }
         var sortOption by remember { mutableStateOf("Date") } // "Date" or "Title"
@@ -80,24 +96,21 @@ object MyReviews : Tab {
             floatingActionButton = {},
         ) { paddingValues ->
             Column(modifier = Modifier.padding(paddingValues)) {
-                val reviews = listOf(
-                    Review(
-                        title = "Speeding on highway",
-                        dateTime = "April 29, 2025 2:35 PM",
-                        labels = listOf("Speeding"),
-                        description = "Saw the driver weaving through traffic at high speed with no indicators",
-                        stars = 2,
-                    ),
-                    Review(
-                        title = "Very polite driver",
-                        dateTime = "April 30, 2025 9:12 AM",
-                        labels = listOf("Safe"),
-                        description = "Driver allowed me to merge and maintained safe distance throughout.",
-                        stars = 5,
-                    ),
-                )
+                LaunchedEffect(currentUser?.userId) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val reviewsResult = supabaseClient.from("reviews")
+                            .select {
+                                filter {
+                                    eq("created_by", currentUser!!.userId)
+                                }
+                                order("created_at", Order.DESCENDING)
+                            }
+                            .decodeList<Review>()
+                        reviews.value = reviewsResult
+                    }
+                }
 
-                val filteredReviews = reviews.filter { review ->
+                val filteredReviews = reviews.value.filter { review ->
                     selectedLabel == "All" || review.labels.contains(selectedLabel)
                 }.let {
                     when (sortOption) {
@@ -107,9 +120,9 @@ object MyReviews : Tab {
                             it.sortedByDescending { review -> review.title }
                         }
                         else -> if (sortAsc) {
-                            it.sortedBy { review -> review.dateTime }
+                            it.sortedBy { review -> review.createdAt }
                         } else {
-                            it.sortedByDescending { review -> review.dateTime }
+                            it.sortedByDescending { review -> review.createdAt }
                         }
                     }
                 }
@@ -198,14 +211,6 @@ object MyReviews : Tab {
     }
 }
 
-data class Review(
-    val title: String,
-    val dateTime: String,
-    val labels: List<String>,
-    val description: String,
-    val stars: Int,
-)
-
 @Composable
 fun ReviewCard(review: Review) {
     Card(
@@ -222,7 +227,7 @@ fun ReviewCard(review: Review) {
             Row {
                 repeat(5) { index ->
                     Icon(
-                        imageVector = if (index < review.stars) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                        imageVector = if (index < review.rating.toInt()) Icons.Filled.Star else Icons.Outlined.StarBorder,
                         contentDescription = "Star",
                         modifier = Modifier.size(24.dp),
                         tint = MaterialTheme.colorScheme.primary,
@@ -241,7 +246,7 @@ fun ReviewCard(review: Review) {
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = review.dateTime,
+                text = review.createdAt,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

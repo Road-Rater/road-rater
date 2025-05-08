@@ -31,8 +31,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.R
 import com.roadrater.database.entities.Car
-import com.roadrater.database.entities.Reviews
-import com.roadrater.ui.Review
+import com.roadrater.database.entities.Review
 import com.roadrater.ui.ReviewCard
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -76,7 +75,7 @@ data class CarDetail(val plate: String) : Screen {
                                 }
                                 order("created_at", Order.DESCENDING)
                             }
-                            .decodeList<Reviews>()
+                            .decodeList<Review>()
                         val reviewList = reviewsResult.map { review ->
                             val dateTime = try {
                                 val odt = OffsetDateTime.parse(review.createdAt)
@@ -85,11 +84,13 @@ data class CarDetail(val plate: String) : Screen {
                                 ""
                             }
                             Review(
-                                title = review.title ?: "Review",
-                                dateTime = dateTime,
+                                title = review.title,
+                                createdAt = dateTime,
                                 labels = review.labels ?: emptyList(),
-                                description = review.description ?: "",
-                                stars = review.rating?.toInt() ?: 0,
+                                description = review.description,
+                                rating = review.rating,
+                                createdBy = review.createdBy,
+                                numberPlate = review.numberPlate,
                             )
                         }
                         reviews.value = reviewList
