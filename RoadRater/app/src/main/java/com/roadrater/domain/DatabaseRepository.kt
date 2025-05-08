@@ -6,15 +6,15 @@ import com.roadrater.database.entities.TableUser
 
 interface DatabaseRepository {
 
-    suspend fun getCarByPlate(plate: String): Car?
-    suspend fun insertCar(plate: String)
+    suspend fun getCarByPlate(numberPlate: String): Car?
+    suspend fun insertCar(numberPlate: String)
     suspend fun upsertCar(car: Car)
     suspend fun watchCar(uid: String, numberPlate: String)
     suspend fun unwatchCar(uid: String, numberPlate: String)
 
     suspend fun insertReview(review: Reviews)
-    suspend fun getReviewsByPlate(plate: String): Reviews?
-    suspend fun getReviewsByUser(uid: String): Reviews?
+    suspend fun getReviewsByPlate(numberPlate: String): List<Reviews?>
+    suspend fun getReviewsByUser(uid: String): List<Reviews?>
 
     suspend fun getUser(uid: String): TableUser?
     suspend fun insertUser(user: TableUser)
