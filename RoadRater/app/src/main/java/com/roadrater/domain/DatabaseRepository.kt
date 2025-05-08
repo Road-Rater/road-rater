@@ -1,7 +1,7 @@
 package com.roadrater.domain
 
 import com.roadrater.database.entities.Car
-import com.roadrater.database.entities.Reviews
+import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.TableUser
 
 interface DatabaseRepository {
@@ -12,9 +12,9 @@ interface DatabaseRepository {
     suspend fun watchCar(uid: String, numberPlate: String)
     suspend fun unwatchCar(uid: String, numberPlate: String)
 
-    suspend fun insertReview(review: Reviews)
-    suspend fun getReviewsByPlate(numberPlate: String): List<Reviews?>
-    suspend fun getReviewsByUser(uid: String): List<Reviews?>
+    suspend fun insertReview(review: Review)
+    suspend fun getReviewsByPlate(numberPlate: String): List<Review?>
+    suspend fun getReviewsByUser(uid: String): List<Review?>
 
     suspend fun getUser(uid: String): TableUser?
     suspend fun insertUser(user: TableUser)

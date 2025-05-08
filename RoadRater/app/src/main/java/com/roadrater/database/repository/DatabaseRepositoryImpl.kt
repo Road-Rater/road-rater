@@ -1,7 +1,7 @@
 package com.roadrater.database.repository
 
 import com.roadrater.database.entities.Car
-import com.roadrater.database.entities.Reviews
+import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.TableUser
 import com.roadrater.database.entities.WatchedCar
 import com.roadrater.domain.DatabaseRepository
@@ -54,24 +54,24 @@ class DatabaseRepositoryImpl(
         }
     }
 
-    override suspend fun insertReview(review: Reviews) {
+    override suspend fun insertReview(review: Review) {
         supabaseClient.from("reviews").insert(review)
     }
 
-    override suspend fun getReviewsByPlate(numberPlate: String): List<Reviews?> {
+    override suspend fun getReviewsByPlate(numberPlate: String): List<Review?> {
         return supabaseClient.from("watched_cars").select {
             filter {
                 eq("number_plate", numberPlate)
             }
-        }.decodeList<Reviews>()
+        }.decodeList<Review>()
     }
 
-    override suspend fun getReviewsByUser(uid: String): List<Reviews?> {
+    override suspend fun getReviewsByUser(uid: String): List<Review?> {
         return supabaseClient.from("watched_cars").select {
             filter {
                 eq("created_by", uid)
             }
-        }.decodeList<Reviews>()
+        }.decodeList<Review>()
     }
 
     override suspend fun getUser(uid: String): TableUser? {
