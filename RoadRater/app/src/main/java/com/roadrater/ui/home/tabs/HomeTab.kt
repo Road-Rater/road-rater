@@ -19,9 +19,8 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,7 +31,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.TabOptions
@@ -43,6 +41,10 @@ import com.roadrater.auth.GoogleAuthUiClient
 import com.roadrater.presentation.util.Tab
 import com.roadrater.ui.CarDetail
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 object HomeTab : Tab {
@@ -65,9 +67,29 @@ object HomeTab : Tab {
         val context = LocalContext.current
         val navigator = LocalNavigator.currentOrThrow
         val supabaseClient = koinInject<SupabaseClient>()
-        val screenModel = rememberScreenModel { HomeTabScreenModel(supabaseClient) }
         val currentUser =
             GoogleAuthUiClient(context, Identity.getSignInClient(context)).getSignedInUser()
+
+        var recentSearches by remember { mutableStateOf(listOf<String>()) }
+        var searchResults by remember { mutableStateOf(listOf<String>()) }
+        var text by remember { mutableStateOf("") }
+        var active by remember { mutableStateOf(false) }
+
+        // Fetch recent searches when component mounts
+        LaunchedEffect(Unit) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val cars = supabaseClient.from("cars")
+                        .select {
+                            limit(5)
+                        }
+                        .decodeList<Map<String, String>>()
+                    recentSearches = cars.map { it["number_plate"] ?: "" }
+                } catch (e: Exception) {
+                    println("Error fetching recent searches: ${e.message}")
+                }
+            }
+        }
 
         Scaffold(
             topBar = {
@@ -90,46 +112,38 @@ object HomeTab : Tab {
             floatingActionButton = {},
         ) { paddingValues ->
             Column(modifier = Modifier.padding(paddingValues)) {
-                var expandedItem by remember { mutableStateOf<String?>(null) }
-                var text by remember { mutableStateOf("") }
-                var active by remember { mutableStateOf(false) }
-                var items = remember {
-                    mutableStateListOf(
-                        "QGM3818",
-                        "QCF292",
-                        "MGH662",
-                        "LLQ290",
-                    )
-                }
-                val allSearchItems =
-                    listOf("QGM3818", "QCF292", "MGH662", "LLQ290", "ABC123", "XYZ999")
-                val searchResults = remember(text) {
-                    if (text.isNotBlank()) {
-                        allSearchItems.filter {
-                            it.contains(text, ignoreCase = true)
-                        }
-                    } else {
-                        emptyList()
-                    }
-                }
-
-                val navigator = LocalNavigator.currentOrThrow
-
-//                screenModel.cars.collectAsState()
-
                 Scaffold {
                     SearchBar(
                         modifier = Modifier.fillMaxWidth(),
                         query = text,
-                        onQueryChange = {
-                            text = it
+                        onQueryChange = { newText ->
+                            text = newText
+                            if (newText.isNotBlank()) {
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    try {
+                                        val results = supabaseClient.from("cars")
+                                            .select {
+                                                filter {
+                                                    ilike("number_plate", "%$newText%")
+                                                }
+                                                limit(10)
+                                            }
+                                            .decodeList<Map<String, String>>()
+                                        searchResults = results.map { it["number_plate"] ?: "" }
+                                    } catch (e: Exception) {
+                                        println("Error searching cars: ${e.message}")
+                                    }
+                                }
+                            } else {
+                                searchResults = emptyList()
+                            }
                         },
                         onSearch = {
-                            if (text.isNotBlank() && !items.contains(text)) {
-                                items.add(0, text)
+                            if (text.isNotBlank()) {
+                                navigator.push(CarDetail(text))
+                                active = false
+                                text = ""
                             }
-                            active = false
-                            text = ""
                         },
                         active = active,
                         onActiveChange = {
@@ -141,7 +155,7 @@ object HomeTab : Tab {
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Search,
-                                contentDescription = "Search Icon"
+                                contentDescription = "Search Icon",
                             )
                         },
                         trailingIcon = {
@@ -156,18 +170,16 @@ object HomeTab : Tab {
                                     },
                                     imageVector = Icons.Default.Close,
                                     contentDescription = "Close Icon",
-
-                                    )
+                                )
                             }
                         },
-
-                        ) {
+                    ) {
                         if (text.isBlank()) {
-                            items.forEach {
+                            recentSearches.forEach { plate ->
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable { navigator.push(CarDetail("QCF292")) }
+                                        .clickable { navigator.push(CarDetail(plate)) }
                                         .padding(all = 14.dp),
                                 ) {
                                     Icon(
@@ -175,7 +187,7 @@ object HomeTab : Tab {
                                         imageVector = Icons.Default.History,
                                         contentDescription = "History Icon",
                                     )
-                                    Text(text = it)
+                                    Text(text = plate)
                                 }
                             }
                         } else {
@@ -185,11 +197,11 @@ object HomeTab : Tab {
                                     modifier = Modifier.padding(14.dp),
                                 )
                             } else {
-                                searchResults.forEach {
+                                searchResults.forEach { plate ->
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .clickable { navigator.push(CarDetail("QCF292")) }
+                                            .clickable { navigator.push(CarDetail(plate)) }
                                             .padding(14.dp),
                                     ) {
                                         Icon(
@@ -197,10 +209,9 @@ object HomeTab : Tab {
                                             contentDescription = "Car Icon",
                                             modifier = Modifier.padding(end = 10.dp),
                                         )
-                                        Text(text = it)
+                                        Text(text = plate)
                                     }
                                 }
-//
                             }
                         }
                     }

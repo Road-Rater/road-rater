@@ -1,6 +1,5 @@
 package com.roadrater.ui
 
-import android.app.appsearch.SearchResults
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,49 +8,94 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DirectionsCarFilled
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
-import com.roadrater.R
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.icons.outlined.DirectionsCarFilled
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.ListItem
-import com.roadrater.ui.home.tabs.HomeTab
-import cafe.adriel.voyager.navigator.Navigator
-
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.roadrater.R
+import com.roadrater.database.entities.Car
+import com.roadrater.database.entities.Reviews
+import com.roadrater.ui.Review
+import com.roadrater.ui.ReviewCard
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Order
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
 data class CarDetail(val plate: String) : Screen {
 
     @Composable
     override fun Content() {
-        val makeModel = "Toyota Corolla"
-        val reviews = remember {
-            listOf(
-                "Driver was courteous and followed all rules.",
-                "Overtook dangerously near school zone.",
-                "Very smooth driving and respectful.",
-                "Cut me off on the motorway.",
-            )
-        }
         val navigator = LocalNavigator.currentOrThrow
+        val supabaseClient = koinInject<SupabaseClient>()
+        val car = remember { mutableStateOf<Car?>(null) }
+        val reviews = remember { mutableStateOf<List<Review>>(emptyList()) }
+
+        LaunchedEffect(plate) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    // Fetch car details
+                    val carResult = supabaseClient.from("cars")
+                        .select {
+                            filter {
+                                eq("number_plate", plate)
+                            }
+                        }
+                        .decodeSingleOrNull<Car>()
+                    car.value = carResult
+
+                    // Fetch reviews from 'reviews' table
+                    val reviewsResult = supabaseClient.from("reviews")
+                        .select {
+                            filter {
+                                eq("number_plate", plate)
+                            }
+                            order("created_at", Order.DESCENDING)
+                        }
+                        .decodeList<Reviews>()
+                    val reviewList = reviewsResult.map { review ->
+                        val dateTime = try {
+                            val odt = OffsetDateTime.parse(review.createdAt)
+                            odt.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
+                        } catch (e: Exception) {
+                            ""
+                        }
+                        Review(
+                            title = review.title ?: "Review",
+                            dateTime = dateTime,
+                            labels = review.labels ?: emptyList(),
+                            description = review.description ?: "",
+                            stars = review.rating?.toInt() ?: 0,
+                        )
+                    }
+                    reviews.value = reviewList
+                } catch (e: Exception) {
+                    println("Error fetching car details: ${e.message}")
+                }
+            }
+        }
 
         Scaffold(
             topBar = {
@@ -60,92 +104,67 @@ data class CarDetail(val plate: String) : Screen {
                 )
             },
             floatingActionButton = {
-                fabAdd(onClick =  {
-                    //navigator.push(AddReviews)
-                })
-            },
-            floatingActionButtonPosition = FabPosition.End
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.DirectionsCarFilled,
-                    contentDescription = "Car Icon",
-                    modifier = Modifier
-                        .size(64.dp)
-                        .padding(bottom = 16.dp),
-                )
-
-                Text(
-                    text = plate,
-                    style = MaterialTheme.typography.headlineSmall,
-                )
-
-                Text(
-                    text = makeModel,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 24.dp),
-                )
-
-                Text(
-                    text = "Reviews",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier
-                        .align(Alignment.Start)
-                        .padding(bottom = 8.dp),
-                )
-
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
+                FloatingActionButton(
+                    onClick = {
+                        // TODO: Navigate to add review screen
+                    },
                 ) {
-                    items(reviews) { review ->
-                        Card(
+                    Icon(Icons.Filled.Add, "Add review")
+                }
+            },
+        ) { innerPadding ->
+            if (car.value == null) {
+                Text("Loading car details...", modifier = Modifier.padding(16.dp))
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.DirectionsCarFilled,
+                        contentDescription = "Car Icon",
+                        modifier = Modifier
+                            .size(64.dp)
+                            .padding(bottom = 16.dp),
+                    )
+
+                    Text(
+                        text = plate,
+                        style = MaterialTheme.typography.headlineSmall,
+                    )
+
+                    Text(
+                        text = "${car.value?.make ?: ""} ${car.value?.model ?: ""}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(top = 4.dp, bottom = 24.dp),
+                    )
+
+                    Text(
+                        text = "Reviews",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier
+                            .align(Alignment.Start)
+                            .padding(bottom = 8.dp),
+                    )
+
+                    if (reviews.value.isEmpty()) {
+                        Text("No reviews yet.", modifier = Modifier.padding(16.dp))
+                    } else {
+                        LazyColumn(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp),
+                                .weight(1f)
+                                .fillMaxWidth(),
                         ) {
-                            Text(
-                                text = review,
-                                modifier = Modifier.padding(16.dp),
-                                fontSize = 14.sp,
-                            )
+                            items(reviews.value) { review ->
+                                ReviewCard(review)
+                            }
                         }
                     }
                 }
-
-//                Button(
-//                    onClick = {
-//                        // navigator.push(WriteReview(plate)) - To add when its done
-//                    },
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(top = 16.dp),
-//                ) {
-//                    Text(stringResource(id = R.string.review_btn))
-//                } // search bar on home screen, reviews
-
-            }
-
             }
         }
-    @Composable
-    fun fabAdd(onClick: () -> Unit,modifier: Modifier = Modifier) {
-            FloatingActionButton(
-                onClick = { onClick() },
-                modifier = modifier
-            ) {
-                Icon(Icons.Filled.Add, "Add review.")
-            }
-        }
-
-
     }
-
-
+}
