@@ -19,10 +19,10 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -70,26 +70,11 @@ object HomeTab : Tab {
         val currentUser =
             GoogleAuthUiClient(context, Identity.getSignInClient(context)).getSignedInUser()
 
-        var recentSearches by remember { mutableStateOf(listOf<String>()) }
+        var searchHistory by rememberSaveable { mutableStateOf(listOf<String>()) }
         var searchResults by remember { mutableStateOf(listOf<String>()) }
         var text by remember { mutableStateOf("") }
         var active by remember { mutableStateOf(false) }
-
-        // Fetch recent searches when component mounts
-        LaunchedEffect(Unit) {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val cars = supabaseClient.from("cars")
-                        .select {
-                            limit(5)
-                        }
-                        .decodeList<Map<String, String>>()
-                    recentSearches = cars.map { it["number_plate"] ?: "" }
-                } catch (e: Exception) {
-                    println("Error fetching recent searches: ${e.message}")
-                }
-            }
-        }
+        var noResults by remember { mutableStateOf(false) }
 
         Scaffold(
             topBar = {
@@ -118,6 +103,7 @@ object HomeTab : Tab {
                         query = text,
                         onQueryChange = { newText ->
                             text = newText
+                            noResults = false
                             if (newText.isNotBlank()) {
                                 CoroutineScope(Dispatchers.IO).launch {
                                     try {
@@ -129,7 +115,7 @@ object HomeTab : Tab {
                                                 limit(10)
                                             }
                                             .decodeList<Map<String, String>>()
-                                        searchResults = results.map { it["number_plate"] ?: "" }
+                                        searchResults = results.map { it["number_plate"]?.uppercase() ?: "" }
                                     } catch (e: Exception) {
                                         println("Error searching cars: ${e.message}")
                                     }
@@ -140,9 +126,31 @@ object HomeTab : Tab {
                         },
                         onSearch = {
                             if (text.isNotBlank()) {
-                                navigator.push(CarDetail(text))
-                                active = false
-                                text = ""
+                                val upperText = text.uppercase()
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    try {
+                                        val carExists = supabaseClient.from("cars")
+                                            .select {
+                                                filter {
+                                                    ilike("number_plate", upperText)
+                                                }
+                                                limit(1)
+                                            }
+                                            .decodeList<Map<String, String>>()
+                                            .isNotEmpty()
+                                        if (carExists) {
+                                            searchHistory = listOf(upperText) + searchHistory.filter { it != upperText }
+                                            navigator.push(CarDetail(upperText))
+                                            active = false
+                                            text = ""
+                                            noResults = false
+                                        } else {
+                                            noResults = true
+                                        }
+                                    } catch (e: Exception) {
+                                        println("Error searching for car: ${e.message}")
+                                    }
+                                }
                             }
                         },
                         active = active,
@@ -175,23 +183,32 @@ object HomeTab : Tab {
                         },
                     ) {
                         if (text.isBlank()) {
-                            recentSearches.forEach { plate ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { navigator.push(CarDetail(plate)) }
-                                        .padding(all = 14.dp),
-                                ) {
-                                    Icon(
-                                        modifier = Modifier.padding(end = 10.dp),
-                                        imageVector = Icons.Default.History,
-                                        contentDescription = "History Icon",
-                                    )
-                                    Text(text = plate)
+                            if (searchHistory.isEmpty()) {
+                                Text("No search history yet", modifier = Modifier.padding(14.dp))
+                            } else {
+                                searchHistory.forEach { plate ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                searchHistory = listOf(plate) + searchHistory.filter { it != plate }
+                                                navigator.push(CarDetail(plate))
+                                                text = ""
+                                                active = false
+                                            }
+                                            .padding(all = 14.dp),
+                                    ) {
+                                        Icon(
+                                            modifier = Modifier.padding(end = 10.dp),
+                                            imageVector = Icons.Default.History,
+                                            contentDescription = "History Icon",
+                                        )
+                                        Text(text = plate)
+                                    }
                                 }
                             }
                         } else {
-                            if (searchResults.isEmpty()) {
+                            if (noResults || searchResults.isEmpty()) {
                                 Text(
                                     text = "No results found",
                                     modifier = Modifier.padding(14.dp),
@@ -201,7 +218,12 @@ object HomeTab : Tab {
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .clickable { navigator.push(CarDetail(plate)) }
+                                            .clickable {
+                                                searchHistory = listOf(plate) + searchHistory.filter { it != plate }
+                                                navigator.push(CarDetail(plate))
+                                                text = ""
+                                                active = false
+                                            }
                                             .padding(14.dp),
                                     ) {
                                         Icon(

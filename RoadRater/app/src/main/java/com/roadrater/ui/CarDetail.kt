@@ -52,45 +52,50 @@ data class CarDetail(val plate: String) : Screen {
         val supabaseClient = koinInject<SupabaseClient>()
         val car = remember { mutableStateOf<Car?>(null) }
         val reviews = remember { mutableStateOf<List<Review>>(emptyList()) }
+        var searchHistory by remember { mutableStateOf(listOf<String>()) }
 
         LaunchedEffect(plate) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    // Fetch car details
+                    // Fetch car details (case-insensitive)
                     val carResult = supabaseClient.from("cars")
                         .select {
                             filter {
-                                eq("number_plate", plate)
+                                ilike("number_plate", plate)
                             }
                         }
                         .decodeSingleOrNull<Car>()
                     car.value = carResult
 
-                    // Fetch reviews from 'reviews' table
-                    val reviewsResult = supabaseClient.from("reviews")
-                        .select {
-                            filter {
-                                eq("number_plate", plate)
+                    if (carResult != null) {
+                        // Fetch reviews from 'reviews' table (case-insensitive)
+                        val reviewsResult = supabaseClient.from("reviews")
+                            .select {
+                                filter {
+                                    ilike("number_plate", plate)
+                                }
+                                order("created_at", Order.DESCENDING)
                             }
-                            order("created_at", Order.DESCENDING)
+                            .decodeList<Reviews>()
+                        val reviewList = reviewsResult.map { review ->
+                            val dateTime = try {
+                                val odt = OffsetDateTime.parse(review.createdAt)
+                                odt.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
+                            } catch (e: Exception) {
+                                ""
+                            }
+                            Review(
+                                title = review.title ?: "Review",
+                                dateTime = dateTime,
+                                labels = review.labels ?: emptyList(),
+                                description = review.description ?: "",
+                                stars = review.rating?.toInt() ?: 0,
+                            )
                         }
-                        .decodeList<Reviews>()
-                    val reviewList = reviewsResult.map { review ->
-                        val dateTime = try {
-                            val odt = OffsetDateTime.parse(review.createdAt)
-                            odt.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
-                        } catch (e: Exception) {
-                            ""
-                        }
-                        Review(
-                            title = review.title ?: "Review",
-                            dateTime = dateTime,
-                            labels = review.labels ?: emptyList(),
-                            description = review.description ?: "",
-                            stars = review.rating?.toInt() ?: 0,
-                        )
+                        reviews.value = reviewList
+                    } else {
+                        reviews.value = emptyList()
                     }
-                    reviews.value = reviewList
                 } catch (e: Exception) {
                     println("Error fetching car details: ${e.message}")
                 }
@@ -114,7 +119,7 @@ data class CarDetail(val plate: String) : Screen {
             },
         ) { innerPadding ->
             if (car.value == null) {
-                Text("Loading car details...", modifier = Modifier.padding(16.dp))
+                Text("Car not found.", modifier = Modifier.padding(16.dp))
             } else {
                 Column(
                     modifier = Modifier
@@ -132,7 +137,7 @@ data class CarDetail(val plate: String) : Screen {
                     )
 
                     Text(
-                        text = plate,
+                        text = plate.uppercase(),
                         style = MaterialTheme.typography.headlineSmall,
                     )
 
