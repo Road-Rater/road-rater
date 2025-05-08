@@ -46,6 +46,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import com.roadrater.utils.GetCarInfo
 
 object HomeTab : Tab {
     private fun readResolve(): Any = HomeTab
@@ -145,7 +146,19 @@ object HomeTab : Tab {
                                             text = ""
                                             noResults = false
                                         } else {
-                                            noResults = true
+                                            // Try webscraping for car info
+                                            val scrapedCar = try { GetCarInfo.getCarInfo(upperText) } catch (e: Exception) { null }
+                                            if (scrapedCar != null && scrapedCar.number_plate.isNotBlank()) {
+                                                // Insert into Supabase
+                                                supabaseClient.from("cars").insert(scrapedCar)
+                                                searchHistory = listOf(upperText) + searchHistory.filter { it != upperText }
+                                                navigator.push(CarDetail(upperText))
+                                                active = false
+                                                text = ""
+                                                noResults = false
+                                            } else {
+                                                noResults = true
+                                            }
                                         }
                                     } catch (e: Exception) {
                                         println("Error searching for car: ${e.message}")

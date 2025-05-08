@@ -144,7 +144,13 @@ data class CarDetail(val plate: String) : Screen {
                     Text(
                         text = "${car.value?.make ?: ""} ${car.value?.model ?: ""}",
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(top = 4.dp, bottom = 24.dp),
+                        modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
+                    )
+
+                    Text(
+                        text = car.value?.year ?: "",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(bottom = 20.dp),
                     )
 
                     Text(
