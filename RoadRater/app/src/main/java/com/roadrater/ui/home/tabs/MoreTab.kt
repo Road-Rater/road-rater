@@ -28,6 +28,7 @@ import com.roadrater.presentation.util.Tab
 import com.roadrater.ui.MyReviews
 import com.roadrater.ui.WatchedCarsScreen
 import com.roadrater.ui.preferences.PreferencesScreen
+import com.roadrater.ui.preferences.options.AboutPreferencesScreen
 
 object MoreTab : Tab {
     private fun readResolve(): Any = HomeTab
@@ -103,7 +104,7 @@ object MoreTab : Tab {
                     TextPreferenceWidget(
                         title = stringResource(R.string.about),
                         icon = Icons.Outlined.Info,
-                        onPreferenceClick = { },
+                        onPreferenceClick = { navigator.push(AboutPreferencesScreen) },
                     )
                 }
                 item {

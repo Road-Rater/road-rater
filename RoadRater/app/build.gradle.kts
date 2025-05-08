@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.room)
     alias(libs.plugins.spotless.gradle)
+    alias(libs.plugins.aboutLibraries)
 }
 
 pluginManager.apply {
@@ -155,7 +156,7 @@ dependencies {
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.utils)
-    implementation(libs.supabase.kt)
+    implementation(libs.aboutLibraries.compose)
 }
 
 spotless {

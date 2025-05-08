@@ -48,6 +48,7 @@ import com.roadrater.ui.theme.AppTheme
 import com.roadrater.ui.theme.spacing
 import com.roadrater.utils.DeviceUtil
 import com.roadrater.utils.isDynamicColorAvailable
+import com.roadrater.utils.secondaryItemAlpha
 
 @Composable
 internal fun AppThemePreferenceWidget(
@@ -108,8 +109,8 @@ private fun AppThemesList(
                 Text(
                     text = stringResource(appTheme.titleRes),
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    // .secondaryItemAlpha(),
+                        .fillMaxWidth()
+                        .secondaryItemAlpha(),
                     textAlign = TextAlign.Center,
                     maxLines = 2,
                     minLines = 2,

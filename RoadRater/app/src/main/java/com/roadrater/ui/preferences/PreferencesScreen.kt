@@ -22,6 +22,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.R
 import com.roadrater.presentation.Screen
+import com.roadrater.ui.preferences.options.AboutPreferencesScreen
 import com.roadrater.ui.preferences.options.AppearancePreferencesScreen
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import me.zhanghai.compose.preference.preference
@@ -75,9 +76,9 @@ object PreferencesScreen : Screen() {
                     preference(
                         key = "about",
                         title = { Text(text = stringResource(R.string.pref_about_title)) },
-                        // summary = { Text(text = AboutPreferencesScreen.getVersionName(false)) },
+                        summary = { Text(text = AboutPreferencesScreen.getVersionName(withBuildDate = false)) },
                         icon = { Icon(Icons.Outlined.Info, null) },
-                        // onClick = { navigator.push(AboutPreferencesScreen) },
+                        onClick = { navigator.push(AboutPreferencesScreen) },
                     )
                 }
             }

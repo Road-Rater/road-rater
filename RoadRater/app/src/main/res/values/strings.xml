@@ -74,6 +74,12 @@
     <string name="pref_appearance_summary">Theme, tabs</string>
     <string name="pref_appearance_category_theme">Theme</string>
 
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="clipboard_copy_error">Failed to copy to clipboard</string>
+    <string name="check_for_updates">Check for updates</string>
+    <string name="licenses">Open source licenses</string>
+    <string name="version">Version</string>
+
     <string name="label_default">Default</string>
     <string name="theme_monet">Dynamic</string>
     <string name="theme_greenapple">Green Apple</string>
