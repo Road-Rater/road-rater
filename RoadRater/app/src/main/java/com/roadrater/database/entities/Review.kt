@@ -11,6 +11,6 @@ data class Review(
     @SerialName("rating") val rating: Integer,
     val description: String = "No description",
     val title: String = "No Title",
-    val labels: List<String> = emptyList(),
+    val labels: List<String>? = null,
     @SerialName("number_plate") val numberPlate: String,
 )

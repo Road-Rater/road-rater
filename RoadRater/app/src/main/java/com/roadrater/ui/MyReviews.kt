@@ -111,7 +111,7 @@ object MyReviews : Tab {
                 }
 
                 val filteredReviews = reviews.value.filter { review ->
-                    selectedLabel == "All" || review.labels.contains(selectedLabel)
+                    selectedLabel == "All" || (review.labels ?: emptyList()).contains(selectedLabel)
                 }.let {
                     when (sortOption) {
                         "Title" -> if (sortAsc) {
@@ -257,8 +257,8 @@ fun ReviewCard(review: Review) {
                 modifier = Modifier
                     .horizontalScroll(rememberScrollState()),
             ) {
-                review.labels.forEach { label ->
-                    Text(
+                (review.labels ?: emptyList()).forEach { label ->
+                Text(
                         text = label,
                         color = MaterialTheme.colorScheme.onPrimary,
                         style = MaterialTheme.typography.labelSmall,

@@ -58,9 +58,11 @@ object WatchedCarsScreen : Screen() {
         var numberPlate by remember { mutableStateOf("") }
         var selectedNumberPlate by remember { mutableStateOf("") }
 
+        //UI
         Scaffold(
             topBar = {
                 TopAppBar(
+                    //TITLE
                     title = { Text(text = stringResource(R.string.watched_cars)) },
                     navigationIcon = {
                         IconButton(onClick = { navigator.pop() }) {
@@ -70,6 +72,8 @@ object WatchedCarsScreen : Screen() {
                 )
             },
         ) { paddingValues ->
+
+
             ProvidePreferenceLocals {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -79,6 +83,8 @@ object WatchedCarsScreen : Screen() {
                         .padding(paddingValues)
                         .padding(vertical = 2.dp, horizontal = 8.dp),
                 ) {
+
+                    //TEXT FIELD FOR NUMBERPLATE INPUT
                     OutlinedTextField(
                         value = numberPlate,
                         onValueChange = { numberPlate = it },
@@ -87,6 +93,7 @@ object WatchedCarsScreen : Screen() {
                         singleLine = true,
                     )
 
+                    //ADD CAR TO WATCHLIST BUTTON
                     Button(
                         onClick = {
                             screenModel.watchCar(numberPlate)
@@ -102,54 +109,14 @@ object WatchedCarsScreen : Screen() {
                             CarWatchingCard(
                                 car = car,
                                 onClick = {
-                                    selectedNumberPlate = car.number_plate
-                                    showDialog = true
+                                    navigator.push(CarDetail(car.number_plate))
                                 },
                             )
+
                         }
                     }
                 }
             }
         }
-
-        if (showDialog) {
-            RemoveCarDialog(
-                onDismissRequest = { showDialog = false },
-                onConfirm = {
-                    screenModel.unwatchCar(selectedNumberPlate)
-                },
-                numberPlate = selectedNumberPlate,
-            )
-        }
-    }
-
-    @Composable
-    fun RemoveCarDialog(
-        onDismissRequest: () -> Unit,
-        onConfirm: () -> Unit,
-        numberPlate: String,
-    ) {
-        AlertDialog(
-            onDismissRequest = onDismissRequest,
-            title = {
-                Text(text = stringResource(R.string.remove_car_dialog_title))
-            },
-            text = {
-                Text(text = stringResource(R.string.remove_car_dialog_body, numberPlate))
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    onConfirm()
-                    onDismissRequest()
-                }) {
-                    Text(text = stringResource(R.string.confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismissRequest) {
-                    Text(text = stringResource(R.string.cancel))
-                }
-            },
-        )
     }
 }
