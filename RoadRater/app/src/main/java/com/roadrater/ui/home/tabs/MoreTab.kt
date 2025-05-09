@@ -117,7 +117,7 @@ object MoreTab : Tab {
                 }
                 item {
                     TextPreferenceWidget(
-                        title = stringResource(R.string.help),
+                        title = stringResource(R.string.logout),
                         icon = Icons.AutoMirrored.Outlined.Logout,
                         onPreferenceClick = {
                             CoroutineScope(Dispatchers.IO).launch {
