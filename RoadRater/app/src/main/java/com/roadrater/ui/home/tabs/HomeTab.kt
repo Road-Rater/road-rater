@@ -1,7 +1,6 @@
 package com.roadrater.ui.home.tabs
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,21 +11,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.DirectionsCarFilled
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,23 +35,20 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.getValue
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import coil3.compose.AsyncImage
-import com.google.android.gms.auth.api.identity.Identity
 import com.roadrater.R
 import com.roadrater.database.entities.TableUser
 import com.roadrater.database.entities.WatchedCar
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.ReviewCard
 import com.roadrater.presentation.util.Tab
-import io.github.jan.supabase.SupabaseClient
-import org.koin.compose.koinInject
 import com.roadrater.ui.CarDetailScreen
 import com.roadrater.utils.GetCarInfo
+import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -84,10 +77,12 @@ object HomeTab : Tab {
         val supabaseClient = koinInject<SupabaseClient>()
         val generalPreferences = koinInject<GeneralPreferences>()
         val currentUser = generalPreferences.user.get()
-        val screenModel = rememberScreenModel { HomeTabScreenModel(
-            supabaseClient = supabaseClient,
-            currentUser!!.uid
-        ) }
+        val screenModel = rememberScreenModel {
+            HomeTabScreenModel(
+                supabaseClient = supabaseClient,
+                currentUser!!.uid,
+            )
+        }
         var searchHistory by rememberSaveable { mutableStateOf(listOf<String>()) }
         var searchResults by remember { mutableStateOf(listOf<String>()) }
         var text by remember { mutableStateOf("") }
@@ -295,7 +290,7 @@ object HomeTab : Tab {
                         }
                     }
                     LazyColumn(modifier = Modifier.padding(paddingValues)) {
-                        items (reviews) {
+                        items(reviews) {
                             ReviewCard(it)
                         }
                     }

@@ -7,27 +7,21 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.NavigatorDisposeBehavior
 import cafe.adriel.voyager.transitions.SlideTransition
 import com.roadrater.auth.Auth
 import com.roadrater.auth.WelcomeScreen
-import com.roadrater.preferences.AppearancePreferences
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.preferences.preference.collectAsState
 import com.roadrater.presentation.components.preferences.TachiyomiTheme
 import com.roadrater.ui.home.HomeScreen
-import com.roadrater.ui.theme.DarkMode
-import com.roadrater.ui.theme.RoadRaterTheme
 import com.roadrater.utils.FirebaseConfig
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.java.KoinJavaComponent.inject
 
@@ -45,7 +39,6 @@ class MainActivity : ComponentActivity() {
         FirebaseConfig.setCrashlyticsEnabled(true)
 
         setContent {
-            val dark by appearancePreferences.themeMode.collectAsState()
             val isSystemInDarkTheme = isSystemInDarkTheme()
             val onboardingComplete = generalPreferences.onboardingComplete.get()
             val signedInUser = generalPreferences.user.get()

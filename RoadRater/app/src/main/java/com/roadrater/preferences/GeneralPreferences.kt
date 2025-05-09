@@ -12,6 +12,6 @@ class GeneralPreferences(preferenceStore: PreferenceStore) {
         key = "user_data",
         defaultValue = null,
         serializer = { Json.encodeToString(it) },
-        deserializer = { Json.decodeFromString(it) }
+        deserializer = { Json.decodeFromString(it) },
     )
 }

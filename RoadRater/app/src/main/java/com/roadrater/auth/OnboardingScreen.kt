@@ -1,9 +1,6 @@
 package com.roadrater.auth
 
-import android.content.Intent
 import androidx.activity.compose.BackHandler
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.IntentSenderRequest
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -22,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import com.roadrater.R
-import com.roadrater.auth.steps.LoginStep
 import com.roadrater.auth.steps.NicknameStep
 import com.roadrater.auth.steps.RegisterCarsStep
 import com.roadrater.preferences.GeneralPreferences
