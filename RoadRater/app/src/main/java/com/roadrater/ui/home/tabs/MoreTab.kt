@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.Label
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.QueryStats
@@ -27,6 +27,7 @@ import com.roadrater.presentation.util.ScrollbarLazyColumn
 import com.roadrater.presentation.util.Tab
 import com.roadrater.ui.MyReviews
 import com.roadrater.ui.WatchedCarsScreen
+import com.roadrater.ui.NewReviewScreen.NewReviewScreen
 
 object MoreTab : Tab {
     private fun readResolve(): Any = HomeTab
@@ -67,6 +68,7 @@ object MoreTab : Tab {
 
                 item { HorizontalDivider() }
 
+                //WATCHED CARS
                 item {
                     TextPreferenceWidget(
                         title = "Watched Cars",
@@ -74,6 +76,7 @@ object MoreTab : Tab {
                         onPreferenceClick = { navigator.push(WatchedCarsScreen) },
                     )
                 }
+                //STATS
                 item {
                     TextPreferenceWidget(
                         title = "Stats",
@@ -81,6 +84,18 @@ object MoreTab : Tab {
                         onPreferenceClick = { },
                     )
                 }
+                //LEAVE A REVIEW
+                item {
+                    TextPreferenceWidget(
+                        title = "Review a driver",
+                        icon = Icons.Outlined.Add,
+                        onPreferenceClick = {
+                            navigator.push(NewReviewScreen(numberPlate = "TEST123", userId = "test-user-id"))
+                        },
+
+                    )
+                }
+                //MY REVIEWS
                 item {
                     TextPreferenceWidget(
                         title = "My Reviews",
@@ -91,6 +106,7 @@ object MoreTab : Tab {
 
                 item { HorizontalDivider() }
 
+                //SETTINGS
                 item {
                     TextPreferenceWidget(
                         title = "Settings",
@@ -98,6 +114,7 @@ object MoreTab : Tab {
                         onPreferenceClick = { },
                     )
                 }
+                //ABOUT
                 item {
                     TextPreferenceWidget(
                         title = "About",
@@ -105,6 +122,7 @@ object MoreTab : Tab {
                         onPreferenceClick = { },
                     )
                 }
+                //HELP
                 item {
                     TextPreferenceWidget(
                         title = "Help",

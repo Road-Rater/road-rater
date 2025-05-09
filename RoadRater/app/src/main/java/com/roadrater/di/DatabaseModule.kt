@@ -6,6 +6,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.roadrater.database.Migrations
 import com.roadrater.database.RRDatabase
 import com.roadrater.database.repository.CarRepositoryImpl
+import com.roadrater.database.repository.RatingRepository
 import com.roadrater.domain.CarRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
@@ -25,5 +26,12 @@ val DatabaseModule = module {
             .build()
     }
 
+    // 💥 This was missing
+    single { get<RRDatabase>().ratingDao() }
+
+    // Repository that depends on RatingDao
+    single { RatingRepository(get()) }
+
     singleOf(::CarRepositoryImpl).bind(CarRepository::class)
 }
+
