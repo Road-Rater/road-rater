@@ -26,12 +26,8 @@ val DatabaseModule = module {
             .build()
     }
 
-    // 💥 This was missing
     single { get<RRDatabase>().ratingDao() }
-
-    // Repository that depends on RatingDao
     single { RatingRepository(get()) }
 
     singleOf(::CarRepositoryImpl).bind(CarRepository::class)
 }
-

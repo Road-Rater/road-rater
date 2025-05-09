@@ -12,4 +12,3 @@ class RatingRepository(private val ratingDao: RatingDao) {
         return ratingDao.getRatingsForCar(numberPlate)
     }
 }
-
