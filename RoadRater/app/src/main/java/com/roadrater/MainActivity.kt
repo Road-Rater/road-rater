@@ -2,11 +2,8 @@ package com.roadrater
 
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -15,23 +12,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.NavigatorDisposeBehavior
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.SlideTransition
-import com.google.android.gms.auth.api.identity.Identity
-import com.roadrater.auth.GoogleAuthUiClient
-import com.roadrater.auth.SignInViewModel
 import com.roadrater.auth.WelcomeScreen
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.preferences.preference.collectAsState
 import com.roadrater.presentation.components.preferences.TachiyomiTheme
 import com.roadrater.ui.home.HomeScreen
 import com.roadrater.utils.FirebaseConfig
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 class MainActivity : BaseActivity() {
