@@ -8,7 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -18,7 +17,6 @@ import cafe.adriel.voyager.transitions.SlideTransition
 import com.roadrater.auth.Auth
 import com.roadrater.auth.WelcomeScreen
 import com.roadrater.preferences.GeneralPreferences
-import com.roadrater.preferences.preference.collectAsState
 import com.roadrater.presentation.components.preferences.TachiyomiTheme
 import com.roadrater.ui.home.HomeScreen
 import com.roadrater.utils.FirebaseConfig
