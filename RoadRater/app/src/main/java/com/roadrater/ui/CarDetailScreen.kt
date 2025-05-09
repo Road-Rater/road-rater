@@ -10,11 +10,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.DirectionsCarFilled
+import androidx.compose.material.icons.outlined.Remove
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +36,7 @@ import com.roadrater.database.entities.Car
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.TableUser
 import com.roadrater.database.entities.WatchedCar
+import com.roadrater.ui.newReviewScreen.NewReviewScreen
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Order
@@ -41,6 +46,10 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
+
 
 class CarDetailScreen(val plate: String) : Screen {
 
@@ -51,6 +60,8 @@ class CarDetailScreen(val plate: String) : Screen {
         val car = remember { mutableStateOf<Car?>(null) }
         val reviews = remember { mutableStateOf<List<Review>>(emptyList()) }
         val watchedUsers = remember { mutableStateOf<List<TableUser>>(emptyList()) }
+        var showDialog by remember { mutableStateOf(false) }
+        val userId = "testId" // Replace with actual userId if needed
 
         LaunchedEffect(plate) {
             CoroutineScope(Dispatchers.IO).launch {
@@ -127,7 +138,7 @@ class CarDetailScreen(val plate: String) : Screen {
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        // TODO: Navigate to add review screen
+                        navigator.push(NewReviewScreen(numberPlate = plate))
                     },
                 ) {
                     Icon(Icons.Filled.Add, "Add review")
@@ -169,6 +180,19 @@ class CarDetailScreen(val plate: String) : Screen {
                         modifier = Modifier.padding(bottom = 20.dp),
                     )
 
+                    // REMOVE CAR BUTTON
+                    Button(
+                        onClick = { showDialog = true },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
+                    ) {
+                        Icon(imageVector = Icons.Outlined.Remove, contentDescription = "Remove")
+                        Text("Remove from Watchlist", modifier = Modifier.padding(start = 8.dp))
+                    }
+
+
+
                     Text(
                         text = "Reviews",
                         style = MaterialTheme.typography.titleMedium,
@@ -193,5 +217,41 @@ class CarDetailScreen(val plate: String) : Screen {
                 }
             }
         }
+
+        // REMOVE CAR DIALOG
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = {
+                    Text("Remove Car from Watchlist?")
+                },
+                text = {
+                    Text("Are you sure you want to remove $plate from your watchlist?")
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            supabaseClient.from("watched_cars")
+                                .delete {
+                                    filter {
+                                        eq("number_plate", plate)
+                                        // Optionally: eq("user_id", userId)
+                                    }
+                                }
+                        }
+                        showDialog = false
+                        navigator.pop()
+                    }) {
+                        Text("Confirm")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
     }
 }
