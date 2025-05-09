@@ -37,12 +37,6 @@ import org.koin.android.ext.android.inject
 class MainActivity : BaseActivity() {
     private val generalPreferences by inject<GeneralPreferences>()
 
-    private val googleAuthUiClient by lazy {
-        GoogleAuthUiClient(
-            context = applicationContext,
-            oneTapClient = Identity.getSignInClient(applicationContext),
-        )
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -71,7 +65,7 @@ class MainActivity : BaseActivity() {
                     disposeBehavior = NavigatorDisposeBehavior(disposeNestedNavigators = false, disposeSteps = true),
                 ) {
                     SlideTransition(navigator = it)
-                    // ShowOnboarding()
+                    ShowOnboarding()
                 }
             }
         }
@@ -81,38 +75,10 @@ class MainActivity : BaseActivity() {
     private fun ShowOnboarding() {
         val navigator = LocalNavigator.currentOrThrow
 
-        val viewModel = viewModel<SignInViewModel>()
-
-        val launcher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartIntentSenderForResult(),
-            onResult = { result ->
-                if (result.resultCode == RESULT_OK) {
-                    lifecycleScope.launch {
-                        val signInResult = googleAuthUiClient.signInWithIntent(
-                            intent = result.data ?: return@launch,
-                        )
-                        viewModel.onSignInResult(signInResult)
-                    }
-                }
-            },
-        )
-
         LaunchedEffect(Unit) {
             if (!generalPreferences.onboardingComplete.get() && navigator.lastItem !is WelcomeScreen) {
                 navigator.push(
-                    WelcomeScreen(
-                        viewModel = viewModel,
-                        onSignInClick = {
-                            lifecycleScope.launch {
-                                val signInIntentSender = googleAuthUiClient.signIn()
-                                launcher.launch(
-                                    IntentSenderRequest.Builder(
-                                        signInIntentSender ?: return@launch,
-                                    ).build(),
-                                )
-                            }
-                        },
-                    ),
+                    WelcomeScreen(),
                 )
             }
         }
