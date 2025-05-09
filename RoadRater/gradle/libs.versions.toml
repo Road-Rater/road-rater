@@ -1,5 +1,6 @@
 [versions]
 agp = "8.9.2"
+googleid = "1.1.0"
 supabase_bom = "3.1.4"
 kotlin = "2.1.20"
 coreKtx = "1.16.0"
@@ -33,6 +34,7 @@ gms = "21.3.0"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 
+googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 supabase-bom = { module = "io.github.jan-tennert.supabase:bom", version.ref = "supabase_bom" }
 supabase-kt = { module = "io.github.jan-tennert.supabase:supabase-kt", version.ref = "supabase_bom" }
 postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt", version.ref = "supabase_bom" }

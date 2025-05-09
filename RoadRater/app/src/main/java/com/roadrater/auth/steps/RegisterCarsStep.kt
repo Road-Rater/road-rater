@@ -1,4 +1,4 @@
-package com.roadrater.auth
+package com.roadrater.auth.steps
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,10 +22,11 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.google.android.gms.auth.api.identity.Identity
 import com.roadrater.R
+import com.roadrater.auth.OnboardingStep
 import com.roadrater.database.entities.Car
 import com.roadrater.database.entities.WatchedCar
+import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.CarWatchingCard
 import com.roadrater.ui.theme.spacing
 import com.roadrater.utils.GetCarInfo
@@ -35,6 +36,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import kotlin.collections.plus
 
 internal class RegisterCarsStep : OnboardingStep {
 
@@ -52,16 +54,17 @@ internal class RegisterCarsStep : OnboardingStep {
         var cars by remember { mutableStateOf(listOf<Car>()) }
         val focusRequester = remember { FocusRequester() }
         val supabaseClient = koinInject<SupabaseClient>()
-        val currentUser = GoogleAuthUiClient(context, Identity.getSignInClient(context)).getSignedInUser()
+        val generalPreferences = koinInject<GeneralPreferences>()
+        val currentUser = generalPreferences.user.get()
 
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.Companion.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         ) {
             Text(stringResource(R.string.watchlist_cars_title))
 
             OutlinedTextField(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
                 value = car,
@@ -69,17 +72,17 @@ internal class RegisterCarsStep : OnboardingStep {
                 label = {
                     Text(stringResource(R.string.number_plate))
                 },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Companion.Text),
                 singleLine = true,
             )
 
             Button(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.Companion.fillMaxWidth(),
                 onClick = {
                     if (car.isNotBlank()) {
-                        if (currentUser?.userId == null) return@Button
+                        if (currentUser?.uid == null) return@Button
                         CoroutineScope(Dispatchers.IO).launch {
-                            val watchedCar = watchCar(currentUser.userId, car, supabaseClient)
+                            val watchedCar = watchCar(currentUser.uid, car, supabaseClient)
                             if (watchedCar != null) {
                                 cars = cars + watchedCar
                                 car = ""
@@ -96,7 +99,7 @@ internal class RegisterCarsStep : OnboardingStep {
                 Text(
                     text = stringResource(R.string.watchlist_title),
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(top = 16.dp),
+                    modifier = Modifier.Companion.padding(top = 16.dp),
                 )
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

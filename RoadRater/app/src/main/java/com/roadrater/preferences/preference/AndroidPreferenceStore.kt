@@ -60,6 +60,22 @@ class AndroidPreferenceStore(
         )
     }
 
+    override fun <T> getNullableObject(
+        key: String,
+        defaultValue: T?,
+        serializer: (T?) -> String,
+        deserializer: (String) -> T?
+    ): Preference<T?> {
+        return Object(
+            preferences = sharedPreferences,
+            keyFlow = keyFlow,
+            key = key,
+            defaultValue = defaultValue,
+            serializer = serializer,
+            deserializer = deserializer,
+        )
+    }
+
     override fun getAll(): Map<String, *> {
         return sharedPreferences.all ?: emptyMap<String, Any>()
     }

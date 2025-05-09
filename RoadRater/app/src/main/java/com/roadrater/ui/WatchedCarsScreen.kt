@@ -31,13 +31,13 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.google.android.gms.auth.api.identity.Identity
 import com.roadrater.R
-import com.roadrater.auth.GoogleAuthUiClient
+import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.Screen
 import com.roadrater.presentation.components.CarWatchingCard
 import io.github.jan.supabase.SupabaseClient
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
+import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 
 object WatchedCarsScreen : Screen() {
@@ -48,9 +48,10 @@ object WatchedCarsScreen : Screen() {
         val context = LocalContext.current
         val navigator = LocalNavigator.currentOrThrow
         val supabaseClient = koinInject<SupabaseClient>()
-        val currentUser = GoogleAuthUiClient(context, Identity.getSignInClient(context)).getSignedInUser()
+        val generalPreferences = getKoin().get<GeneralPreferences>()
+        val currentUser = generalPreferences.user.get()
 
-        val screenModel = rememberScreenModel { WatchedCarsScreenModel(supabaseClient, currentUser!!.userId) }
+        val screenModel = rememberScreenModel { WatchedCarsScreenModel(supabaseClient, currentUser!!.uid) }
         var showDialog by remember { mutableStateOf(false) }
 
         val watchedCars by screenModel.watchedCars.collectAsState()

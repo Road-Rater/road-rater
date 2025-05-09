@@ -23,10 +23,10 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import coil3.compose.AsyncImage
-import com.google.android.gms.auth.api.identity.Identity
 import com.roadrater.R
-import com.roadrater.auth.GoogleAuthUiClient
+import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.util.Tab
+import org.koin.compose.koinInject
 
 object ProfileTab : Tab {
     private fun readResolve(): Any = ProfileTab
@@ -47,7 +47,8 @@ object ProfileTab : Tab {
         val context = LocalContext.current
         val navigator = LocalNavigator.currentOrThrow
         val screenModel = rememberScreenModel { ProfileTabScreenModel() }
-        val currentUser = GoogleAuthUiClient(context, Identity.getSignInClient(context)).getSignedInUser()
+        val generalPreferences = koinInject<GeneralPreferences>()
+        val currentUser = generalPreferences.user.get()
 
         Scaffold(
             topBar = {
@@ -55,7 +56,7 @@ object ProfileTab : Tab {
                     title = { Text("Profile") },
                     actions = {
                         AsyncImage(
-                            model = currentUser?.profilePictureUrl,
+                            model = currentUser?.profile_pic_url,
                             contentDescription = "Profile picture",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier

@@ -1,4 +1,4 @@
-package com.roadrater.auth
+package com.roadrater.auth.steps
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,13 +22,15 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.google.android.gms.auth.api.identity.Identity
 import com.roadrater.R
+import com.roadrater.auth.OnboardingStep
 import com.roadrater.database.entities.TableUser
+import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.ui.theme.spacing
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
+import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 
 internal class NicknameStep : OnboardingStep {
@@ -45,20 +47,21 @@ internal class NicknameStep : OnboardingStep {
         val scope = rememberCoroutineScope()
 
         var nicknameAvailable by remember { mutableStateOf(true) }
-        val currentUser = GoogleAuthUiClient(context, Identity.getSignInClient(context)).getSignedInUser()
-        val defaultNickname = currentUser?.username ?: ""
+        val generalPreferences = getKoin().get<GeneralPreferences>()
+        val currentUser = generalPreferences.user.get()
+        val defaultNickname = currentUser?.nickname ?: ""
         var nickname by remember { mutableStateOf(defaultNickname) }
         val focusRequester = remember { FocusRequester() }
         val supabaseClient = koinInject<SupabaseClient>()
 
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.Companion.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         ) {
             Text(stringResource(R.string.select_nickname_title))
 
             OutlinedTextField(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .focusRequester(focusRequester),
                 value = nickname,
                 onValueChange = { newNickname ->
@@ -79,7 +82,7 @@ internal class NicknameStep : OnboardingStep {
                     Text(text = stringResource(msgRes))
                 },
                 isError = nickname.isNotEmpty() && !nicknameAvailable,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Companion.Text),
                 singleLine = true,
             )
 
@@ -98,7 +101,7 @@ internal class NicknameStep : OnboardingStep {
                                             },
                                         ) {
                                             filter {
-                                                eq("uid", currentUser.userId)
+                                                eq("uid", currentUser.uid)
                                             }
                                         }
                                 } catch (e: Exception) {
