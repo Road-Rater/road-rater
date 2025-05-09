@@ -55,7 +55,7 @@ internal class NicknameStep : OnboardingStep {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         ) {
-            Text("Select a nickname, this is the name others will know you by")
+            Text(stringResource(R.string.select_nickname_title))
 
             OutlinedTextField(
                 modifier = Modifier
@@ -68,7 +68,7 @@ internal class NicknameStep : OnboardingStep {
                     }
                 },
                 label = {
-                    Text("Nickname")
+                    Text(stringResource(R.string.nickname))
                 },
                 supportingText = {
                     val msgRes = if (nickname.isNotEmpty() && !nicknameAvailable) {
@@ -111,7 +111,7 @@ internal class NicknameStep : OnboardingStep {
                 },
                 enabled = nicknameAvailable,
             ) {
-                Text("Select")
+                Text(stringResource(R.string.select))
             }
         }
     }

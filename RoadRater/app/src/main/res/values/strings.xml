@@ -1,16 +1,30 @@
 <resources>
     <string name="app_name">Road Rater</string>
 
-    //Tab Titles
+    <!-- Generic -->
+    <string name="select">Select</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="selected">Selected</string>
+
+
+    <!-- Tab Titles -->
     <string name="profile_tab">Profile</string>
     <string name="home_tab">Home</string>
+    <string name="search_tab">Search</string>
+    <string name="watched_cars">Watched Cars</string>
+    <string name="stats">Stats</string>
+    <string name="my_reviews">My Reviews</string>
+    <string name="settings">Settings</string>
+    <string name="about">About</string>
+    <string name="help">Help</string>
 
-    //App Theme
+    <!-- App Theme -->
     <string name="pref_appearance_darkmode_system">System</string>
     <string name="pref_appearance_darkmode_light">Light</string>
     <string name="pref_appearance_darkmode_dark">Dark</string>
 
-    //Crash screen
+    <!-- Crash screen -->
     <string name="crash_screen_title">Oops</string>
     <string name="crash_screen_subtitle">Looks like %s experienced an unexpected error.</string>
     <string name="crash_screen_logs_title">Crash logs:</string>
@@ -21,12 +35,64 @@
     <string name="pref_onboarding_guide">Onboarding guide</string>
     <string name="onboarding_heading">Welcome to Road Rater!</string>
     <string name="onboarding_description">Just before you start, Let\'s set some things up first shall we.</string>
-    <string name="onboarding_nickname_taken">This nickname is already in use.</string>
     <string name="onboarding_action_next">Next</string>
     <string name="onboarding_action_finish">Get started</string>
     <string name="onboarding_action_skip">Skip</string>
-
     <string name="information_required_plain">*required</string>
+
+    <string name="login_google_title">Login or create an account using Google</string>
+    <string name="login_google">Login with Google</string>
+    <string name="login_guest">Continue as Guest</string>
+    <string name="name_unknown">No name</string>
+    <string name="id">ID: %s</string>
+
+    <string name="select_nickname_title">Select a nickname, this is the name others will know you by</string>
+    <string name="nickname">Nickname</string>
+    <string name="onboarding_nickname_taken">This nickname is already in use.</string>
+
+    <string name="watchlist_cars_title">Add any cars which you want to be notified about</string>
+    <string name="number_plate">Number Plate</string>
+    <string name="add_car">Add Car</string>
+    <string name="watchlist_title">Cars you\'re watching:</string>
+    <string name="add_car_watchlist">Add Car to Watchlist</string>
+    <string name="remove_car_dialog_title">Remove?</string>
+    <string name="remove_car_dialog_body">Do you really want to remove %s from your watched list?</string>
+
+    <!-- Car Details -->
+    <string name="car_details">Car Details</string>
+    <string name="review_btn">Write a Review</string>
+    <string name="no_results">No results found</string>
+
+    <!-- Preferences -->
+    <string name="pref_settings_title">Settings</string>
+    <string name="pref_general_title">General</string>
+    <string name="pref_general_summary">Store Number, Store Name</string>
+    <string name="pref_data_title">Data</string>
+    <string name="pref_data_summary">Database, storage locations</string>
+    <string name="pref_about_title">About</string>
+    <string name="pref_appearance_title">Appearance</string>
+    <string name="pref_appearance_summary">Theme, tabs</string>
+    <string name="pref_appearance_category_theme">Theme</string>
+
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="clipboard_copy_error">Failed to copy to clipboard</string>
+    <string name="check_for_updates">Check for updates</string>
+    <string name="licenses">Open source licenses</string>
+    <string name="version">Version</string>
+
+    <string name="label_default">Default</string>
+    <string name="theme_monet">Dynamic</string>
+    <string name="theme_greenapple">Green Apple</string>
+    <string name="theme_lavender">Lavender</string>
+    <string name="theme_midnightdusk">Midnight Dusk</string>
+    <string name="theme_nord">Nord</string>
+    <string name="theme_strawberrydaiquiri">Strawberry Daiquiri</string>
+    <string name="theme_tako">Tako</string>
+    <string name="theme_tealturquoise">Teal &amp; Turquoise</string>
+    <string name="theme_yinyang">Yin &amp; Yang</string>
+    <string name="theme_yotsuba">Yotsuba</string>
+    <string name="theme_tidalwave">Tidal Wave</string>
+
 
     <string name="web_client_id">681841403130-s2p33608svkctgih6m0tbba578ooniio.apps.googleusercontent.com</string>
 </resources>

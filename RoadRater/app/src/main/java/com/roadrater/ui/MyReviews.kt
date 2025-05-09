@@ -1,8 +1,7 @@
 package com.roadrater.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,44 +12,55 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.DirectionsCarFilled
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Card
-import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.TabOptions
-import coil3.compose.AsyncImage
 import com.google.android.gms.auth.api.identity.Identity
 import com.roadrater.R
 import com.roadrater.auth.GoogleAuthUiClient
+import com.roadrater.database.entities.Review
 import com.roadrater.presentation.util.Tab
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Order
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 object MyReviews : Tab {
     private fun readResolve(): Any = MyReviews
@@ -69,55 +79,38 @@ object MyReviews : Tab {
     @Composable
     override fun Content() {
         val context = LocalContext.current
-        val navigator = LocalNavigator.currentOrThrow
-        // val screenModel = rememberScreenModel { HomeTabScreenModel() }
-        val labels = listOf("All", "Speeding", "Safe", "Reckless")
+        val supabaseClient = koinInject<SupabaseClient>()
         val currentUser = GoogleAuthUiClient(context, Identity.getSignInClient(context)).getSignedInUser()
+        val reviews = remember { mutableStateOf<List<Review>>(emptyList()) }
+        val labels = listOf("All", "Speeding", "Safe", "Reckless")
         var selectedLabel by remember { mutableStateOf("All") }
-        var expandedDropdown by remember { mutableStateOf(false) }
         var sortOption by remember { mutableStateOf("Date") } // "Date" or "Title"
         var sortAsc by remember { mutableStateOf(true) }
 
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Home") },
-                    actions = {
-                        AsyncImage(
-                            model = currentUser?.profilePictureUrl,
-                            contentDescription = "Profile picture",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .padding(end = 12.dp)
-                                .size(36.dp)
-                                .clip(CircleShape)
-                                .clickable { },
-                        )
-                    },
+                    title = { Text("My Reviews") },
                 )
             },
             floatingActionButton = {},
         ) { paddingValues ->
             Column(modifier = Modifier.padding(paddingValues)) {
-//                Text("Home Tab")
-                val reviews = listOf(
-                    Review(
-                        title = "Speeding on highway",
-                        dateTime = "April 29, 2025 2:35 PM",
-                        labels = listOf("Speeding"),
-                        description = "Saw the driver weaving through traffic at high speed with no indicators",
-                        stars = 2,
-                    ),
-                    Review(
-                        title = "Very polite driver",
-                        dateTime = "April 30, 2025 9:12 AM",
-                        labels = listOf("Safe"),
-                        description = "Driver allowed me to merge and maintained safe distance throughout.",
-                        stars = 5,
-                    ),
-                )
+                LaunchedEffect(currentUser?.userId) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val reviewsResult = supabaseClient.from("reviews")
+                            .select {
+                                filter {
+                                    eq("created_by", currentUser!!.userId)
+                                }
+                                order("created_at", Order.DESCENDING)
+                            }
+                            .decodeList<Review>()
+                        reviews.value = reviewsResult
+                    }
+                }
 
-                val filteredReviews = reviews.filter { review ->
+                val filteredReviews = reviews.value.filter { review ->
                     selectedLabel == "All" || review.labels.contains(selectedLabel)
                 }.let {
                     when (sortOption) {
@@ -127,34 +120,30 @@ object MyReviews : Tab {
                             it.sortedByDescending { review -> review.title }
                         }
                         else -> if (sortAsc) {
-                            it.sortedBy { review -> review.dateTime }
+                            it.sortedBy { review -> review.createdAt }
                         } else {
-                            it.sortedByDescending { review -> review.dateTime }
+                            it.sortedByDescending { review -> review.createdAt }
                         }
                     }
                 }
 
-                Text(
-                    text = "My Reviews",
-                    fontSize = 26.sp,
-                    color = Color.White,
-                    modifier = Modifier.padding(16.dp),
-                )
-
-                Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                Row(
+                    modifier = Modifier
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                ) {
                     labels.forEach { label ->
-                        Text(
-                            text = label,
-                            modifier = Modifier
-                                .padding(end = 15.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(
-                                    if (label == selectedLabel) Color.Magenta else Color.Gray,
-                                )
-                                .clickable { selectedLabel = label }
-                                .padding(horizontal = 12.dp, vertical = 6.dp),
-                            color = Color.White,
-                            fontSize = 14.sp,
+                        FilterChip(
+                            selected = label == selectedLabel,
+                            onClick = { selectedLabel = label },
+                            label = { Text(label) },
+                            modifier = Modifier.padding(end = 8.dp),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                labelColor = MaterialTheme.colorScheme.onSurface,
+                            ),
                         )
                     }
                 }
@@ -163,48 +152,53 @@ object MyReviews : Tab {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Column {
-                        Text(
-                            text = "Sort by: $sortOption",
+                    var sortExpanded by remember { mutableStateOf(false) }
+
+                    ExposedDropdownMenuBox(
+                        expanded = sortExpanded,
+                        onExpandedChange = { sortExpanded = !sortExpanded },
+                    ) {
+                        OutlinedTextField(
+                            value = "Sort by: $sortOption",
+                            onValueChange = {},
+                            readOnly = true,
                             modifier = Modifier
-                                .clickable { expandedDropdown = true }
-                                .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
-                                .padding(horizontal = 12.dp, vertical = 6.dp),
-                            color = Color.White,
+                                .menuAnchor()
+                                .weight(1f),
+                            label = { Text("Sort") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = sortExpanded)
+                            },
+                            colors = ExposedDropdownMenuDefaults.textFieldColors(),
                         )
 
-                        DropdownMenu(
-                            expanded = expandedDropdown,
-                            onDismissRequest = { expandedDropdown = false },
+                        ExposedDropdownMenu(
+                            expanded = sortExpanded,
+                            onDismissRequest = { sortExpanded = false },
                         ) {
-                            DropdownMenuItem(
-                                text = { Text("Date") },
-                                onClick = {
-                                    sortOption = "Date"
-                                    expandedDropdown = false
-                                },
-                            )
-
-                            DropdownMenuItem(
-                                text = { Text("Title") },
-                                onClick = {
-                                    sortOption = "Title"
-                                    expandedDropdown = false
-                                },
-                            )
+                            listOf("Date", "Title").forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(option) },
+                                    onClick = {
+                                        sortOption = option
+                                        sortExpanded = false
+                                    },
+                                )
+                            }
                         }
                     }
+
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    Text(
-                        text = if (sortAsc) "Ascending" else "Descending",
-                        modifier = Modifier
-                            .clickable { sortAsc = !sortAsc }
-                            .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
-                            .padding(horizontal = 12.dp, vertical = 6.dp),
-                        color = Color.White,
-                    )
+                    OutlinedButton(onClick = { sortAsc = !sortAsc }) {
+                        Icon(
+                            imageVector = if (sortAsc) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward,
+                            contentDescription = "Toggle sort order",
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
                 }
 
                 LazyColumn {
@@ -217,56 +211,75 @@ object MyReviews : Tab {
     }
 }
 
-data class Review(
-    val title: String,
-    val dateTime: String,
-    val labels: List<String>,
-    val description: String,
-    val stars: Int,
-)
-
 @Composable
 fun ReviewCard(review: Review) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, Color.Gray, RoundedCornerShape(16.dp))
-            .padding(16.dp),
-        // colors = CardDefaults.cardColors(containerColor = Color.DarkGray),
-        // elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        shape = RoundedCornerShape(16.dp),
     ) {
-        Row {
-            repeat(5) { index ->
-                Icon(
-                    imageVector = if (index < review.stars) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                    contentDescription = "Star",
-                    modifier = Modifier.size(24.dp),
-                )
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row {
+                repeat(5) { index ->
+                    Icon(
+                        imageVector = if (index < review.rating.toInt()) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                        contentDescription = "Star",
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
             }
-        }
-        Text(text = review.title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.LightGray)
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(text = review.dateTime, fontSize = 14.sp, color = Color.LightGray)
 
-        Spacer(modifier = Modifier.height(8.dp))
-        Row {
-            review.labels.forEach { label ->
-                Text(
-                    text = label,
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    modifier = Modifier
-                        .padding(end = 8.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color(0XFF6A6AFF))
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = review.title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = review.createdAt,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier
+                    .horizontalScroll(rememberScrollState()),
+            ) {
+                review.labels.forEach { label ->
+                    Text(
+                        text = label,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(10.dp),
+                            )
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = review.description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(review.description, color = Color.White, fontSize = 16.sp)
     }
 }

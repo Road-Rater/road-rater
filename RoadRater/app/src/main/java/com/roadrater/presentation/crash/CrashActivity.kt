@@ -51,7 +51,7 @@ import androidx.lifecycle.coroutineScope
 import com.roadrater.BuildConfig
 import com.roadrater.MainActivity
 import com.roadrater.R
-import com.roadrater.ui.theme.RoadRaterTheme
+import com.roadrater.presentation.components.preferences.TachiyomiTheme
 import com.roadrater.ui.theme.spacing
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -73,7 +73,7 @@ class CrashActivity : ComponentActivity() {
             logcat = collectLogcat()
         }
         setContent {
-            RoadRaterTheme {
+            TachiyomiTheme {
                 CrashScreen(intent.getStringExtra("exception") ?: "")
             }
         }
@@ -110,7 +110,7 @@ class CrashActivity : ComponentActivity() {
         logcat: String,
     ) {
         withContext(NonCancellable) {
-            val file = File(applicationContext.cacheDir, "KMD_staff_tools_logs.txt")
+            val file = File(applicationContext.cacheDir, "road_rater_logs.txt")
             if (file.exists()) file.delete()
             file.createNewFile()
             file.appendText(concatLogs(collectDeviceInfo(), exceptionString, logcat))
