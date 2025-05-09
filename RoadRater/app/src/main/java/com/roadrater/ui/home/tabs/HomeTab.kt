@@ -55,9 +55,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
+// Defines the Home tab in the app's bottom navigation, including its icon and title.
 object HomeTab : Tab {
     private fun readResolve(): Any = HomeTab
 
+    // Specifies the tab options such as index, title, and icon.
     override val options: TabOptions
         @Composable
         get() {
@@ -69,6 +71,7 @@ object HomeTab : Tab {
             )
         }
 
+    // Renders the Home tab UI, including search functionality and review list.
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @Composable
     override fun Content() {
@@ -83,6 +86,7 @@ object HomeTab : Tab {
                 currentUser!!.uid,
             )
         }
+        // Local state for search functionality and results.
         var searchHistory by rememberSaveable { mutableStateOf(listOf<String>()) }
         var searchResults by remember { mutableStateOf(listOf<String>()) }
         var text by remember { mutableStateOf("") }
@@ -91,8 +95,10 @@ object HomeTab : Tab {
         var userResults by remember { mutableStateOf<Map<String, List<TableUser>>>(emptyMap()) }
         var pendingNavigationPlate by remember { mutableStateOf<String?>(null) }
 
+        // Observe reviews from the screen model.
         val reviews by screenModel.reviews.collectAsState()
 
+        // Top-level scaffold with a top app bar and floating action button.
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -114,11 +120,14 @@ object HomeTab : Tab {
             floatingActionButton = {},
         ) { paddingValues ->
             Column(modifier = Modifier.padding(paddingValues)) {
+                // Inner scaffold for search bar and review content layout.
                 Scaffold {
+                    // Search bar for querying license plates.
                     SearchBar(
                         modifier = Modifier.fillMaxWidth(),
                         query = text,
                         onQueryChange = { newText ->
+                            // Update search text and fetch matching license plates from Supabase.
                             text = newText
                             noResults = false
                             if (newText.isNotBlank()) {
@@ -142,6 +151,7 @@ object HomeTab : Tab {
                             }
                         },
                         onSearch = {
+                            // Triggered when user submits a search. Checks Supabase for car info and fetches related users or scrapes if not found.
                             if (text.isNotBlank()) {
                                 val upperText = text.uppercase()
                                 CoroutineScope(Dispatchers.IO).launch {
@@ -289,12 +299,14 @@ object HomeTab : Tab {
                             }
                         }
                     }
+                    // List of relevant reviews displayed below the search bar.
                     LazyColumn(modifier = Modifier.padding(paddingValues)) {
                         items(reviews) {
                             ReviewCard(it)
                         }
                     }
                 }
+                // Navigates to CarDetailScreen after successful search.
                 LaunchedEffect(pendingNavigationPlate) {
                     pendingNavigationPlate?.let { plate ->
                         navigator.push(CarDetailScreen(plate))

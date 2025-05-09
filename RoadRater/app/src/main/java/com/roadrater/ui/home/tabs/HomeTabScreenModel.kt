@@ -14,23 +14,30 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.MissingFieldException
 
+// Screen model for the Home tab, responsible for loading relevant reviews based on watched cars and user activity.
 class HomeTabScreenModel(
     private val supabaseClient: SupabaseClient,
     private val uid: String,
 ) : ScreenModel {
 
+    // Holds the list of relevant reviews to be displayed.
     private val _reviews = MutableStateFlow<List<Review>>(emptyList())
+
+    // Publicly exposed read-only StateFlow of reviews.
     val reviews: StateFlow<List<Review>> = _reviews
 
     init {
+        // Automatically fetch relevant reviews when this screen model is initialized.
         screenModelScope.launch(Dispatchers.IO) {
             getRelevantReviews()
         }
     }
 
+    // Fetches reviews related to the user's watched cars and their own submitted reviews.
     suspend fun getRelevantReviews() {
         val relevantReviews = mutableListOf<Review>()
 
+        // Fetch all cars the user is watching.
         val watchedCars: List<WatchedCar> = try {
             supabaseClient
                 .from("watched_cars")
@@ -41,8 +48,10 @@ class HomeTabScreenModel(
             emptyList()
         }
 
+        // Extract number plates from the watched cars (currently unused).
         val plates = watchedCars.map { it.number_plate }
 
+        // Fetch reviews written about the watched cars.
         val watchedReviews = try {
             supabaseClient.from("reviews")
                 .select(
@@ -60,7 +69,7 @@ class HomeTabScreenModel(
                     ),
                 ) {
                     filter {
-                        isIn("number_plate", watchedCars)
+                        isIn("number_plate", plates)
                     }
                 }
                 .decodeList<Review>()
@@ -69,11 +78,13 @@ class HomeTabScreenModel(
             emptyList()
         }
 
+        // Fetch reviews written by the user.
         val ratingsAgainst = supabaseClient
             .from("reviews")
             .select { filter { eq("created_by", uid) } }
             .decodeList<Review>()
 
+        // Combine watched car reviews and user's own reviews into the relevant list.
         relevantReviews.addAll(watchedReviews + ratingsAgainst)
         _reviews.value = relevantReviews
     }
