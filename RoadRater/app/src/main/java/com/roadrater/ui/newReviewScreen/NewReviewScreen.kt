@@ -45,7 +45,8 @@ class NewReviewScreen(private val numberPlate: String, private val userId: Strin
         var commentText by remember { mutableStateOf(TextFieldValue("")) }
         var errorMessage by remember { mutableStateOf<String?>(null) }
         var successMessage by remember { mutableStateOf<String?>(null) }
-        var numberPlateInput by remember { mutableStateOf("") }
+        var numberPlateInput by remember { mutableStateOf(numberPlate) }
+        val isPlateEditable = numberPlate.isEmpty()
 
         val ratingRepository: RatingRepository = koinInject()
         val supabaseClient: SupabaseClient = koinInject()
@@ -75,11 +76,13 @@ class NewReviewScreen(private val numberPlate: String, private val userId: Strin
                 OutlinedTextField(
                     value = numberPlateInput,
                     onValueChange = {
-                        if (it.length <= 6) numberPlateInput = it
+                        if (isPlateEditable && it.length <= 6) numberPlateInput = it
                     },
                     label = { Text("License Plate to review (Max 6 chars):") },
                     modifier = Modifier.fillMaxWidth(),
+                    enabled = isPlateEditable,
                 )
+
 
                 // REVIEW SCORE
                 OutlinedTextField(
@@ -99,6 +102,8 @@ class NewReviewScreen(private val numberPlate: String, private val userId: Strin
                     modifier = Modifier.fillMaxWidth(),
                 )
 
+
+                //SUBMIT REVIEW BUTTON
                 Button(onClick = {
                     val score = reviewScore.toIntOrNull()
                     if (score == null || score !in 1..10) {

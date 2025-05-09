@@ -42,6 +42,9 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import com.roadrater.ui.newReviewScreen.NewReviewScreen
+import io.github.jan.supabase.auth.auth
+
 
 data class CarDetail(val plate: String) : Screen {
 
@@ -52,6 +55,7 @@ data class CarDetail(val plate: String) : Screen {
         val car = remember { mutableStateOf<Car?>(null) }
         val reviews = remember { mutableStateOf<List<Review>>(emptyList()) }
         var searchHistory by remember { mutableStateOf(listOf<String>()) }
+        val userId = "testId"
 
         LaunchedEffect(plate) {
             CoroutineScope(Dispatchers.IO).launch {
@@ -112,7 +116,10 @@ data class CarDetail(val plate: String) : Screen {
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        // TODO: Navigate to add review screen
+                        val userId = "testId"
+                        if (userId != null) {
+                            navigator.push(NewReviewScreen(numberPlate = plate, userId = userId))
+                        }
                     },
                 ) {
                     Icon(Icons.Filled.Add, "Add review")

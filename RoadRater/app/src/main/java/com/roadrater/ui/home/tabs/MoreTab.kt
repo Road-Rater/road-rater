@@ -88,18 +88,6 @@ object MoreTab : Tab {
                     )
                 }
 
-                // LEAVE A REVIEW
-                item {
-                    TextPreferenceWidget(
-                        title = "Review a driver",
-                        icon = Icons.Outlined.Add,
-                        onPreferenceClick = {
-                            // Default values used for testing
-                            navigator.push(NewReviewScreen(numberPlate = "TEST123", userId = "test-user-id"))
-                        },
-                    )
-                }
-
                 // MY REVIEWS
                 item {
                     TextPreferenceWidget(

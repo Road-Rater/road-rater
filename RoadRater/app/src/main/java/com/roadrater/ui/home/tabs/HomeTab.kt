@@ -47,6 +47,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import com.roadrater.ui.newReviewScreen.NewReviewScreen
+
 
 object HomeTab : Tab {
     private fun readResolve(): Any = HomeTab
