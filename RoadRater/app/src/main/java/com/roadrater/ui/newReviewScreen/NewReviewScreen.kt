@@ -1,56 +1,49 @@
 package com.roadrater.ui.newReviewScreen
 
+import android.content.Context
 import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.google.android.gms.auth.api.identity.Identity
+import com.roadrater.auth.GoogleAuthUiClient
 import com.roadrater.database.repository.RatingRepository
+import com.roadrater.data.supabase.SupabaseReview
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import java.time.Instant
 
-// LEAVE NEW REVIEW SCREEN
-class NewReviewScreen(private val numberPlate: String, private val userId: String) : Screen {
+class NewReviewScreen(private val numberPlate: String) : Screen {
     @Composable
     override fun Content() {
-        // Variables
+        // UI State
         var reviewScore by remember { mutableStateOf("") }
         var commentText by remember { mutableStateOf(TextFieldValue("")) }
+        var reviewTitle by remember { mutableStateOf(TextFieldValue("")) }
         var errorMessage by remember { mutableStateOf<String?>(null) }
         var successMessage by remember { mutableStateOf<String?>(null) }
         var numberPlateInput by remember { mutableStateOf(numberPlate) }
         val isPlateEditable = numberPlate.isEmpty()
 
+        // Dependencies
         val ratingRepository: RatingRepository = koinInject()
         val supabaseClient: SupabaseClient = koinInject()
         val navigator = LocalNavigator.currentOrThrow
+        val context = LocalContext.current
 
         Scaffold(
             topBar = {
@@ -83,13 +76,22 @@ class NewReviewScreen(private val numberPlate: String, private val userId: Strin
                     enabled = isPlateEditable,
                 )
 
-
                 // REVIEW SCORE
                 OutlinedTextField(
                     value = reviewScore,
                     onValueChange = { reviewScore = it },
                     label = { Text("Driver Rating (1-10)") },
                     isError = errorMessage != null && (reviewScore.toIntOrNull() == null || reviewScore.toInt() !in 1..10),
+                )
+
+                // REVIEW TITLE
+                OutlinedTextField(
+                    value = reviewTitle,
+                    onValueChange = {
+                        if (it.text.length <= 60) reviewTitle = it
+                    },
+                    label = { Text("Review Title (Max 60 characters):") },
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 // REVIEW TEXT
@@ -102,8 +104,7 @@ class NewReviewScreen(private val numberPlate: String, private val userId: Strin
                     modifier = Modifier.fillMaxWidth(),
                 )
 
-
-                //SUBMIT REVIEW BUTTON
+                // SUBMIT BUTTON
                 Button(onClick = {
                     val score = reviewScore.toIntOrNull()
                     if (score == null || score !in 1..10) {
@@ -111,26 +112,39 @@ class NewReviewScreen(private val numberPlate: String, private val userId: Strin
                         return@Button
                     }
 
-                    val newReview = mapOf(
-                        "created_by" to userId,
-                        "number_plate" to numberPlateInput,
-                        "rating" to score,
-                        "description" to commentText.text,
-                        "created_at" to System.currentTimeMillis().toString(),
+                    val authClient = GoogleAuthUiClient(
+                        context = context,
+                        oneTapClient = Identity.getSignInClient(context)
+                    )
+                    val currentUser = authClient.getSignedInUser()
+                    Log.d("NewReviewScreen", "Signed-in user = $currentUser")
+
+                    val currentUserId = currentUser?.userId
+                    if (currentUserId == null) {
+                        errorMessage = "You're not signed in."
+                        return@Button
+                    }
+
+                    val newReview = SupabaseReview(
+                        created_by = currentUserId,
+                        number_plate = numberPlateInput,
+                        rating = score,
+                        title = reviewTitle.text,
+                        description = commentText.text,
+                        created_at = Instant.now().toString()
                     )
 
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
                             Log.d("NewReviewScreen", "Submitting review: $newReview")
-
-                            val response = supabaseClient.from("review").insert(newReview)
+                            val response = supabaseClient.from("reviews").insert(newReview)
                             Log.d("NewReviewScreen", "Supabase insert response: $response")
 
                             successMessage = "Review submitted!"
                             errorMessage = null
                         } catch (e: Exception) {
                             Log.e("NewReviewScreen", "Error submitting review", e)
-                            errorMessage = "Failed to submit review."
+                            errorMessage = "Failed to submit review:\n${e.message ?: "Unknown error"}"
                             successMessage = null
                         }
                     }
@@ -138,6 +152,7 @@ class NewReviewScreen(private val numberPlate: String, private val userId: Strin
                     Text("Submit review")
                 }
 
+                // MESSAGES
                 errorMessage?.let {
                     Text(it, color = MaterialTheme.colorScheme.error)
                 }

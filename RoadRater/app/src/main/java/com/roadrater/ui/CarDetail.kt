@@ -118,7 +118,7 @@ data class CarDetail(val plate: String) : Screen {
                     onClick = {
                         val userId = "testId"
                         if (userId != null) {
-                            navigator.push(NewReviewScreen(numberPlate = plate, userId = userId))
+                            navigator.push(NewReviewScreen(numberPlate = plate))
                         }
                     },
                 ) {

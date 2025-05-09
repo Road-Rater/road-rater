@@ -71,7 +71,7 @@ class MainActivity : BaseActivity() {
                     disposeBehavior = NavigatorDisposeBehavior(disposeNestedNavigators = false, disposeSteps = true),
                 ) {
                     SlideTransition(navigator = it)
-                    // ShowOnboarding()
+                    ShowOnboarding()
                 }
             }
         }
