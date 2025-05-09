@@ -21,6 +21,13 @@ interface PreferenceStore {
         deserializer: (String) -> T,
     ): Preference<T>
 
+    fun <T> getNullableObject(
+        key: String,
+        defaultValue: T?,
+        serializer: (T?) -> String,
+        deserializer: (String) -> T?
+    ): Preference<T?>
+
     fun getAll(): Map<String, *>
 }
 
