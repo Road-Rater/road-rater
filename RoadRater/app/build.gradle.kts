@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.room)
     alias(libs.plugins.spotless.gradle)
+    alias(libs.plugins.aboutLibraries)
 }
 
 pluginManager.apply {
@@ -106,6 +107,7 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.splashscreen)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.material)
@@ -154,6 +156,7 @@ dependencies {
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.utils)
+    implementation(libs.aboutLibraries.compose)
     implementation("androidx.credentials:credentials:1.5.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.5.0")
 

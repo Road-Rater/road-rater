@@ -1,4 +1,4 @@
-package com.roadrater.auth.steps
+package com.roadrater.auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -29,7 +29,7 @@ import com.roadrater.R
 import com.roadrater.auth.Auth
 import com.roadrater.auth.OnboardingStep
 import com.roadrater.database.entities.User
-import com.roadrater.database.entities.TableUser
+import com.roadrater.database.entities.NicknamelessUser
 import com.roadrater.ui.theme.spacing
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
@@ -57,35 +57,19 @@ internal class LoginStep(
                 val id = user!!.uid
                 val name = user!!.nickname.toString()
                 val email = user!!.email.toString()
+                val profilePic = user!!.profile_pic_url
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        val existingUsers = supabaseClient.postgrest["users"].select {
-                            filter {
-                                eq(
-                                    "uid",
-                                    id
-                                )
-                            }
-                        }
-                        if (existingUsers.data.isEmpty() || existingUsers.data == "[]") {
-                            val response = supabaseClient.postgrest["users"].insert(
-                                TableUser(
-                                    id,
-                                    name,
-                                    null,
-                                    email
-                                )
-                            )
-                        }
-                    } catch (e: Exception) { }
+                        supabaseClient.postgrest["users"].upsert(NicknamelessUser(id, name, email, profilePic))
+                    } catch (e: Exception) {
+                    }
                 }
-
-            _isComplete = true
+                _isComplete = true
             }
         }
 
         Column(
-            modifier = Modifier.Companion.padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         ) {
             Text(stringResource(R.string.login_google_title))
@@ -94,7 +78,7 @@ internal class LoginStep(
                 UserCard(user)
             } else {
                 Button(
-                    modifier = Modifier.Companion.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         Auth.attemptGoogleSignIn(
                             context = context,
@@ -108,12 +92,12 @@ internal class LoginStep(
             }
 
             HorizontalDivider(
-                modifier = Modifier.Companion.padding(vertical = 8.dp),
+                modifier = Modifier.padding(vertical = 8.dp),
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
 
             Button(
-                modifier = Modifier.Companion.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     _isComplete = true
                 },
@@ -136,7 +120,7 @@ internal class LoginStep(
                 .padding(16.dp),
         ) {
             Row(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
@@ -144,7 +128,7 @@ internal class LoginStep(
                     Image(
                         painter = rememberAsyncImagePainter(imageUrl),
                         contentDescription = "User profile image",
-                        modifier = Modifier.Companion
+                        modifier = Modifier
                             .size(56.dp)
                             .clip(CircleShape),
                     )
