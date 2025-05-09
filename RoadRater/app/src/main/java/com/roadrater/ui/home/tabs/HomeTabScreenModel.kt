@@ -3,7 +3,6 @@ package com.roadrater.ui.home.tabs
 import android.util.Log
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.roadrater.database.entities.Car
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.WatchedCar
 import io.github.jan.supabase.SupabaseClient
@@ -17,7 +16,7 @@ import kotlinx.serialization.MissingFieldException
 
 class HomeTabScreenModel(
     private val supabaseClient: SupabaseClient,
-    private val uid: String
+    private val uid: String,
 ) : ScreenModel {
 
     private val _reviews = MutableStateFlow<List<Review>>(emptyList())
@@ -27,7 +26,6 @@ class HomeTabScreenModel(
         screenModelScope.launch(Dispatchers.IO) {
             getRelevantReviews()
         }
-
     }
 
     suspend fun getRelevantReviews() {
@@ -58,8 +56,8 @@ class HomeTabScreenModel(
                             "description",
                             "labels",
                             "number_plate",
-                        )
-                    )
+                        ),
+                    ),
                 ) {
                     filter {
                         isIn("number_plate", watchedCars)
@@ -78,7 +76,5 @@ class HomeTabScreenModel(
 
         relevantReviews.addAll(watchedReviews + ratingsAgainst)
         _reviews.value = relevantReviews
-
     }
 }
-

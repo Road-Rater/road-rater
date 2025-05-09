@@ -64,7 +64,7 @@ class AndroidPreferenceStore(
         key: String,
         defaultValue: T?,
         serializer: (T?) -> String,
-        deserializer: (String) -> T?
+        deserializer: (String) -> T?,
     ): Preference<T?> {
         return Object(
             preferences = sharedPreferences,

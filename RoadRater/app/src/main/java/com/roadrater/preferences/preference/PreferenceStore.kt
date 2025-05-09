@@ -25,7 +25,7 @@ interface PreferenceStore {
         key: String,
         defaultValue: T?,
         serializer: (T?) -> String,
-        deserializer: (String) -> T?
+        deserializer: (String) -> T?,
     ): Preference<T?>
 
     fun getAll(): Map<String, *>

@@ -1,9 +1,6 @@
 package com.roadrater.auth
 
-import android.content.Intent
 import androidx.activity.compose.BackHandler
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.IntentSenderRequest
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

@@ -49,12 +49,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.tab.TabOptions
-import com.google.android.gms.auth.api.identity.Identity
 import com.roadrater.R
-import com.roadrater.presentation.util.Tab
-import com.roadrater.presentation.components.ReviewCard
+import com.roadrater.auth.Auth
 import com.roadrater.database.entities.Review
-import com.roadrater.database.entities.User
+import com.roadrater.presentation.components.ReviewCard
+import com.roadrater.presentation.util.Tab
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Order
@@ -62,7 +61,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import com.roadrater.auth.Auth
 
 object MyReviews : Tab {
     private fun readResolve(): Any = MyReviews

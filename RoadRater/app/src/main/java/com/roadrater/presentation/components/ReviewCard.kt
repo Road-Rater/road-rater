@@ -23,11 +23,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.roadrater.database.entities.Review
 import com.roadrater.preferences.GeneralPreferences
-import io.ktor.util.reflect.instanceOf
 import org.koin.compose.koinInject
 
 @Composable
@@ -47,8 +45,8 @@ fun ReviewCard(review: Review) {
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(
             width = 1.dp,
-            color = if (createdByUser) Color.Blue else Color.Red
-        )
+            color = if (createdByUser) Color.Blue else Color.Red,
+        ),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row {

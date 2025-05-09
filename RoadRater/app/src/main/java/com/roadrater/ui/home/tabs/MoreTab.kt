@@ -3,7 +3,6 @@ package com.roadrater.ui.home.tabs
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Label
-import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.QueryStats
@@ -21,9 +20,7 @@ import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.TabOptions
-import com.google.android.gms.auth.api.identity.Identity
 import com.roadrater.R
-import com.roadrater.auth.WelcomeScreen
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.LogoHeader
 import com.roadrater.presentation.util.ScrollbarLazyColumn
@@ -32,9 +29,6 @@ import com.roadrater.ui.MyReviews
 import com.roadrater.ui.WatchedCarsScreen
 import com.roadrater.ui.preferences.PreferencesScreen
 import com.roadrater.ui.preferences.options.AboutPreferencesScreen
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 object MoreTab : Tab {

@@ -28,8 +28,8 @@ import coil3.compose.rememberAsyncImagePainter
 import com.roadrater.R
 import com.roadrater.auth.Auth
 import com.roadrater.auth.OnboardingStep
-import com.roadrater.database.entities.User
 import com.roadrater.database.entities.NicknamelessUser
+import com.roadrater.database.entities.User
 import com.roadrater.ui.theme.spacing
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
@@ -38,8 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
-internal class LoginStep(
-) : OnboardingStep {
+internal class LoginStep() : OnboardingStep {
 
     private var _isComplete by mutableStateOf(false)
 
@@ -83,7 +82,7 @@ internal class LoginStep(
                         Auth.attemptGoogleSignIn(
                             context = context,
                             scope = CoroutineScope(Dispatchers.IO),
-                            supabaseClient = supabaseClient
+                            supabaseClient = supabaseClient,
                         )
                     },
                 ) {
