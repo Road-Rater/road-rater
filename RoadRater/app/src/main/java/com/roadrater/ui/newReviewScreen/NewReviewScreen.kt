@@ -1,5 +1,6 @@
 package com.roadrater.ui.NewReviewScreen
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -21,7 +22,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 import io.github.jan.supabase.postgrest.from
-
 
 //LEAVE NEW REVIEW SCREEN
 class NewReviewScreen(private val numberPlate: String, private val userId: String) : Screen {
@@ -103,10 +103,23 @@ class NewReviewScreen(private val numberPlate: String, private val userId: Strin
 
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
-                            supabaseClient.from("rating").insert(rating)
+                            Log.d("NewReviewScreen", "Submitting rating: $rating")
+
+                            val response = supabaseClient.from("rating").insert(
+                                mapOf(
+                                    "userId" to rating.userId,
+                                    "numberPlate" to rating.numberPlate,
+                                    "review" to rating.review,
+                                    "comment" to rating.comment,
+                                    "createdAt" to rating.createdAt
+                                )
+                            )
+                            Log.d("NewReviewScreen", "Supabase insert response: $response")
+
                             successMessage = "Review submitted!"
                             errorMessage = null
                         } catch (e: Exception) {
+                            Log.e("NewReviewScreen", "Error submitting review", e)
                             errorMessage = "Failed to submit review."
                             successMessage = null
                         }
