@@ -61,6 +61,7 @@ object HomeTab : Tab {
     override val options: TabOptions
         @Composable
         get() {
+            // Tab icon and label for the bottom navigation
             val image = rememberVectorPainter(Icons.Outlined.DirectionsCarFilled)
             return TabOptions(
                 index = 0u,
@@ -77,6 +78,7 @@ object HomeTab : Tab {
         val supabaseClient = koinInject<SupabaseClient>()
         val generalPreferences = koinInject<GeneralPreferences>()
         val currentUser = generalPreferences.user.get()
+        // ViewModel for managing reviews and state
         val screenModel = rememberScreenModel {
             HomeTabScreenModel(
                 supabaseClient = supabaseClient,
@@ -91,6 +93,7 @@ object HomeTab : Tab {
         var userResults by remember { mutableStateOf<Map<String, List<TableUser>>>(emptyMap()) }
         var pendingNavigationPlate by remember { mutableStateOf<String?>(null) }
 
+        // List of reviews for the home feed
         val reviews by screenModel.reviews.collectAsState()
 
         Scaffold(
@@ -98,6 +101,7 @@ object HomeTab : Tab {
                 TopAppBar(
                     title = { Text("Home") },
                     actions = {
+                        // Show user's profile picture in the top bar
                         AsyncImage(
                             model = currentUser?.profile_pic_url,
                             contentDescription = "Profile picture",
@@ -115,6 +119,7 @@ object HomeTab : Tab {
         ) { paddingValues ->
             Column(modifier = Modifier.padding(paddingValues)) {
                 Scaffold {
+                    // Search bar for searching cars by plate
                     SearchBar(
                         modifier = Modifier.fillMaxWidth(),
                         query = text,
@@ -122,6 +127,7 @@ object HomeTab : Tab {
                             text = newText
                             noResults = false
                             if (newText.isNotBlank()) {
+                                // Search for cars in the database
                                 CoroutineScope(Dispatchers.IO).launch {
                                     try {
                                         val results = supabaseClient.from("cars")
@@ -146,6 +152,7 @@ object HomeTab : Tab {
                                 val upperText = text.uppercase()
                                 CoroutineScope(Dispatchers.IO).launch {
                                     try {
+                                        // Check if car exists in the database
                                         val carExists = supabaseClient.from("cars")
                                             .select {
                                                 filter {
@@ -156,7 +163,7 @@ object HomeTab : Tab {
                                             .decodeList<Map<String, String>>()
                                             .isNotEmpty()
                                         if (carExists) {
-                                            // Fetch linked users
+                                            // Fetch users linked to this car
                                             val watchedUsers = supabaseClient.from("watched_cars")
                                                 .select { filter { eq("number_plate", upperText) } }
                                                 .decodeList<WatchedCar>()
@@ -176,14 +183,14 @@ object HomeTab : Tab {
                                             text = ""
                                             noResults = false
                                         } else {
-                                            // Try webscraping for car info
+                                            // Try to scrape car info if not found
                                             val scrapedCar = try {
                                                 GetCarInfo.getCarInfo(upperText)
                                             } catch (e: Exception) {
                                                 null
                                             }
                                             if (scrapedCar != null && scrapedCar.number_plate.isNotBlank()) {
-                                                // Insert into Supabase
+                                                // Insert scraped car into Supabase
                                                 supabaseClient.from("cars").insert(scrapedCar)
                                                 searchHistory = listOf(upperText) + searchHistory.filter { it != upperText }
                                                 pendingNavigationPlate = upperText
@@ -233,6 +240,7 @@ object HomeTab : Tab {
                             if (searchHistory.isEmpty()) {
                                 Text("No search history yet", modifier = Modifier.padding(14.dp))
                             } else {
+                                // Show previous search history
                                 searchHistory.forEach { plate ->
                                     Row(
                                         modifier = Modifier
@@ -261,6 +269,7 @@ object HomeTab : Tab {
                                     modifier = Modifier.padding(14.dp),
                                 )
                             } else {
+                                // Show search results for car plates
                                 searchResults.forEach { plate ->
                                     Column(
                                         modifier = Modifier
@@ -289,12 +298,14 @@ object HomeTab : Tab {
                             }
                         }
                     }
+                    // Show a list of reviews on the home screen
                     LazyColumn(modifier = Modifier.padding(paddingValues)) {
                         items(reviews) {
                             ReviewCard(it)
                         }
                     }
                 }
+                // Navigate to car detail screen if needed
                 LaunchedEffect(pendingNavigationPlate) {
                     pendingNavigationPlate?.let { plate ->
                         navigator.push(CarDetailScreen(plate))

@@ -1,10 +1,13 @@
 package com.roadrater.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -16,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -57,6 +61,7 @@ class CarDetailScreen(val plate: String) : Screen {
         val car = remember { mutableStateOf<Car?>(null) }
         val reviews = remember { mutableStateOf<List<Review>>(emptyList()) }
         val watchedUsers = remember { mutableStateOf<List<TableUser>>(emptyList()) }
+        var sortAsc by remember { mutableStateOf(true) } // true = Oldest First, false = Newest First
         var showDialog by remember { mutableStateOf(false) }
         val userId = "testId" // Replace with actual userId if needed
 
@@ -190,7 +195,33 @@ class CarDetailScreen(val plate: String) : Screen {
                             .padding(bottom = 8.dp),
                     )
 
-                    if (reviews.value.isEmpty()) {
+                    // Only show sort UI if there are reviews
+                    if (reviews.value.isNotEmpty()) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text("Sort by: Date", style = MaterialTheme.typography.bodyMedium)
+                            Spacer(modifier = Modifier.width(16.dp))
+                            // Toggle sort order with a clear label
+                            OutlinedButton(onClick = { sortAsc = !sortAsc }) {
+                                Text(if (sortAsc) "Oldest First" else "Newest First")
+                            }
+                        }
+                    }
+
+                    // Apply sorting to reviews (by date only)
+                    val sortedReviews = reviews.value.let {
+                        if (sortAsc) {
+                            it.sortedBy { review -> review.createdAt }
+                        } else {
+                            it.sortedByDescending { review -> review.createdAt }
+                        }
+                    }
+
+                    if (sortedReviews.isEmpty()) {
                         Text("No reviews yet.", modifier = Modifier.padding(16.dp))
                     } else {
                         LazyColumn(
@@ -198,7 +229,7 @@ class CarDetailScreen(val plate: String) : Screen {
                                 .weight(1f)
                                 .fillMaxWidth(),
                         ) {
-                            items(reviews.value) { review ->
+                            items(sortedReviews) { review ->
                                 ReviewCard(review)
                             }
                         }
