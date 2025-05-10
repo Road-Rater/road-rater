@@ -131,7 +131,6 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
 
                 // SUBMIT BUTTON
                 Button(onClick = {
-
                     Log.d("NewReviewScreen", "Signed-in user = ${user?.uid}")
 
                     val currentUserId = user?.uid
