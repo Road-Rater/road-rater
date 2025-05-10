@@ -18,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.DirectionsCarFilled
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material.icons.rounded.Star
@@ -30,6 +29,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -44,16 +44,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.navigator.tab.TabOptions
-import com.roadrater.R
-import com.roadrater.auth.Auth
 import com.roadrater.database.entities.Review
+import com.roadrater.preferences.GeneralPreferences
+import com.roadrater.presentation.Screen
 import com.roadrater.presentation.components.ReviewCard
-import com.roadrater.presentation.util.Tab
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Order
@@ -62,25 +58,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
-object MyReviews : Tab {
+object MyReviews : Screen() {
     private fun readResolve(): Any = MyReviews
 
-    override val options: TabOptions
-        @Composable
-        get() {
-            val image = rememberVectorPainter(Icons.Outlined.DirectionsCarFilled)
-            return TabOptions(
-                index = 0u,
-                title = stringResource(R.string.home_tab),
-                icon = image,
-            )
-        }
+    fun openAddReviewModal() {
+    }
 
     @Composable
     override fun Content() {
         val context = LocalContext.current
         val supabaseClient = koinInject<SupabaseClient>()
-        val currentUser = Auth.getSignedInUser()
+        val generalPreferences = koinInject<GeneralPreferences>()
+        val currentUser = generalPreferences.user.get()
         val reviews = remember { mutableStateOf<List<Review>>(emptyList()) }
         val labels = listOf("All", "Speeding", "Safe", "Reckless")
         var selectedLabel by remember { mutableStateOf("All") }
@@ -91,6 +80,11 @@ object MyReviews : Tab {
             topBar = {
                 TopAppBar(
                     title = { Text("My Reviews") },
+                    actions = {
+                        IconButton(
+                            onClick = { openAddReviewModal() },
+                        ) { }
+                    },
                 )
             },
             floatingActionButton = {},

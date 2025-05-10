@@ -3,11 +3,15 @@ package com.roadrater.ui.newReviewScreen
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -17,21 +21,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.roadrater.auth.Auth
 import com.roadrater.database.entities.Review
+import com.roadrater.preferences.GeneralPreferences
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.CoroutineScope
@@ -44,19 +47,19 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
     @Composable
     override fun Content() {
         // UI State
-        var reviewScore by remember { mutableStateOf("") }
+        var rating by remember { mutableIntStateOf(0) }
         var commentText by remember { mutableStateOf(TextFieldValue("")) }
         var reviewTitle by remember { mutableStateOf(TextFieldValue("")) }
         var errorMessage by remember { mutableStateOf<String?>(null) }
         var successMessage by remember { mutableStateOf<String?>(null) }
         var numberPlateInput by remember { mutableStateOf(numberPlate) }
         val isPlateEditable = numberPlate.isEmpty()
-        val user by Auth.signedInUser.collectAsState()
+        val generalPreferences = koinInject<GeneralPreferences>()
+        val user = generalPreferences.user.get()
 
         // Dependencies
         val supabaseClient: SupabaseClient = koinInject()
         val navigator = LocalNavigator.currentOrThrow
-        val context = LocalContext.current
 
         Scaffold(
             topBar = {
@@ -89,13 +92,22 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
                     enabled = isPlateEditable,
                 )
 
-                // REVIEW SCORE
-                OutlinedTextField(
-                    value = reviewScore,
-                    onValueChange = { reviewScore = it },
-                    label = { Text("Driver Rating (1-10)") },
-                    isError = errorMessage != null && (reviewScore.toIntOrNull() == null || reviewScore.toInt() !in 1..10),
-                )
+                Row {
+                    repeat(5) { index ->
+                        IconButton(
+                            onClick = {
+                                rating = index + 1
+                            },
+                        ) {
+                            Icon(
+                                imageVector = if (index < rating) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                                contentDescription = "Star",
+                                modifier = Modifier.size(24.dp),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+                }
 
                 // REVIEW TITLE
                 OutlinedTextField(
@@ -119,11 +131,7 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
 
                 // SUBMIT BUTTON
                 Button(onClick = {
-                    val score = reviewScore.toIntOrNull()
-                    if (score == null || score !in 1..10) {
-                        errorMessage = "Rating must be a number from 1 to 10."
-                        return@Button
-                    }
+                    val score = rating
 
                     Log.d("NewReviewScreen", "Signed-in user = ${user?.uid}")
 
@@ -140,6 +148,7 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
                         title = reviewTitle.text,
                         description = commentText.text,
                         createdAt = Instant.now().toString(),
+                        labels = listOf("[]"),
                     )
 
                     CoroutineScope(Dispatchers.IO).launch {
