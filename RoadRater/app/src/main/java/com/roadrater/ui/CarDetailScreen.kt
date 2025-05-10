@@ -38,6 +38,7 @@ import com.roadrater.database.entities.Car
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.TableUser
 import com.roadrater.database.entities.WatchedCar
+import com.roadrater.presentation.components.ReviewCard
 import com.roadrater.ui.newReviewScreen.NewReviewScreen
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -46,8 +47,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
 
 class CarDetailScreen(val plate: String) : Screen {
 
@@ -85,15 +84,9 @@ class CarDetailScreen(val plate: String) : Screen {
                             }
                             .decodeList<Review>()
                         val reviewList = reviewsResult.map { review ->
-                            val dateTime = try {
-                                val odt = OffsetDateTime.parse(review.createdAt)
-                                odt.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
-                            } catch (e: Exception) {
-                                ""
-                            }
                             Review(
                                 title = review.title,
-                                createdAt = dateTime,
+                                createdAt = review.createdAt,
                                 labels = review.labels ?: emptyList(),
                                 description = review.description,
                                 rating = review.rating,
