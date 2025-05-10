@@ -131,7 +131,6 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
 
                 // SUBMIT BUTTON
                 Button(onClick = {
-                    val score = rating
 
                     Log.d("NewReviewScreen", "Signed-in user = ${user?.uid}")
 
@@ -144,11 +143,11 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
                     val newReview = Review(
                         createdBy = currentUserId.toString(),
                         numberPlate = numberPlateInput,
-                        rating = score,
+                        rating = rating,
                         title = reviewTitle.text,
                         description = commentText.text,
                         createdAt = Instant.now().toString(),
-                        labels = listOf("[]"),
+                        labels = listOf(""),
                     )
 
                     CoroutineScope(Dispatchers.IO).launch {

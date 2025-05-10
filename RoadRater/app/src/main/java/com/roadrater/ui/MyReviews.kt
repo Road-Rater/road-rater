@@ -61,9 +61,6 @@ import org.koin.compose.koinInject
 object MyReviews : Screen() {
     private fun readResolve(): Any = MyReviews
 
-    fun openAddReviewModal() {
-    }
-
     @Composable
     override fun Content() {
         val context = LocalContext.current
@@ -80,11 +77,6 @@ object MyReviews : Screen() {
             topBar = {
                 TopAppBar(
                     title = { Text("My Reviews") },
-                    actions = {
-                        IconButton(
-                            onClick = { openAddReviewModal() },
-                        ) { }
-                    },
                 )
             },
             floatingActionButton = {},
