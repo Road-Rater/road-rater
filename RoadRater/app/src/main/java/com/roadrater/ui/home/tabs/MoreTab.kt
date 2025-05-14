@@ -26,7 +26,7 @@ import com.roadrater.presentation.components.LogoHeader
 import com.roadrater.presentation.components.preferences.TextPreferenceWidget
 import com.roadrater.presentation.util.ScrollbarLazyColumn
 import com.roadrater.presentation.util.Tab
-import com.roadrater.ui.MyReviews
+import com.roadrater.ui.MyReviewsScreen
 import com.roadrater.ui.WatchedCarsScreen
 import com.roadrater.ui.preferences.PreferencesScreen
 import com.roadrater.ui.preferences.options.AboutPreferencesScreen
@@ -90,7 +90,7 @@ object MoreTab : Tab {
                     TextPreferenceWidget(
                         title = stringResource(R.string.my_reviews),
                         icon = Icons.Outlined.Storage,
-                        onPreferenceClick = { navigator.push(MyReviews) },
+                        onPreferenceClick = { navigator.push(MyReviewsScreen) },
                     )
                 }
 

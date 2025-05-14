@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
@@ -35,6 +36,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.database.entities.Review
 import com.roadrater.preferences.GeneralPreferences
+import com.roadrater.utils.toast
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.CoroutineScope
@@ -46,12 +48,11 @@ import java.time.Instant
 class NewReviewScreen(private val numberPlate: String) : Screen {
     @Composable
     override fun Content() {
+        val context = LocalContext.current
         // UI State
         var rating by remember { mutableIntStateOf(0) }
         var commentText by remember { mutableStateOf(TextFieldValue("")) }
         var reviewTitle by remember { mutableStateOf(TextFieldValue("")) }
-        var errorMessage by remember { mutableStateOf<String?>(null) }
-        var successMessage by remember { mutableStateOf<String?>(null) }
         var numberPlateInput by remember { mutableStateOf(numberPlate) }
         val isPlateEditable = numberPlate.isEmpty()
         val generalPreferences = koinInject<GeneralPreferences>()
@@ -135,7 +136,7 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
 
                     val currentUserId = user?.uid
                     if (currentUserId == null) {
-                        errorMessage = "You're not signed in."
+                        context.toast("You're not signed in.")
                         return@Button
                     }
 
@@ -154,26 +155,14 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
                             Log.d("NewReviewScreen", "Submitting review: $newReview")
                             val response = supabaseClient.from("reviews").insert(newReview)
                             Log.d("NewReviewScreen", "Supabase insert response: $response")
-
-                            successMessage = "Review submitted!"
-                            errorMessage = null
+                            context.toast("Review submitted!")
                         } catch (e: Exception) {
                             Log.e("NewReviewScreen", "Error submitting review", e)
-                            errorMessage = "Failed to submit review:\n${e.message ?: "Unknown error"}"
-                            successMessage = null
+                            context.toast("Failed to submit review: ${e.message}")
                         }
                     }
                 }) {
                     Text("Submit review")
-                }
-
-                // MESSAGES
-                errorMessage?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error)
-                }
-
-                successMessage?.let {
-                    Text(it, color = MaterialTheme.colorScheme.primary)
                 }
             }
         }

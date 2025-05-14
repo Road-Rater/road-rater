@@ -33,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.roadrater.database.entities.Review
 import com.roadrater.preferences.GeneralPreferences
@@ -47,12 +46,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
-object MyReviews : Screen() {
-    private fun readResolve(): Any = MyReviews
+object MyReviewsScreen : Screen() {
+    private fun readResolve(): Any = MyReviewsScreen
 
     @Composable
     override fun Content() {
-        val context = LocalContext.current
         val supabaseClient = koinInject<SupabaseClient>()
         val generalPreferences = koinInject<GeneralPreferences>()
         val currentUser = generalPreferences.user.get()
@@ -69,7 +67,6 @@ object MyReviews : Screen() {
                     title = { Text("My Reviews") },
                 )
             },
-            floatingActionButton = {},
         ) { paddingValues ->
             Column(modifier = Modifier.padding(paddingValues)) {
                 // Load reviews for the current user from the database
@@ -89,7 +86,7 @@ object MyReviews : Screen() {
 
                 // Filter and sort reviews based on user selection
                 val filteredReviews = reviews.value.filter { review ->
-                    selectedLabel == "All" || (review.labels ?: emptyList()).contains(selectedLabel)
+                    selectedLabel == "All" || review.labels.contains(selectedLabel)
                 }.let {
                     when (sortOption) {
                         "Title" -> if (sortAsc) {

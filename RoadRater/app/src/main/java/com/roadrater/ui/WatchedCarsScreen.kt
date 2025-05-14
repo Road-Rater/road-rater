@@ -9,14 +9,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -35,6 +32,7 @@ import com.roadrater.R
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.Screen
 import com.roadrater.presentation.components.CarWatchingCard
+import com.roadrater.presentation.components.RemoveCarDialog
 import io.github.jan.supabase.SupabaseClient
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import org.koin.compose.getKoin
@@ -45,7 +43,6 @@ object WatchedCarsScreen : Screen() {
 
     @Composable
     override fun Content() {
-        val context = LocalContext.current
         val navigator = LocalNavigator.currentOrThrow
         val supabaseClient = koinInject<SupabaseClient>()
         val generalPreferences = getKoin().get<GeneralPreferences>()
@@ -122,35 +119,5 @@ object WatchedCarsScreen : Screen() {
                 numberPlate = selectedNumberPlate,
             )
         }
-    }
-
-    @Composable
-    fun RemoveCarDialog(
-        onDismissRequest: () -> Unit,
-        onConfirm: () -> Unit,
-        numberPlate: String,
-    ) {
-        AlertDialog(
-            onDismissRequest = onDismissRequest,
-            title = {
-                Text(text = stringResource(R.string.remove_car_dialog_title))
-            },
-            text = {
-                Text(text = stringResource(R.string.remove_car_dialog_body, numberPlate))
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    onConfirm()
-                    onDismissRequest()
-                }) {
-                    Text(text = stringResource(R.string.confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismissRequest) {
-                    Text(text = stringResource(R.string.cancel))
-                }
-            },
-        )
     }
 }
