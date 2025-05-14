@@ -22,9 +22,9 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.R
 import com.roadrater.preferences.AppearancePreferences
 import com.roadrater.preferences.preference.collectAsState
-import com.roadrater.presentation.AppThemeModePreferenceWidget
 import com.roadrater.presentation.Screen
 import com.roadrater.presentation.components.preferences.AppThemePreferenceWidget
+import com.roadrater.presentation.themes.AppThemeModePreferenceWidget
 import com.roadrater.ui.theme.setAppCompatDelegateThemeMode
 import me.zhanghai.compose.preference.PreferenceCategory
 import me.zhanghai.compose.preference.ProvidePreferenceLocals

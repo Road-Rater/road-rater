@@ -1,4 +1,4 @@
-package com.roadrater.presentation
+package com.roadrater.presentation.themes
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

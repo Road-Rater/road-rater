@@ -1,4 +1,4 @@
-package com.roadrater.presentation
+package com.roadrater.presentation.themes
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
