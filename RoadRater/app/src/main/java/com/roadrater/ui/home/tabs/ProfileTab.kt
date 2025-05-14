@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -129,7 +130,7 @@ object ProfileTab : Tab {
 
                     // Show user's name or nickname
                     Text(
-                        text = user.value?.name ?: currentUser?.nickname ?: "Guest User",
+                        text = user.value?.name ?: currentUser?.nickname ?: stringResource(R.string.guest_user),
                         style = MaterialTheme.typography.headlineSmall,
                     )
 
@@ -144,7 +145,7 @@ object ProfileTab : Tab {
 
                     // Show email or 'Guest Account' if not signed in
                     Text(
-                        text = currentUser?.email ?: "Guest Account",
+                        text = currentUser?.email ?: stringResource(R.string.guest_account),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -159,7 +160,7 @@ object ProfileTab : Tab {
                     modifier = Modifier.padding(16.dp),
                 ) {
                     Text(
-                        text = "Statistics",
+                        text = stringResource(R.string.statistics),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(bottom = 16.dp),
                     )
@@ -172,13 +173,13 @@ object ProfileTab : Tab {
                         StatItem(
                             icon = Icons.Outlined.RateReview,
                             value = reviews.value.size.toString(),
-                            label = "Reviews",
+                            label = stringResource(R.string.reviews),
                         )
                         // Number of watched cars
                         StatItem(
                             icon = Icons.Outlined.DirectionsCar,
                             value = watchedCars.value.size.toString(),
-                            label = "Watched Cars",
+                            label = stringResource(R.string.watched_cars),
                         )
                         // Average rating given by user
                         StatItem(
@@ -188,7 +189,7 @@ object ProfileTab : Tab {
                             } else {
                                 "0.0"
                             },
-                            label = "Avg Rating",
+                            label = stringResource(R.string.avg_rating),
                         )
                     }
                 }
@@ -200,7 +201,7 @@ object ProfileTab : Tab {
 // Shows a single stat (like number of reviews)
 @Composable
 private fun StatItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     value: String,
     label: String,
 ) {

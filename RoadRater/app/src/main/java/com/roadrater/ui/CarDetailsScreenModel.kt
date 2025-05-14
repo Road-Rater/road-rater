@@ -12,7 +12,6 @@ import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import org.koin.viewmodel.emptyState
 
 class CarDetailsScreenModel(
     private val supabaseClient: SupabaseClient,
@@ -54,8 +53,6 @@ class CarDetailsScreenModel(
                 .decodeList<Review>()
         }
     }
-
-
 
     fun isWatching() {
         screenModelScope.launch(Dispatchers.IO) {

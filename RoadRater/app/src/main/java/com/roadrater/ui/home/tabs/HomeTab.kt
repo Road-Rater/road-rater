@@ -212,7 +212,7 @@ object HomeTab : Tab {
                             active = it
                         },
                         placeholder = {
-                            Text(text = "Search")
+                            Text(stringResource(R.string.search_tab))
                         },
                         leadingIcon = {
                             Icon(
@@ -238,7 +238,7 @@ object HomeTab : Tab {
                     ) {
                         if (text.isBlank()) {
                             if (searchHistory.isEmpty()) {
-                                Text("No search history yet", modifier = Modifier.padding(14.dp))
+                                Text(stringResource(R.string.search_no_history), modifier = Modifier.padding(14.dp))
                             } else {
                                 // Show previous search history
                                 searchHistory.forEach { plate ->
@@ -265,7 +265,7 @@ object HomeTab : Tab {
                         } else {
                             if (noResults || searchResults.isEmpty()) {
                                 Text(
-                                    text = "No results found",
+                                    text = stringResource(R.string.no_results),
                                     modifier = Modifier.padding(14.dp),
                                 )
                             } else {

@@ -29,11 +29,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.roadrater.R
 import com.roadrater.database.entities.Review
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.utils.toast
@@ -45,7 +47,7 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import java.time.Instant
 
-class NewReviewScreen(private val numberPlate: String) : Screen {
+class AddReviewScreen(private val numberPlate: String) : Screen {
     @Composable
     override fun Content() {
         val context = LocalContext.current
@@ -65,7 +67,7 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("New Review") },
+                    title = { Text(stringResource(R.string.add_review)) },
                     navigationIcon = {
                         IconButton(onClick = { navigator.pop() }) {
                             Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
@@ -88,7 +90,7 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
                     onValueChange = {
                         if (isPlateEditable && it.length <= 6) numberPlateInput = it
                     },
-                    label = { Text("License Plate to review (Max 6 chars):") },
+                    label = { Text(stringResource(R.string.license_plate_input_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = isPlateEditable,
                 )
@@ -116,7 +118,7 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
                     onValueChange = {
                         if (it.text.length <= 60) reviewTitle = it
                     },
-                    label = { Text("Review Title (Max 60 characters):") },
+                    label = { Text(stringResource(R.string.review_title_input_label)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
 
@@ -126,7 +128,7 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
                     onValueChange = {
                         if (it.text.length <= 500) commentText = it
                     },
-                    label = { Text("Your review (Max 500 characters):") },
+                    label = { Text(stringResource(R.string.review_body_input_label)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
 
@@ -136,7 +138,7 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
 
                     val currentUserId = user?.uid
                     if (currentUserId == null) {
-                        context.toast("You're not signed in.")
+                        context.toast(context.getString(R.string.login_error))
                         return@Button
                     }
 
@@ -155,14 +157,14 @@ class NewReviewScreen(private val numberPlate: String) : Screen {
                             Log.d("NewReviewScreen", "Submitting review: $newReview")
                             val response = supabaseClient.from("reviews").insert(newReview)
                             Log.d("NewReviewScreen", "Supabase insert response: $response")
-                            context.toast("Review submitted!")
+                            context.toast(context.getString(R.string.review_submitted))
                         } catch (e: Exception) {
                             Log.e("NewReviewScreen", "Error submitting review", e)
-                            context.toast("Failed to submit review: ${e.message}")
+                            context.toast(context.getString(R.string.review_insert_failed, e.message ?: ""))
                         }
                     }
                 }) {
-                    Text("Submit review")
+                    Text(stringResource(R.string.submit_review))
                 }
             }
         }

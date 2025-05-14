@@ -59,10 +59,37 @@
     <string name="remove_car_dialog_title">Remove?</string>
     <string name="remove_car_dialog_body">Do you really want to remove %s from your watched list?</string>
 
+    <!-- Profile -->
+    <string name="guest_user">Guest User</string>
+    <string name="guest_account">Guest Account</string>
+    <string name="statistics">Statistics</string>
+    <string name="reviews">Reviews</string>
+    <string name="avg_rating">Avg Rating</string>
+
+    <!-- Add Review -->
+    <string name="add_review">Add Review</string>
+    <string name="license_plate_input_label">License Plate to review (Max 6 chars):</string>
+    <string name="review_title_input_label">Review Title (Max 60 characters):</string>
+    <string name="review_body_input_label">Your review (Max 500 characters):</string>
+    <string name="login_error">You are not signed in.</string>
+    <string name="review_submitted">Review submitted!</string>
+    <string name="review_insert_failed">Failed to submit review: %s</string>
+    <string name="submit_review">Submit review</string>
+
+    <!-- Search -->
+    <string name="search_no_history">No search history yet</string>
+    <string name="no_results">No results found</string>
+
     <!-- Car Details -->
     <string name="car_details">Car Details</string>
     <string name="review_btn">Write a Review</string>
-    <string name="no_results">No results found</string>
+    <string name="car_not_found">Car not found.</string>
+    <string name="add_watchlist">Add to Watchlist</string>
+    <string name="remove_watchlist">Remove from Watchlist</string>
+    <string name="sort_by_date">Sort by: Date</string>
+    <string name="oldest_first">Oldest First</string>
+    <string name="newest_first">Newest First</string>
+    <string name="no_reviews">No reviews yet.</string>
 
     <!-- Preferences -->
     <string name="pref_settings_title">Settings</string>
