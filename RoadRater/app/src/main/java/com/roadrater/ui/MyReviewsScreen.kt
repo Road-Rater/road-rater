@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.roadrater.database.entities.Review
 import com.roadrater.preferences.GeneralPreferences
@@ -45,6 +46,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.roadrater.ui.CarDetailsScreen
 
 object MyReviewsScreen : Screen() {
     private fun readResolve(): Any = MyReviewsScreen
@@ -55,11 +59,9 @@ object MyReviewsScreen : Screen() {
         val generalPreferences = koinInject<GeneralPreferences>()
         val currentUser = generalPreferences.user.get()
         val reviews = remember { mutableStateOf<List<Review>>(emptyList()) }
-        // List of labels for filtering reviews
-        val labels = listOf("All", "Speeding", "Safe", "Reckless")
-        var selectedLabel by remember { mutableStateOf("All") }
         var sortOption by remember { mutableStateOf("Date") } // "Date" or "Title"
         var sortAsc by remember { mutableStateOf(true) }
+        val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
             topBar = {
@@ -85,9 +87,7 @@ object MyReviewsScreen : Screen() {
                 }
 
                 // Filter and sort reviews based on user selection
-                val filteredReviews = reviews.value.filter { review ->
-                    selectedLabel == "All" || review.labels.contains(selectedLabel)
-                }.let {
+                val filteredReviews = reviews.value.let {
                     when (sortOption) {
                         "Title" -> if (sortAsc) {
                             it.sortedBy { review -> review.title }
@@ -99,27 +99,6 @@ object MyReviewsScreen : Screen() {
                         } else {
                             it.sortedByDescending { review -> review.createdAt }
                         }
-                    }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                ) {
-                    labels.forEach { label ->
-                        FilterChip(
-                            selected = label == selectedLabel,
-                            onClick = { selectedLabel = label },
-                            label = { Text(label) },
-                            modifier = Modifier.padding(end = 8.dp),
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                labelColor = MaterialTheme.colorScheme.onSurface,
-                            ),
-                        )
                     }
                 }
 
@@ -178,7 +157,12 @@ object MyReviewsScreen : Screen() {
 
                 LazyColumn {
                     items(filteredReviews) { review ->
-                        ReviewCard(review)
+                        ReviewCard(
+                            review = review,
+                            onNumberPlateClick = { plate ->
+                                navigator.push(CarDetailsScreen(plate))
+                            }
+                        )
                     }
                 }
             }

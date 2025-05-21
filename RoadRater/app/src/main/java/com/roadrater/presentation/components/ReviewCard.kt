@@ -18,13 +18,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.roadrater.database.entities.Review
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import androidx.compose.foundation.clickable
 
 @Composable
-fun ReviewCard(review: Review) {
+fun ReviewCard(
+    review: Review,
+    onNumberPlateClick: ((String) -> Unit)? = null
+) {
     val dateTime = try {
         val odt = OffsetDateTime.parse(review.createdAt)
         odt.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
@@ -55,6 +60,20 @@ fun ReviewCard(review: Review) {
             }
 
             Spacer(modifier = Modifier.height(8.dp))
+
+            // Number plate clickable
+            Text(
+                text = review.numberPlate.uppercase(),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline
+                ),
+                modifier = Modifier
+                    .clickable(enabled = onNumberPlateClick != null) {
+                        onNumberPlateClick?.invoke(review.numberPlate)
+                    }
+                    .padding(bottom = 4.dp)
+            )
 
             Text(
                 text = review.title,
