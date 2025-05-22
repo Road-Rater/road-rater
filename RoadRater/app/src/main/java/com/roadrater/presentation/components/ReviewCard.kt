@@ -1,5 +1,6 @@
 package com.roadrater.presentation.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,12 +28,11 @@ import androidx.compose.ui.unit.dp
 import com.roadrater.database.entities.Review
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
-import androidx.compose.foundation.clickable
 
 @Composable
 fun ReviewCard(
     review: Review,
-    onNumberPlateClick: ((String) -> Unit)? = null
+    onNumberPlateClick: ((String) -> Unit)? = null,
 ) {
     val dateTime = try {
         val odt = OffsetDateTime.parse(review.createdAt)
@@ -77,19 +77,19 @@ fun ReviewCard(
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.DirectionsCar,
                         contentDescription = "Car",
                         modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = review.numberPlate.uppercase(),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
