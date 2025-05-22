@@ -155,7 +155,10 @@ object MyReviewsScreen : Screen() {
                     }
                 }
 
-                LazyColumn {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                ) {
                     items(filteredReviews) { review ->
                         ReviewCard(
                             review = review,
