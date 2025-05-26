@@ -156,8 +156,8 @@ object MyReviewsScreen : Screen() {
                     items(filteredReviews) { review ->
                         ReviewCard(
                             review = review,
-                            onNumberPlateClick = { plate ->
-                                navigator.push(CarDetailsScreen(plate))
+                            onNumberPlateClick = {
+                                navigator.push(CarDetailsScreen(review.numberPlate))
                             },
                         )
                     }

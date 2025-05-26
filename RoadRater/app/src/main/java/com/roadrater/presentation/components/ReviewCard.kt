@@ -32,7 +32,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ReviewCard(
     review: Review,
-    onNumberPlateClick: ((String) -> Unit)? = null,
+    onNumberPlateClick: () -> Unit = {},
 ) {
     val dateTime = try {
         val odt = OffsetDateTime.parse(review.createdAt)
@@ -69,9 +69,7 @@ fun ReviewCard(
             Surface(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .clickable(enabled = onNumberPlateClick != null) {
-                        onNumberPlateClick?.invoke(review.numberPlate)
-                    },
+                    .clickable(onClick = onNumberPlateClick),
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(8.dp),
             ) {
