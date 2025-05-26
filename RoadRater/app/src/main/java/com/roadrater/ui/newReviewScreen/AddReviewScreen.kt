@@ -38,6 +38,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.R
 import com.roadrater.database.entities.Review
 import com.roadrater.preferences.GeneralPreferences
+import com.roadrater.utils.ValidationUtils
 import com.roadrater.utils.toast
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -55,7 +56,6 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
         var rating by remember { mutableIntStateOf(0) }
         var commentText by remember { mutableStateOf(TextFieldValue("")) }
         var reviewTitle by remember { mutableStateOf(TextFieldValue("")) }
-        var numberPlateInput by remember { mutableStateOf(numberPlate) }
         val isPlateEditable = numberPlate.isEmpty()
         val generalPreferences = koinInject<GeneralPreferences>()
         val user = generalPreferences.user.get()
@@ -84,16 +84,23 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                // LICENSE PLATE
-                OutlinedTextField(
-                    value = numberPlateInput,
-                    onValueChange = {
-                        if (isPlateEditable && it.length <= 6) numberPlateInput = it
-                    },
-                    label = { Text(stringResource(R.string.license_plate_input_label)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = isPlateEditable,
-                )
+                // LICENSE PLATE - Only show if no plate provided
+                if (isPlateEditable) {
+                    OutlinedTextField(
+                        value = numberPlate,
+                        onValueChange = {
+                            numberPlateInput = ValidationUtils.formatNumberPlate(it)
+                        },
+                        label = { Text(stringResource(R.string.license_plate_input_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = !ValidationUtils.isValidNumberPlate(numberPlate) && numberPlate.isNotEmpty(),
+                        supportingText = {
+                            if (!ValidationUtils.isValidNumberPlate(numberPlate) && numberPlate.isNotEmpty()) {
+                                Text("Plate must be 1-6 alphanumeric characters")
+                            }
+                        }
+                    )
+                }
 
                 Row {
                     repeat(5) { index ->

@@ -25,6 +25,17 @@ class DatabaseRepositoryImpl(
     }
 
     override suspend fun watchCar(uid: String, numberPlate: String) {
+        // Validate number plate format
+        if (!isValidNumberPlate(numberPlate)) {
+            throw IllegalArgumentException("Invalid number plate format")
+        }
+
+        // Check if user is already watching this car
+        if (isWatchingCar(uid, numberPlate)) {
+            throw IllegalStateException("User is already watching this car")
+        }
+
+        // Ensure car exists in database
         val count = supabaseClient
             .from("cars")
             .select {
@@ -37,6 +48,8 @@ class DatabaseRepositoryImpl(
         if (count == null || count >= 0) {
             supabaseClient.from("cars").upsert(GetCarInfo.getCarInfo(numberPlate))
         }
+
+        // Add to watched cars
         supabaseClient.from("watched_cars").upsert(
             WatchedCar(
                 number_plate = numberPlate,
@@ -46,12 +59,52 @@ class DatabaseRepositoryImpl(
     }
 
     override suspend fun unwatchCar(uid: String, numberPlate: String) {
+        if (!isWatchingCar(uid, numberPlate)) {
+            throw IllegalStateException("User is not watching this car")
+        }
+
         supabaseClient.from("watched_cars").delete {
             filter {
                 eq("number_plate", numberPlate)
                 eq("uid", uid)
             }
         }
+    }
+
+    override suspend fun getWatchedCars(uid: String): List<Car> {
+        return supabaseClient
+            .from("watched_cars")
+            .select {
+                filter {
+                    eq("uid", uid)
+                }
+            }
+            .decodeList<WatchedCar>()
+            .map { watchedCar ->
+                getCarByPlate(watchedCar.number_plate)
+            }
+            .filterNotNull()
+    }
+
+    override suspend fun isWatchingCar(uid: String, numberPlate: String): Boolean {
+        val count = supabaseClient
+            .from("watched_cars")
+            .select {
+                filter {
+                    eq("uid", uid)
+                    eq("number_plate", numberPlate)
+                }
+            }
+            .countOrNull()
+        
+        return count != null && count > 0
+    }
+
+    private fun isValidNumberPlate(numberPlate: String): Boolean {
+        // Basic UK number plate format validation
+        // This can be enhanced based on your specific requirements
+        val pattern = "^[A-Z0-9]{2,7}$".toRegex()
+        return pattern.matches(numberPlate)
     }
 
     override suspend fun insertReview(review: Review) {
