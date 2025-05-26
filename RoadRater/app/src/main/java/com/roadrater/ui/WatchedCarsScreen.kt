@@ -33,6 +33,7 @@ import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.Screen
 import com.roadrater.presentation.components.CarWatchingCard
 import com.roadrater.presentation.components.RemoveCarDialog
+import com.roadrater.utils.ValidationUtils
 import io.github.jan.supabase.SupabaseClient
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import org.koin.compose.getKoin
@@ -50,6 +51,7 @@ object WatchedCarsScreen : Screen() {
 
         val screenModel = rememberScreenModel { WatchedCarsScreenModel(supabaseClient, currentUser!!.uid) }
         var showDialog by remember { mutableStateOf(false) }
+        var showError by remember { mutableStateOf(false) }
 
         val watchedCars by screenModel.watchedCars.collectAsState()
 
@@ -79,16 +81,30 @@ object WatchedCarsScreen : Screen() {
                 ) {
                     OutlinedTextField(
                         value = numberPlate,
-                        onValueChange = { numberPlate = it },
+                        onValueChange = { 
+                            numberPlate = ValidationUtils.formatNumberPlate(it)
+                            showError = false
+                        },
                         label = { Text(stringResource(R.string.number_plate)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
+                        isError = showError,
+                        supportingText = {
+                            if (showError) {
+                                Text("Plate must be 1-6 alphanumeric characters")
+                            }
+                        }
                     )
 
                     Button(
                         onClick = {
-                            screenModel.watchCar(numberPlate)
-                            numberPlate = ""
+                            if (ValidationUtils.isValidNumberPlate(numberPlate)) {
+                                screenModel.watchCar(numberPlate)
+                                numberPlate = ""
+                                showError = false
+                            } else {
+                                showError = true
+                            }
                         },
                         modifier = Modifier.fillMaxWidth(),
                     ) {

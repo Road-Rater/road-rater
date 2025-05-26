@@ -11,6 +11,8 @@ interface DatabaseRepository {
     suspend fun upsertCar(car: Car)
     suspend fun watchCar(uid: String, numberPlate: String)
     suspend fun unwatchCar(uid: String, numberPlate: String)
+    suspend fun getWatchedCars(uid: String): List<Car>
+    suspend fun isWatchingCar(uid: String, numberPlate: String): Boolean
 
     suspend fun insertReview(review: Review)
     suspend fun getReviewsByPlate(numberPlate: String): List<Review?>
