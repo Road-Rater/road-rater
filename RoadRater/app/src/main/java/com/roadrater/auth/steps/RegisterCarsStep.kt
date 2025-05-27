@@ -70,7 +70,7 @@ internal class RegisterCarsStep : OnboardingStep {
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
                 value = car,
-                onValueChange = { 
+                onValueChange = {
                     car = ValidationUtils.formatNumberPlate(it)
                     showError = false
                 },
@@ -84,7 +84,7 @@ internal class RegisterCarsStep : OnboardingStep {
                     if (showError) {
                         Text("Plate must be 1-6 alphanumeric characters")
                     }
-                }
+                },
             )
 
             Button(

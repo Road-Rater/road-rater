@@ -1,6 +1,5 @@
 package com.roadrater.ui
 
-import android.util.Log
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.roadrater.database.entities.Car
@@ -12,7 +11,6 @@ import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.MissingFieldException
 
 class WatchedCarsScreenModel(
     private val supabaseClient: SupabaseClient,
@@ -84,8 +82,8 @@ class WatchedCarsScreenModel(
 
                 // Check if car info was successfully retrieved (e.g., plate is not blank)
                 if (car.number_plate.isBlank()) {
-                     persistentErrorMessage.value = "Could not find information for this number plate. Please check and try again."
-                     return@launch
+                    persistentErrorMessage.value = "Could not find information for this number plate. Please check and try again."
+                    return@launch
                 }
 
                 // Upsert car and watched car if info is valid
@@ -97,8 +95,7 @@ class WatchedCarsScreenModel(
                     ),
                 )
                 getWatchedCars()
-
-            } catch (e: Exception) { 
+            } catch (e: Exception) {
                 // Handle potential exceptions (e.g., network, GetCarInfo failure, or database errors)
                 errorMessage.value = when {
                     e.message?.contains("network", ignoreCase = true) == true -> "Network error: Please check your internet connection"
@@ -132,12 +129,12 @@ class WatchedCarsScreenModel(
                     }
                 }
                 getWatchedCars()
-            } catch (e: Exception) { 
+            } catch (e: Exception) {
                 // Handle potential exceptions (e.g., network, or database errors)
-                 errorMessage.value = when {
+                errorMessage.value = when {
                     e.message?.contains("network", ignoreCase = true) == true -> "Network error: Please check your internet connection"
                     e.message?.contains("timeout", ignoreCase = true) == true -> "Request timed out: Please try again"
-                     // Fallback for any other unexpected errors
+                    // Fallback for any other unexpected errors
                     else -> "Failed to unwatch car: ${e.message ?: "Unknown error"}"
                 }
             }

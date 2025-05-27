@@ -96,7 +96,7 @@ class DatabaseRepositoryImpl(
                 }
             }
             .countOrNull()
-        
+
         return count != null && count > 0
     }
 

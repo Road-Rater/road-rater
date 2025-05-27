@@ -10,4 +10,4 @@ object ValidationUtils {
         // Convert to uppercase and remove any spaces
         return plate.uppercase().replace(" ", "")
     }
-} 
+}
