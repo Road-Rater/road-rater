@@ -99,7 +99,7 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                         if (!ValidationUtils.isValidNumberPlate(editableNumberPlate) && editableNumberPlate.isNotEmpty()) {
                             Text("Plate must be 1-6 alphanumeric characters")
                         }
-                    }
+                    },
                 )
 
                 Row {

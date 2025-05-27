@@ -44,7 +44,6 @@ import com.roadrater.presentation.components.RemoveCarDialog
 import com.roadrater.utils.ValidationUtils
 import com.roadrater.utils.toast
 import io.github.jan.supabase.SupabaseClient
-import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 
@@ -93,11 +92,11 @@ object WatchedCarsScreen : Screen() {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
+                    .padding(paddingValues),
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center),
                     )
                 } else {
                     Column(
@@ -109,7 +108,7 @@ object WatchedCarsScreen : Screen() {
                     ) {
                         OutlinedTextField(
                             value = numberPlate,
-                            onValueChange = { 
+                            onValueChange = {
                                 numberPlate = ValidationUtils.formatNumberPlate(it)
                                 showError = !ValidationUtils.isValidNumberPlate(numberPlate) && numberPlate.isNotEmpty()
                                 screenModel.clearPersistentError()
@@ -122,9 +121,9 @@ object WatchedCarsScreen : Screen() {
                                 if (showError) {
                                     Text("Plate must be 1-6 alphanumeric characters")
                                 } else if (persistentError != null) {
-                                     Text(persistentError!!, color = MaterialTheme.colorScheme.error)
+                                    Text(persistentError!!, color = MaterialTheme.colorScheme.error)
                                 }
-                            }
+                            },
                         )
 
                         Button(
@@ -158,13 +157,13 @@ object WatchedCarsScreen : Screen() {
                                 text = "No cars in your watchlist",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
                             )
                             Text(
                                 text = "Add cars to your watchlist to track their reviews",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
                             )
                         }
                     }
