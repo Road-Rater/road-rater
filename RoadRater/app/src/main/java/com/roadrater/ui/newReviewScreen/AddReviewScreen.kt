@@ -56,6 +56,7 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
         var rating by remember { mutableIntStateOf(0) }
         var commentText by remember { mutableStateOf(TextFieldValue("")) }
         var reviewTitle by remember { mutableStateOf(TextFieldValue("")) }
+        var editableNumberPlate by remember { mutableStateOf(numberPlate) }
         val isPlateEditable = numberPlate.isEmpty()
         val generalPreferences = koinInject<GeneralPreferences>()
         val user = generalPreferences.user.get()
@@ -84,23 +85,22 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                // LICENSE PLATE - Only show if no plate provided
-                if (isPlateEditable) {
-                    OutlinedTextField(
-                        value = numberPlate,
-                        onValueChange = {
-                            numberPlateInput = ValidationUtils.formatNumberPlate(it)
-                        },
-                        label = { Text(stringResource(R.string.license_plate_input_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        isError = !ValidationUtils.isValidNumberPlate(numberPlate) && numberPlate.isNotEmpty(),
-                        supportingText = {
-                            if (!ValidationUtils.isValidNumberPlate(numberPlate) && numberPlate.isNotEmpty()) {
-                                Text("Plate must be 1-6 alphanumeric characters")
-                            }
+                // LICENSE PLATE
+                OutlinedTextField(
+                    value = editableNumberPlate,
+                    onValueChange = {
+                        editableNumberPlate = ValidationUtils.formatNumberPlate(it)
+                    },
+                    label = { Text(stringResource(R.string.license_plate_input_label)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = isPlateEditable,
+                    isError = !ValidationUtils.isValidNumberPlate(editableNumberPlate) && editableNumberPlate.isNotEmpty(),
+                    supportingText = {
+                        if (!ValidationUtils.isValidNumberPlate(editableNumberPlate) && editableNumberPlate.isNotEmpty()) {
+                            Text("Plate must be 1-6 alphanumeric characters")
                         }
-                    )
-                }
+                    }
+                )
 
                 Row {
                     repeat(5) { index ->
@@ -151,7 +151,7 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
 
                     val newReview = Review(
                         createdBy = currentUserId.toString(),
-                        numberPlate = numberPlateInput,
+                        numberPlate = editableNumberPlate,
                         rating = rating,
                         title = reviewTitle.text,
                         description = commentText.text,
