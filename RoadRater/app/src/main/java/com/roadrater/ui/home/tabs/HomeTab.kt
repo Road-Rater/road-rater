@@ -11,11 +11,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.DirectionsCarFilled
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
@@ -115,7 +117,13 @@ object HomeTab : Tab {
                     },
                 )
             },
-            floatingActionButton = {},
+            floatingActionButton = {
+//                IconButton(
+//                    onClick = screenModel.openAddReviewDialog()
+//                ) {
+//                    Icon(Icons.Default.Add, "Add Review")
+//                }
+            },
         ) { paddingValues ->
             Column(modifier = Modifier.padding(paddingValues)) {
                 Scaffold {

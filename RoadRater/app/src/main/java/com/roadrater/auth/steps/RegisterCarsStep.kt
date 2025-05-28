@@ -40,7 +40,7 @@ import kotlin.collections.plus
 
 internal class RegisterCarsStep : OnboardingStep {
 
-    private var _isComplete by mutableStateOf(false)
+    private var _isComplete by mutableStateOf(true)
 
     override val isComplete: Boolean
         get() = _isComplete
@@ -52,8 +52,10 @@ internal class RegisterCarsStep : OnboardingStep {
 
         var car by remember { mutableStateOf("") }
         var cars by remember { mutableStateOf(listOf<Car>()) }
+
         val focusRequester = remember { FocusRequester() }
         val supabaseClient = koinInject<SupabaseClient>()
+
         val generalPreferences = koinInject<GeneralPreferences>()
         val currentUser = generalPreferences.user.get()
 
@@ -113,11 +115,17 @@ internal class RegisterCarsStep : OnboardingStep {
 
     // Simple watchCar function
     private fun watchCar(uid: String, numberPlate: String, supabaseClient: SupabaseClient): Car {
-        val car = GetCarInfo.getCarInfo(numberPlate)
+        var car: Car? = Car(
+            number_plate = "",
+            make = "",
+            model = "",
+            year = ""
+        )
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                supabaseClient.from("cars").upsert(car)
+                car = supabaseClient.from("cars").select { filter { eq("number_plate", numberPlate) } }.decodeSingleOrNull<Car>()
+                //supabaseClient.from("cars").upsert(car)
                 supabaseClient.from("watched_cars").upsert(
                     WatchedCar(
                         number_plate = numberPlate,
@@ -128,6 +136,6 @@ internal class RegisterCarsStep : OnboardingStep {
                 e.printStackTrace()
             }
         }
-        return car
+        return car!!
     }
 }

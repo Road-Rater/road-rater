@@ -77,4 +77,12 @@ class HomeTabScreenModel(
         relevantReviews.addAll(watchedReviews + ratingsAgainst)
         _reviews.value = relevantReviews
     }
+
+    fun openAddReviewDialog() {
+
+    }
+
+    suspend fun addReview() {
+
+    }
 }
