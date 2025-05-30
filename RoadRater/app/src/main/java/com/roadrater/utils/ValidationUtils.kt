@@ -1,5 +1,4 @@
 package com.roadrater.utils
-
 object ValidationUtils {
     fun isValidNumberPlate(plate: String): Boolean {
         // Check if plate is between 1-6 characters and alphanumeric

@@ -25,17 +25,9 @@ class DatabaseRepositoryImpl(
     }
 
     override suspend fun watchCar(uid: String, numberPlate: String) {
-        // Validate number plate format
-        if (!isValidNumberPlate(numberPlate)) {
-            throw IllegalArgumentException("Invalid number plate format")
-        }
+        // Redundant checks for invalid format and already watching are removed as they are handled in ViewModel
 
-        // Check if user is already watching this car
-        if (isWatchingCar(uid, numberPlate)) {
-            throw IllegalStateException("User is already watching this car")
-        }
-
-        // Ensure car exists in database
+        // Ensure car exists in database (or upsert if not)
         val count = supabaseClient
             .from("cars")
             .select {
@@ -59,10 +51,7 @@ class DatabaseRepositoryImpl(
     }
 
     override suspend fun unwatchCar(uid: String, numberPlate: String) {
-        if (!isWatchingCar(uid, numberPlate)) {
-            throw IllegalStateException("User is not watching this car")
-        }
-
+        // Redundant check for not watching is removed as it should be handled in ViewModel
         supabaseClient.from("watched_cars").delete {
             filter {
                 eq("number_plate", numberPlate)

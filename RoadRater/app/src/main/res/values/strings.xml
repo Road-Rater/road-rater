@@ -58,6 +58,7 @@
     <string name="add_car_watchlist">Add Car to Watchlist</string>
     <string name="remove_car_dialog_title">Remove?</string>
     <string name="remove_car_dialog_body">Do you really want to remove %s from your watched list?</string>
+    <string name="invalid_plate">Invalid number plate format. Please check and try again.</string>
 
     <!-- Profile -->
     <string name="guest_user">Guest User</string>

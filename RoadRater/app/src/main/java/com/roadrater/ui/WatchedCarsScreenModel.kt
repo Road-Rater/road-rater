@@ -31,6 +31,7 @@ class WatchedCarsScreenModel(
             try {
                 isLoading.value = true
                 errorMessage.value = null
+                persistentErrorMessage.value = null
                 val watched = supabaseClient.from("watched_cars")
                     .select { filter { eq("uid", uid) } }
                     .decodeList<WatchedCar>()
@@ -43,7 +44,8 @@ class WatchedCarsScreenModel(
                 }
                 watchedCars.value = carList
             } catch (e: Exception) {
-                errorMessage.value = "Failed to load watched cars: ${e.message}"
+                errorMessage.value = "Failed to load watched cars: ${e.message ?: "Unknown error"}"
+                persistentErrorMessage.value = null // Clear persistent error on load failure
             } finally {
                 isLoading.value = false
             }
@@ -54,7 +56,7 @@ class WatchedCarsScreenModel(
         screenModelScope.launch(Dispatchers.IO) {
             try {
                 errorMessage.value = null
-                persistentErrorMessage.value = null
+                persistentErrorMessage.value = null // Clear persistent errors on new attempt
 
                 // Validate number plate format before proceeding using ValidationUtils
                 if (!ValidationUtils.isValidNumberPlate(numberPlate)) {
@@ -100,12 +102,12 @@ class WatchedCarsScreenModel(
                 errorMessage.value = when {
                     e.message?.contains("network", ignoreCase = true) == true -> "Network error: Please check your internet connection"
                     e.message?.contains("timeout", ignoreCase = true) == true -> "Request timed out: Please try again"
-                    // Database unique constraint violation is now handled by the isWatching check above
-                    // Catching potential errors from GetCarInfo.getCarInfo if it throws instead of returning blank
-                    // e.message?.contains("Could not get car info", ignoreCase = true) == true -> "Could not find information for this number plate. Please check and try again."
+                    // Check for database unique constraint violation message (as a fallback)
+                    e.message?.contains("duplicate key value violates unique constraint", ignoreCase = true) == true -> "You are already watching this car"
                     // Fallback for any other unexpected errors
                     else -> "An unexpected error occurred: ${e.message ?: "Unknown error"}"
                 }
+                persistentErrorMessage.value = null // Clear persistent error on other exceptions
             }
         }
     }
@@ -121,7 +123,7 @@ class WatchedCarsScreenModel(
         screenModelScope.launch(Dispatchers.IO) {
             try {
                 errorMessage.value = null
-
+                persistentErrorMessage.value = null // Clear persistent errors on unwatch attempt
                 supabaseClient.from("watched_cars").delete {
                     filter {
                         eq("number_plate", numberPlate)
@@ -137,6 +139,7 @@ class WatchedCarsScreenModel(
                     // Fallback for any other unexpected errors
                     else -> "Failed to unwatch car: ${e.message ?: "Unknown error"}"
                 }
+                persistentErrorMessage.value = null // Clear persistent error on unwatch failure
             }
         }
     }
