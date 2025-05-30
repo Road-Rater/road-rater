@@ -1,5 +1,6 @@
 package com.roadrater.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,7 +43,6 @@ import com.roadrater.presentation.Screen
 import com.roadrater.presentation.components.CarWatchingCard
 import com.roadrater.presentation.components.RemoveCarDialog
 import com.roadrater.utils.ValidationUtils
-import com.roadrater.utils.toast
 import io.github.jan.supabase.SupabaseClient
 import org.koin.compose.getKoin
 import org.koin.compose.koinInject
@@ -70,10 +70,9 @@ object WatchedCarsScreen : Screen() {
         var numberPlate by remember { mutableStateOf("") }
         var selectedNumberPlate by remember { mutableStateOf("") }
 
-        // Show transient error messages as toasts
         error?.let { errorMsg ->
             LaunchedEffect(errorMsg) {
-                context.toast(errorMsg)
+                Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -130,8 +129,8 @@ object WatchedCarsScreen : Screen() {
                             onClick = {
                                 if (ValidationUtils.isValidNumberPlate(numberPlate)) {
                                     screenModel.watchCar(numberPlate)
-                                    numberPlate = ""
                                     showError = false
+                                    numberPlate = ""
                                 } else {
                                     showError = true
                                 }

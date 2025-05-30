@@ -1,6 +1,7 @@
 package com.roadrater.ui.newReviewScreen
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,7 +40,6 @@ import com.roadrater.R
 import com.roadrater.database.entities.Review
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.utils.ValidationUtils
-import com.roadrater.utils.toast
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.CoroutineScope
@@ -56,7 +56,7 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
         var rating by remember { mutableIntStateOf(0) }
         var commentText by remember { mutableStateOf(TextFieldValue("")) }
         var reviewTitle by remember { mutableStateOf(TextFieldValue("")) }
-        var editableNumberPlate by remember { mutableStateOf(numberPlate) }
+        var editableNumberPlate by remember { mutableStateOf(TextFieldValue(numberPlate)) }
         val isPlateEditable = numberPlate.isEmpty()
         val generalPreferences = koinInject<GeneralPreferences>()
         val user = generalPreferences.user.get()
@@ -89,14 +89,14 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                 OutlinedTextField(
                     value = editableNumberPlate,
                     onValueChange = {
-                        editableNumberPlate = ValidationUtils.formatNumberPlate(it)
+                        editableNumberPlate = it
                     },
                     label = { Text(stringResource(R.string.license_plate_input_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = isPlateEditable,
-                    isError = !ValidationUtils.isValidNumberPlate(editableNumberPlate) && editableNumberPlate.isNotEmpty(),
+                    isError = !ValidationUtils.isValidNumberPlate(editableNumberPlate.text) && editableNumberPlate.text.isNotEmpty(),
                     supportingText = {
-                        if (!ValidationUtils.isValidNumberPlate(editableNumberPlate) && editableNumberPlate.isNotEmpty()) {
+                        if (!ValidationUtils.isValidNumberPlate(editableNumberPlate.text) && editableNumberPlate.text.isNotEmpty()) {
                             Text("Plate must be 1-6 alphanumeric characters")
                         }
                     },
@@ -145,13 +145,18 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
 
                     val currentUserId = user?.uid
                     if (currentUserId == null) {
-                        context.toast(context.getString(R.string.login_error))
+                        Toast.makeText(context, context.getString(R.string.login_error), Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
+                    if (!ValidationUtils.isValidNumberPlate(editableNumberPlate.text)) {
+                        Toast.makeText(context, "Invalid number plate format.", Toast.LENGTH_SHORT).show()
                         return@Button
                     }
 
                     val newReview = Review(
                         createdBy = currentUserId.toString(),
-                        numberPlate = editableNumberPlate,
+                        numberPlate = editableNumberPlate.text.uppercase(),
                         rating = rating,
                         title = reviewTitle.text,
                         description = commentText.text,
@@ -164,10 +169,10 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                             Log.d("NewReviewScreen", "Submitting review: $newReview")
                             val response = supabaseClient.from("reviews").insert(newReview)
                             Log.d("NewReviewScreen", "Supabase insert response: $response")
-                            context.toast(context.getString(R.string.review_submitted))
+                            Toast.makeText(context, context.getString(R.string.review_submitted), Toast.LENGTH_SHORT).show()
                         } catch (e: Exception) {
                             Log.e("NewReviewScreen", "Error submitting review", e)
-                            context.toast(context.getString(R.string.review_insert_failed, e.message ?: ""))
+                            Toast.makeText(context, context.getString(R.string.review_insert_failed, e.message ?: "Unknown error"), Toast.LENGTH_SHORT).show()
                         }
                     }
                 }) {
