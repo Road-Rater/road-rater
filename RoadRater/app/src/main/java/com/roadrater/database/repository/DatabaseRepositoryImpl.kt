@@ -25,6 +25,9 @@ class DatabaseRepositoryImpl(
     }
 
     override suspend fun watchCar(uid: String, numberPlate: String) {
+        // Redundant checks for invalid format and already watching are removed as they are handled in ViewModel
+
+        // Ensure car exists in database (or upsert if not)
         val count = supabaseClient
             .from("cars")
             .select {
@@ -37,6 +40,8 @@ class DatabaseRepositoryImpl(
         if (count == null || count >= 0) {
             supabaseClient.from("cars").upsert(GetCarInfo.getCarInfo(numberPlate))
         }
+
+        // Add to watched cars
         supabaseClient.from("watched_cars").upsert(
             WatchedCar(
                 number_plate = numberPlate,
@@ -46,6 +51,7 @@ class DatabaseRepositoryImpl(
     }
 
     override suspend fun unwatchCar(uid: String, numberPlate: String) {
+        // Redundant check for not watching is removed as it should be handled in ViewModel
         supabaseClient.from("watched_cars").delete {
             filter {
                 eq("number_plate", numberPlate)
