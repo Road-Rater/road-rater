@@ -1,7 +1,9 @@
 package com.roadrater.ui
 
+import android.content.Context
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.roadrater.R
 import com.roadrater.database.entities.Car
 import com.roadrater.database.entities.WatchedCar
 import com.roadrater.utils.GetCarInfo
@@ -15,6 +17,8 @@ import kotlinx.coroutines.launch
 class WatchedCarsScreenModel(
     private val supabaseClient: SupabaseClient,
     private val uid: String,
+    private val context: Context,
+
 ) : ScreenModel {
 
     var watchedCars = MutableStateFlow<List<Car>>(emptyList())
@@ -44,7 +48,7 @@ class WatchedCarsScreenModel(
                 }
                 watchedCars.value = carList
             } catch (e: Exception) {
-                errorMessage.value = "Failed to load watched cars: ${e.message ?: "Unknown error"}"
+                errorMessage.value = context.getString(R.string.load_watch_failed)
                 persistentErrorMessage.value = null // Clear persistent error on load failure
             } finally {
                 isLoading.value = false
@@ -60,7 +64,7 @@ class WatchedCarsScreenModel(
 
                 // Validate number plate format before proceeding using ValidationUtils
                 if (!ValidationUtils.isValidNumberPlate(numberPlate)) {
-                    persistentErrorMessage.value = "Invalid number plate format. Please check and try again."
+                    persistentErrorMessage.value = context.getString(R.string.invalid_plate)
                     return@launch
                 }
 
@@ -75,7 +79,7 @@ class WatchedCarsScreenModel(
                     .countOrNull() ?: 0 > 0
 
                 if (isWatching) {
-                    persistentErrorMessage.value = "You are already watching this car"
+                    persistentErrorMessage.value = context.getString(R.string.watching)
                     return@launch
                 }
 
@@ -84,7 +88,7 @@ class WatchedCarsScreenModel(
 
                 // Check if car info was successfully retrieved (e.g., plate is not blank)
                 if (car.number_plate.isBlank()) {
-                    persistentErrorMessage.value = "Could not find information for this number plate. Please check and try again."
+                    persistentErrorMessage.value = context.getString(R.string.info_retrieval_error)
                     return@launch
                 }
 
@@ -100,12 +104,12 @@ class WatchedCarsScreenModel(
             } catch (e: Exception) {
                 // Handle potential exceptions (e.g., network, GetCarInfo failure, or database errors)
                 errorMessage.value = when {
-                    e.message?.contains("network", ignoreCase = true) == true -> "Network error: Please check your internet connection"
-                    e.message?.contains("timeout", ignoreCase = true) == true -> "Request timed out: Please try again"
+                    e.message?.contains("network", ignoreCase = true) == true -> context.getString(R.string.network_error)
+                    e.message?.contains("timeout", ignoreCase = true) == true -> context.getString(R.string.request_time_out)
                     // Check for database unique constraint violation message (as a fallback)
-                    e.message?.contains("duplicate key value violates unique constraint", ignoreCase = true) == true -> "You are already watching this car"
+                    e.message?.contains(context.getString(R.string.duplicate_key), ignoreCase = true) == true -> context.getString(R.string.watching)
                     // Fallback for any other unexpected errors
-                    else -> "An unexpected error occurred: ${e.message ?: "Unknown error"}"
+                    else -> context.getString(R.string.unexpected_error, e.message ?: context.getString(R.string.unknown_error))
                 }
                 persistentErrorMessage.value = null // Clear persistent error on other exceptions
             }
@@ -113,7 +117,7 @@ class WatchedCarsScreenModel(
     }
 
     private fun isValidNumberPlate(numberPlate: String): Boolean {
-        // Basic UK number plate format validation (should match ValidationUtils)
+        // Basic NZ number plate format validation (should match ValidationUtils)
         // The pattern in ValidationUtils is 1..6 alphanumeric, so let's match that.
         val pattern = "^[A-Z0-9]{1,6}$".toRegex()
         return pattern.matches(numberPlate)
@@ -134,10 +138,10 @@ class WatchedCarsScreenModel(
             } catch (e: Exception) {
                 // Handle potential exceptions (e.g., network, or database errors)
                 errorMessage.value = when {
-                    e.message?.contains("network", ignoreCase = true) == true -> "Network error: Please check your internet connection"
-                    e.message?.contains("timeout", ignoreCase = true) == true -> "Request timed out: Please try again"
+                    e.message?.contains("network", ignoreCase = true) == true -> context.getString(R.string.network_error)
+                    e.message?.contains("timeout", ignoreCase = true) == true -> context.getString(R.string.request_time_out)
                     // Fallback for any other unexpected errors
-                    else -> "Failed to unwatch car: ${e.message ?: "Unknown error"}"
+                    else -> context.getString(R.string.unwatch_failed, e.message ?: context.getString(R.string.unknown_error))
                 }
                 persistentErrorMessage.value = null // Clear persistent error on unwatch failure
             }

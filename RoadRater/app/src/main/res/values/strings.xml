@@ -59,6 +59,18 @@
     <string name="remove_car_dialog_title">Remove?</string>
     <string name="remove_car_dialog_body">Do you really want to remove %s from your watched list?</string>
     <string name="invalid_plate">Invalid number plate format. Please check and try again.</string>
+    <string name="load_watch_failed">Failed to load watched cars: %s</string>
+    <string name="duplicate_key">duplicate key value violates unique constraint</string>
+    <string name="network_error">Network error: Please check your internet connection</string>
+    <string name="request_time_out">Request timed out: Please try again</string>
+    <string name="watching">You are already watching this car</string>
+    <string name="unwatch_failed">Failed to unwatch car: %s</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="unexpected_error">An unexpected error occurred: %s</string>
+    <string name="info_retrieval_error">Could not find information for this number plate. Please check and try again.</string>
+
+
+
 
     <!-- Profile -->
     <string name="guest_user">Guest User</string>

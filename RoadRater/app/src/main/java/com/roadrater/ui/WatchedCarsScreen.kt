@@ -58,7 +58,7 @@ object WatchedCarsScreen : Screen() {
         val currentUser = generalPreferences.user.get()
         val context = LocalContext.current
 
-        val screenModel = rememberScreenModel { WatchedCarsScreenModel(supabaseClient, currentUser!!.uid) }
+        val screenModel = rememberScreenModel { WatchedCarsScreenModel(supabaseClient, currentUser!!.uid, context) }
         var showDialog by remember { mutableStateOf(false) }
         var showError by remember { mutableStateOf(false) }
 
