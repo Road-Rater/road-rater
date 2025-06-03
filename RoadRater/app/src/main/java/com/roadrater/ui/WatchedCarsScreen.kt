@@ -1,6 +1,5 @@
 package com.roadrater.ui
 
-import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,9 +46,8 @@ import com.roadrater.utils.ValidationUtils
 import io.github.jan.supabase.SupabaseClient
 import org.koin.compose.getKoin
 import org.koin.compose.koinInject
-import android.content.Context
 
-object WatchedCarsScreen: Screen() {
+object WatchedCarsScreen : Screen() {
     private fun readResolve(): Any = WatchedCarsScreen
 
     @Composable
