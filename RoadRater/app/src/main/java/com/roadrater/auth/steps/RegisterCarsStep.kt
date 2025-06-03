@@ -82,7 +82,7 @@ internal class RegisterCarsStep : OnboardingStep {
                 isError = showError,
                 supportingText = {
                     if (showError) {
-                        Text("Plate must be 1-6 alphanumeric characters")
+                        Text(stringResource(R.string.plate_format))
                     }
                 },
             )

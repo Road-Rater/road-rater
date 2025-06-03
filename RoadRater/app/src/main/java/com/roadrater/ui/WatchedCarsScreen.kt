@@ -120,7 +120,7 @@ object WatchedCarsScreen: Screen() {
                             isError = showError || persistentError != null,
                             supportingText = {
                                 if (showError) {
-                                    Text("Plate must be 1-6 alphanumeric characters")
+                                    Text(stringResource(R.string.plate_format))
                                 } else if (persistentError != null) {
                                     Text(persistentError!!, color = MaterialTheme.colorScheme.error)
                                 }
@@ -177,7 +177,6 @@ object WatchedCarsScreen: Screen() {
                 onDismissRequest = { showDialog = false },
                 onConfirm = {
                     screenModel.unwatchCar(selectedNumberPlate)
-                    showDialog = false
                 },
                 numberPlate = selectedNumberPlate,
             )

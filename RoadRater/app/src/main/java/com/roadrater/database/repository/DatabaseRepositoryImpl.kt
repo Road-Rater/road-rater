@@ -89,13 +89,6 @@ class DatabaseRepositoryImpl(
         return count != null && count > 0
     }
 
-    private fun isValidNumberPlate(numberPlate: String): Boolean {
-        // Basic NZ number plate format validation
-        // This can be enhanced based on your specific requirements
-        val pattern = "^[A-Z0-9]{1,6}$".toRegex()
-        return pattern.matches(numberPlate)
-    }
-
     override suspend fun insertReview(review: Review) {
         supabaseClient.from("reviews").insert(review)
     }
