@@ -18,6 +18,7 @@ import com.roadrater.R
  * @param text the text to display.
  * @param duration the duration of the toast. Defaults to short.
  */
+
 fun Context.toast(
     text: String?,
     duration: Int = Toast.LENGTH_SHORT,
@@ -45,10 +46,10 @@ fun Context.copyToClipboard(label: String, content: String) {
         // Android 13 and higher shows a visual confirmation of copied contents
         // https://developer.android.com/about/versions/13/features/copy-paste
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
-            toast(getString(R.string.copied_to_clipboard))
+            Toast.makeText(applicationContext, getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show()
         }
     } catch (e: Throwable) {
-        toast(getString(R.string.clipboard_copy_error))
+        Toast.makeText(applicationContext, getString(R.string.clipboard_copy_error), Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -66,7 +67,7 @@ fun Context.openInBrowser(uri: Uri, forceDefaultBrowser: Boolean = false) {
         }
         startActivity(intent)
     } catch (e: Exception) {
-        toast(e.message)
+        Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
     }
 }
 

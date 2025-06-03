@@ -25,6 +25,9 @@ class DatabaseRepositoryImpl(
     }
 
     override suspend fun watchCar(uid: String, numberPlate: String) {
+        // Redundant checks for invalid format and already watching are removed as they are handled in ViewModel
+
+        // Ensure car exists in database (or upsert if not)
         val count = supabaseClient
             .from("cars")
             .select {
@@ -37,6 +40,8 @@ class DatabaseRepositoryImpl(
         if (count == null || count >= 0) {
             supabaseClient.from("cars").upsert(GetCarInfo.getCarInfo(numberPlate))
         }
+
+        // Add to watched cars
         supabaseClient.from("watched_cars").upsert(
             WatchedCar(
                 number_plate = numberPlate,
@@ -46,12 +51,42 @@ class DatabaseRepositoryImpl(
     }
 
     override suspend fun unwatchCar(uid: String, numberPlate: String) {
+        // Redundant check for not watching is removed as it should be handled in ViewModel
         supabaseClient.from("watched_cars").delete {
             filter {
                 eq("number_plate", numberPlate)
                 eq("uid", uid)
             }
         }
+    }
+
+    override suspend fun getWatchedCars(uid: String): List<Car> {
+        return supabaseClient
+            .from("watched_cars")
+            .select {
+                filter {
+                    eq("uid", uid)
+                }
+            }
+            .decodeList<WatchedCar>()
+            .map { watchedCar ->
+                getCarByPlate(watchedCar.number_plate)
+            }
+            .filterNotNull()
+    }
+
+    override suspend fun isWatchingCar(uid: String, numberPlate: String): Boolean {
+        val count = supabaseClient
+            .from("watched_cars")
+            .select {
+                filter {
+                    eq("uid", uid)
+                    eq("number_plate", numberPlate)
+                }
+            }
+            .countOrNull()
+
+        return count != null && count > 0
     }
 
     override suspend fun insertReview(review: Review) {
