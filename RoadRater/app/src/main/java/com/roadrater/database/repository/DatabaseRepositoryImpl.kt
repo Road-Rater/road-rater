@@ -90,9 +90,9 @@ class DatabaseRepositoryImpl(
     }
 
     private fun isValidNumberPlate(numberPlate: String): Boolean {
-        // Basic UK number plate format validation
+        // Basic NZ number plate format validation
         // This can be enhanced based on your specific requirements
-        val pattern = "^[A-Z0-9]{2,7}$".toRegex()
+        val pattern = "^[A-Z0-9]{1,6}$".toRegex()
         return pattern.matches(numberPlate)
     }
 

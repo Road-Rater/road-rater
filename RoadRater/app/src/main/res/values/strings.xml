@@ -68,7 +68,7 @@
     <string name="unknown_error">Unknown error</string>
     <string name="unexpected_error">An unexpected error occurred: %s</string>
     <string name="info_retrieval_error">Could not find information for this number plate. Please check and try again.</string>
-
+    <string name="plate_format">Plate must be 1-6 alphanumeric characters</string>
 
 
 
@@ -103,6 +103,10 @@
     <string name="oldest_first">Oldest First</string>
     <string name="newest_first">Newest First</string>
     <string name="no_reviews">No reviews yet.</string>
+
+    <!-- Watched Cars -->
+    <string name="no_cars">No cars in your watchlist</string>
+    <string name="empty_watchlist">Add cars to your watchlist to track their reviews</string>
 
     <!-- Preferences -->
     <string name="pref_settings_title">Settings</string>

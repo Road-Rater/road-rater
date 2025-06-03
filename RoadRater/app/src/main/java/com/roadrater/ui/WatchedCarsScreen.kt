@@ -1,5 +1,6 @@
 package com.roadrater.ui
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,8 +47,9 @@ import com.roadrater.utils.ValidationUtils
 import io.github.jan.supabase.SupabaseClient
 import org.koin.compose.getKoin
 import org.koin.compose.koinInject
+import android.content.Context
 
-object WatchedCarsScreen : Screen() {
+object WatchedCarsScreen: Screen() {
     private fun readResolve(): Any = WatchedCarsScreen
 
     @Composable
@@ -153,13 +155,13 @@ object WatchedCarsScreen : Screen() {
                         } else {
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = "No cars in your watchlist",
+                                text = (stringResource(R.string.no_cars)),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.align(Alignment.CenterHorizontally),
                             )
                             Text(
-                                text = "Add cars to your watchlist to track their reviews",
+                                text = stringResource(R.string.empty_watchlist),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                 modifier = Modifier.align(Alignment.CenterHorizontally),

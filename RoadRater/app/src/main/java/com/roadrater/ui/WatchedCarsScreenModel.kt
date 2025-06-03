@@ -116,13 +116,6 @@ class WatchedCarsScreenModel(
         }
     }
 
-    private fun isValidNumberPlate(numberPlate: String): Boolean {
-        // Basic NZ number plate format validation (should match ValidationUtils)
-        // The pattern in ValidationUtils is 1..6 alphanumeric, so let's match that.
-        val pattern = "^[A-Z0-9]{1,6}$".toRegex()
-        return pattern.matches(numberPlate)
-    }
-
     fun unwatchCar(numberPlate: String) {
         screenModelScope.launch(Dispatchers.IO) {
             try {

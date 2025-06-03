@@ -97,7 +97,7 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                     isError = !ValidationUtils.isValidNumberPlate(editableNumberPlate.text) && editableNumberPlate.text.isNotEmpty(),
                     supportingText = {
                         if (!ValidationUtils.isValidNumberPlate(editableNumberPlate.text) && editableNumberPlate.text.isNotEmpty()) {
-                            Text("Plate must be 1-6 alphanumeric characters")
+                            Text(stringResource(R.string.plate_format))
                         }
                     },
                 )
@@ -150,7 +150,7 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                     }
 
                     if (!ValidationUtils.isValidNumberPlate(editableNumberPlate.text)) {
-                        Toast.makeText(context, "Invalid number plate format.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.invalid_plate), Toast.LENGTH_SHORT).show()
                         return@Button
                     }
 
