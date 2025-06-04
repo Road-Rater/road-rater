@@ -1,11 +1,22 @@
 package com.roadrater.ui.home.tabs
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,60 +27,44 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DirectionsCar
+import androidx.compose.material.icons.outlined.Output
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.RateReview
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material3.Card
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import coil3.compose.rememberAsyncImagePainter
 import com.roadrater.R
 import com.roadrater.database.entities.Review
-import com.roadrater.database.entities.TableUser
 import com.roadrater.database.entities.User
-import com.roadrater.database.entities.WatchedCar
-import com.roadrater.preferences.GeneralPreferences
+import com.roadrater.presentation.components.CarWatchingCard
 import com.roadrater.presentation.components.ReviewCard
+import com.roadrater.presentation.components.StarRating
 import com.roadrater.presentation.util.Tab
 import com.roadrater.ui.theme.spacing
-import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.postgrest.from
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
 import org.koin.java.KoinJavaComponent.getKoin
 
 object ProfileTab : Tab {
@@ -92,19 +87,15 @@ object ProfileTab : Tab {
             getKoin().get<ProfileTabScreenModel>()
         }
 
-        val reviewsGiven by screenModel.reviewsGiven.collectAsState()
-        val reviewsReceived by screenModel.reviewsReceived.collectAsState()
         val currentUser = screenModel.currentUser
+        var selectedPrimaryTab = screenModel.selectedPrimaryTab.collectAsState()
 
-        var selectedTab by remember { mutableIntStateOf(0) }
-        val tabTitles = listOf<String>("Given", "Received")
-        val reviewsForTab = if (selectedTab == 0) reviewsGiven else reviewsReceived
+        val primaryTabTitles = listOf<String>("Reviews", "Vehicles", "More")
 
         Column(
             modifier = Modifier
                 .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Start
         ) {
             Column(
                 modifier = Modifier
@@ -112,26 +103,96 @@ object ProfileTab : Tab {
                     .background(MaterialTheme.colorScheme.primaryContainer)
                     .padding(30.dp)
             ) {
-                Spacer(modifier = Modifier.height(32.dp))
-                UserDetails(currentUser = currentUser)
+                Spacer(modifier = Modifier.height(40.dp))
+                UserDetails(currentUser)
             }
 
-            Text(
-                text = "Reviews",
-                style = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Center
-            )
-
-            PrimaryTabRow(selectedTabIndex = selectedTab) {
-                tabTitles.forEachIndexed { index, title ->
+            PrimaryTabRow(selectedTabIndex = selectedPrimaryTab.value) {
+                primaryTabTitles.forEachIndexed { index, title ->
                     Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        text = { Text(text = title, maxLines = 2) }
+                        selected = selectedPrimaryTab.value == index,
+                        onClick = { screenModel.setSelectedPrimaryTab(index) },
+                        text = { Text(title, modifier = Modifier.padding(10.dp)) }
                     )
                 }
             }
+            AnimatedContent(
+                targetState = selectedPrimaryTab.value,
+                transitionSpec = {
+                    // Example: slide left when increasing tab index, right when decreasing
+                    if (targetState > initialState) {
+                        slideInHorizontally { it } + fadeIn() togetherWith
+                                slideOutHorizontally { -it } + fadeOut()
+                    } else {
+                        slideInHorizontally { -it } + fadeIn() togetherWith
+                                slideOutHorizontally { it } + fadeOut()
+                    }.using(SizeTransform(clip = false))
+                },
+                label = "Sliding Tab Transition"
+            ) { target ->
+                when (target) {
+                    0 -> ReviewsTabContent(screenModel)
+                    1 -> VehiclesTabContent(screenModel)
+                    2 -> MoreTabContent()
+                }
+            }
+        }
+    }
 
+    @Composable
+    fun MoreTabContent() {
+        Text("More stuff")
+    }
+
+    @Composable
+    fun VehiclesTabContent(screenModel: ProfileTabScreenModel) {
+        val watchedCars by screenModel.watchedCars.collectAsState()
+        if (watchedCars.isEmpty()) {
+            Text(
+                text = "No cars being watched.",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxWidth(),
+            )
+        } else {
+            LazyColumn {
+                items(watchedCars) {
+                    CarWatchingCard(car = it, onClick = {})
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun ReviewsTabContent(screenModel: ProfileTabScreenModel) {
+        val reviewsGiven by screenModel.reviewsGiven.collectAsState()
+        val reviewsReceived by screenModel.reviewsReceived.collectAsState()
+        var selectedSecondaryTab = screenModel.selectedSecondaryTab.collectAsState()
+
+        val secondaryTabTitles = listOf<String>("Given", "Received")
+        val reviewsForTab = if (selectedSecondaryTab.value == 0) reviewsGiven else reviewsReceived
+
+        Column {
+            SecondaryTabRow(selectedTabIndex = selectedSecondaryTab.value) {
+                secondaryTabTitles.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedSecondaryTab.value == index,
+                        onClick = { screenModel.setSelectedSecondaryTab(index) },
+                        text = {
+                            BadgedBox(badge = {
+                                if ((index == 0 && reviewsGiven.isNotEmpty()) || index == 1 && reviewsReceived.isNotEmpty()) Badge {
+                                    Text(
+                                        if (index == 0) reviewsGiven.size.toString() else reviewsReceived.size.toString()
+                                    )
+                                }
+                            }) {
+                                Text(title, modifier = Modifier.padding(10.dp))
+                            }
+                        }
+                    )
+                }
+            }
             if (reviewsForTab.isEmpty()) {
                 Text(
                     text = "No reviews available.",
@@ -141,9 +202,13 @@ object ProfileTab : Tab {
                         .fillMaxWidth(),
                 )
             } else {
+                Spacer(modifier = Modifier.height(10.dp))
                 LazyColumn {
-                    items(reviewsForTab) {
-                        ReviewCard(review = it)
+                    item {
+                        ReviewSummary(reviewsForTab)
+                    }
+                    items(reviewsForTab) { review ->
+                        ReviewCard(review = review)
                     }
                 }
             }
@@ -151,38 +216,81 @@ object ProfileTab : Tab {
     }
 
     @Composable
-    fun UserDetails(currentUser: User?) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-
+    fun ReviewSummary(reviewsForTab: List<Review>) {
+        var average = reviewsForTab.map { it.rating.toDouble() }.average()
+        var averageFormatted = "%.1f".format(average)
+        Column (
+            modifier = Modifier.padding(horizontal = 15.dp),
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End,
+            ) {
+                AnimatedContent(
+                    targetState = average.toInt(),
+                    transitionSpec = {
+                        fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
+                    },
+                    label = "StarRatingFade"
+                ) { average ->
+                    StarRating(average, 40.dp)
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                AnimatedContent(targetState = averageFormatted,
+                    transitionSpec = {
+                        // Compare the incoming number with the previous number.
+                        if (targetState > initialState) {
+                            // If the target number is larger, it slides up and fades in
+                            // while the initial (smaller) number slides up and fades out.
+                            slideInVertically { height -> height } + fadeIn() togetherWith
+                                    slideOutVertically { height -> -height } + fadeOut()
+                        } else {
+                            // If the target number is smaller, it slides down and fades in
+                            // while the initial number slides down and fades out.
+                            slideInVertically { height -> -height } + fadeIn() togetherWith
+                                    slideOutVertically { height -> height } + fadeOut()
+                        }.using(
+                            // Disable clipping since the faded slide-in/out should
+                            // be displayed out of bounds.
+                            SizeTransform(clip = false)
+                        )
+                    }, label = "animated content") { averageFormatted ->
+                    Text(
+                        text = if (reviewsForTab.isNotEmpty()) averageFormatted else "0.0",
+                        style = MaterialTheme.typography.displayLarge,
+                    )
+                }
+            }
+            RatingBarBreakdown(reviewsForTab)
+        }
+    }
+
+    @Composable
+    fun UserDetails(currentUser: User?) {
+        Row {
             // Show profile picture if available
             currentUser?.profile_pic_url?.let { imageUrl ->
                 Image(
                     painter = rememberAsyncImagePainter(imageUrl),
                     contentDescription = "Profile picture",
                     modifier = Modifier
-                        .size(120.dp)
+                        .size(80.dp)
                         .clip(CircleShape),
                 )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Show user's nickname
-            Text(
-                text = currentUser!!.name ?: currentUser.nickname ?: "Guest User",
-                style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center
-            )
-
-            // Show email or 'Guest Account' if not signed in
-            Text(
-                text = currentUser.email ?: "",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center
-            )
+            Column(
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            ) {
+                Text(
+                    text = currentUser!!.name ?: currentUser.nickname ?: "Guest User",
+                    style = MaterialTheme.typography.headlineLarge
+                )
+                Text(
+                    text = currentUser.email ?: ""
+                )
+            }
         }
     }
 
@@ -212,6 +320,7 @@ object ProfileTab : Tab {
         }
 
     }
+
 }
 
 
@@ -234,5 +343,52 @@ private fun StatItem(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+    }
+}
+
+@Composable
+fun RatingBarBreakdown(reviews: List<Review>) {
+    fun getRatingCounts(reviews: List<Review>): List<Int> {
+        val rawCounts = reviews
+            .map { it.rating }
+            .groupingBy { it }
+            .eachCount()
+
+        return (1..5).map { rawCounts[it] ?: 0 }
+    }
+
+    val ratingCounts = getRatingCounts(reviews)
+    val ratingDistribution = ratingCounts.map {
+        if (it > 0) it.toFloat() / reviews.size else 0.0f
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        ratingDistribution.forEachIndexed { index, progress ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "${5 - index}", modifier = Modifier.width(24.dp))
+                // Animate the progress value
+                val animatedProgress by animateFloatAsState(
+                    targetValue = progress,
+                    animationSpec = tween(durationMillis = 600),
+                    label = "Rating Bar Animation"
+                )
+                LinearProgressIndicator(
+                    progress = { animatedProgress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp),
+                    color = Color(0xFF4CAF50),
+                    trackColor = Color.LightGray,
+                    strokeCap = StrokeCap.Round,
+                    gapSize = (-5).dp,
+                    drawStopIndicator = {}
+                )
+            }
+        }
     }
 }

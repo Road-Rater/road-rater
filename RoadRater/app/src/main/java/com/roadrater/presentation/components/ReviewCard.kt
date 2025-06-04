@@ -43,16 +43,7 @@ fun ReviewCard(review: Review) {
         shape = RoundedCornerShape(16.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row {
-                repeat(5) { index ->
-                    Icon(
-                        imageVector = if (index < review.rating.toInt()) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                        contentDescription = "Star",
-                        modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            }
+            StarRating(review.rating.toInt(), 24.dp)
 
             Spacer(modifier = Modifier.height(8.dp))
 
