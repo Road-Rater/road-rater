@@ -59,27 +59,33 @@ class Auth() {
                                 val authCredential = GoogleAuthProvider.getCredential(googleTokenId, null)
                                 var firebaseUser = Firebase.auth.signInWithCredential(authCredential).await().user
 
-                                firebaseUser?.let {
-                                    if (it.isAnonymous.not()) {
-                                        val user = User(
-                                            uid = firebaseUser.uid,
-                                            name = firebaseUser.displayName,
-                                            nickname = firebaseUser.displayName,
-                                            email = firebaseUser.email,
-                                            profile_pic_url = firebaseUser.photoUrl.toString(),
-                                        )
+                                val isModerator =
 
-                                        try {
-                                            val existingUsers = supabaseClient.postgrest["users"].select { filter { eq("uid", user.uid) } }
-                                            if (existingUsers.data.isEmpty() || existingUsers.data == "[]") {
-                                                val response = supabaseClient.postgrest["users"].insert(TableUser(user.uid, user.nickname, null, user.email))
+                                    firebaseUser?.let {
+                                        if (it.isAnonymous.not()) {
+                                            val existingUsers = supabaseClient.postgrest["users"].select { filter { eq("uid", firebaseUser.uid) } }
+
+                                            val user = User(
+                                                uid = firebaseUser.uid,
+                                                name = firebaseUser.displayName,
+                                                nickname = firebaseUser.displayName,
+                                                email = firebaseUser.email,
+                                                profile_pic_url = firebaseUser.photoUrl.toString(),
+                                                is_moderator = false,
+                                            )
+
+                                            try {
+                                                if (existingUsers.data.isEmpty() || existingUsers.data == "[]") {
+                                                    val response = supabaseClient.postgrest["users"].insert(TableUser(user.uid, user.nickname, null, user.email))
+                                                } else {
+                                                    user.is_moderator = existingUsers.decodeSingle<User>().is_moderator
+                                                }
+                                            } catch (e: Exception) {
+                                                e.printStackTrace()
                                             }
-                                        } catch (e: Exception) {
-                                            e.printStackTrace()
+                                            updateUser(user)
                                         }
-                                        updateUser(user)
                                     }
-                                }
                             }
                         } else -> {
                         }

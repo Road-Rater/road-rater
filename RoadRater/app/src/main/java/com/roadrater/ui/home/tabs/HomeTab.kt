@@ -301,7 +301,10 @@ object HomeTab : Tab {
                     // Show a list of reviews on the home screen
                     LazyColumn(modifier = Modifier.padding(paddingValues)) {
                         items(reviews) {
-                            ReviewCard(it)
+                            ReviewCard(
+                                it,
+                                supabaseClient = supabaseClient,
+                            )
                         }
                     }
                 }

@@ -9,4 +9,5 @@ data class User(
     val nickname: String?,
     val email: String?,
     val profile_pic_url: String?,
+    var is_moderator: Boolean?,
 )

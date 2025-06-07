@@ -1,6 +1,7 @@
 package com.roadrater.presentation.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,18 +15,32 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.DirectionsCar
 import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.roadrater.R
 import com.roadrater.database.entities.Review
+import com.roadrater.preferences.GeneralPreferences
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
@@ -33,7 +48,14 @@ import java.time.format.DateTimeFormatter
 fun ReviewCard(
     review: Review,
     onNumberPlateClick: () -> Unit = {},
+    onModChange: () -> Unit = {},
+    supabaseClient: SupabaseClient,
 ) {
+    val generalPreferences = koinInject<GeneralPreferences>()
+    val isModerator = generalPreferences.user.get()?.is_moderator
+    var showReportDialog by remember { mutableStateOf(false) }
+    var showModDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val dateTime = try {
         val odt = OffsetDateTime.parse(review.createdAt)
         odt.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
@@ -44,7 +66,17 @@ fun ReviewCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .combinedClickable(
+                onClick = {},
+                onLongClick = {
+                    if (isModerator == true) {
+                        showModDialog = true
+                    } else {
+                        showReportDialog = true
+                    }
+                },
+            ),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
@@ -138,5 +170,103 @@ fun ReviewCard(
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
+    }
+
+    if (showReportDialog) {
+        AlertDialog(
+            onDismissRequest = { showReportDialog = false },
+            title = { Text(stringResource(R.string.report_message)) },
+            text = { Text(stringResource(R.string.report_dialog_body, review.description)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showReportDialog = false
+                    scope.launch {
+                        scope.launch {
+                            supabaseClient
+                                .from("reviews")
+                                .update(mapOf("is_flagged" to true)) {
+                                    filter {
+                                        eq("id", review.id!!)
+                                    }
+                                }
+                        }
+                    }
+                }) {
+                    Text(stringResource(R.string.report))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showReportDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
+    }
+
+    if (showModDialog) {
+        AlertDialog(
+            onDismissRequest = { showModDialog = false },
+            title = { Text(stringResource(R.string.manage_message)) },
+            text = {
+                Column {
+                    Text("\"${review.description}\"")
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Option 1: Delete
+                    TextButton(
+                        onClick = {
+                            showModDialog = false
+                            scope.launch {
+                                supabaseClient
+                                    .from("reviews")
+                                    .delete {
+                                        filter {
+                                            eq("id", review.id!!)
+                                        }
+                                    }
+                            }
+                            onModChange()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.delete))
+                    }
+
+                    // Option 2: Unflag
+                    TextButton(
+                        onClick = {
+                            showModDialog = false
+                            if (review.isFlagged) {
+                                scope.launch {
+                                    supabaseClient
+                                        .from("reviews")
+                                        .update(mapOf("is_flagged" to false)) {
+                                            filter {
+                                                eq("id", review.id!!)
+                                            }
+                                        }
+                                }
+                            }
+                            onModChange()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.unflag))
+                    }
+
+                    TextButton(
+                        onClick = {
+                            showModDialog = false
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.cancel))
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {},
+        )
     }
 }
