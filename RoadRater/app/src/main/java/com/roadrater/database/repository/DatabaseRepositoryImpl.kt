@@ -1,6 +1,8 @@
 package com.roadrater.database.repository
 
 import com.roadrater.database.entities.Car
+import com.roadrater.database.entities.Comment
+import com.roadrater.database.entities.CommentVote
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.TableUser
 import com.roadrater.database.entities.WatchedCar
@@ -142,4 +144,85 @@ class DatabaseRepositoryImpl(
             false
         }
     }
+
+    override suspend fun getCommentsForReview(reviewId: Long): List<Comment> {
+        return supabaseClient
+            .from("comments")
+            .select {
+                filter {
+                    eq("review_id", reviewId)
+                }
+            }
+            .decodeList<Comment>()
+    }
+
+    override suspend fun postComment(
+        reviewId: Long,
+        userId: String,
+        content: String,
+        parentId: Long? // nullable for top-level comments
+    ): Comment {
+        return supabaseClient.from("comments")
+            .insert(
+                mapOf(
+                    "review_id" to reviewId,
+                    "user_id" to userId,
+                    "content" to content,
+                    "parent_id" to parentId
+                )
+            )
+            .decodeSingle()
+    }
+
+    override suspend fun voteOnComment(commentId: Long, userId: String, vote: Int) {
+        val existing = supabaseClient.from("comment_votes")
+            .select {
+                filter {
+                    eq("comment_id", commentId)
+                    eq("user_id", userId)
+                }
+                limit(1)
+            }
+            .decodeSingleOrNull<CommentVote>()
+
+        if (existing != null) {
+            supabaseClient.from("comment_votes")
+                .update(
+                    {
+                        set("vote", vote)
+                    }
+                ) {
+                    filter {
+                        eq("id", existing.id)
+                    }
+                }
+        } else {
+            supabaseClient.from("comment_votes")
+                .insert(
+                    mapOf(
+                        "comment_id" to commentId,
+                        "user_id" to userId,
+                        "vote" to vote
+                    )
+                )
+        }
+    }
+
+
+
+
+    override suspend fun getVoteCount(commentId: Long): Int {
+        val votes = supabaseClient.from("comment_votes")
+            .select {
+                filter {
+                    eq("comment_id", commentId)
+                }
+            }
+            .decodeList<CommentVote>()
+
+        return votes.sumOf { it.vote }
+    }
+
+
+
 }
