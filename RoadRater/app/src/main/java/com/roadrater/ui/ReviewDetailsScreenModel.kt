@@ -10,6 +10,13 @@ import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import android.util.Log
+
+
 
 class ReviewDetailsScreenModel(
     private val supabaseClient: SupabaseClient,
@@ -117,25 +124,35 @@ class ReviewDetailsScreenModel(
         }
     }
 
-    fun postComment(content: String) {
+    fun postComment(content: String,parentId:String?) {
         screenModelScope.launch(Dispatchers.IO) {
             try {
-                supabaseClient.from("comments")
-                    .insert(
-                        mapOf(
-                            "review_id" to reviewId,
-                            "user_id" to uid,
-                            "content" to content,
-                            "parent_id" to replyTo.value
-                        )
-                    )
-                replyTo.value = null
+                //val parentId = replyTo.value
+                val insertData = buildMap {
+                    put("review_id",reviewId)
+                    put("user_id",uid)
+                    put("content",content)
+                    if (!parentId.isNullOrBlank()) put("parent_id",parentId)
+                }
+
+                val result = supabaseClient.from("comments").insert(insertData)
+
+//                        mapOf(
+//                            "review_id" to reviewId,
+//                            "user_id" to uid,
+//                            "content" to content,
+//                            "parent_id" to replyTo.value.takeIf { !it.isNullOrBlank() }
+//                        )
+
                 fetchCommentsAndVotes()
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("PostComment","Error Submitting comment",e)
+
             }
         }
     }
+
+
 
     fun setReplyTo(commentId: String?) {
         replyTo.value = commentId

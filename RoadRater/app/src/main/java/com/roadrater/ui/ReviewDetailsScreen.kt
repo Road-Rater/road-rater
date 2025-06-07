@@ -1,8 +1,10 @@
 package com.roadrater.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowDownward
@@ -11,12 +13,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
 import com.roadrater.presentation.components.ReviewCard
 import com.roadrater.database.entities.Comment
 import com.roadrater.database.entities.Review
@@ -72,6 +77,7 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
 
                     item {
                         replyTo?.let {
+                            Text("Replying to comment ID: $it",style=MaterialTheme.typography.labelSmall)
                             Column {
                                 OutlinedTextField(
                                     value = screenModel.replyContent.value,
@@ -87,7 +93,9 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
                                 ) {
                                     Button(
                                         onClick = {
-                                            screenModel.postComment(screenModel.replyContent.value)
+                                            screenModel.postComment(
+                                                content = screenModel.replyContent.value,
+                                                parentId = replyTo)
                                             screenModel.replyContent.value = ""
                                             replyTo = null
                                         }
@@ -112,6 +120,9 @@ fun CommentCard(
     onDownvote: () -> Unit,
     onReply: () -> Unit
 ) {
+    val generalPreferences = koinInject<GeneralPreferences>()
+    val currentUser = generalPreferences.user.get()
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -124,10 +135,15 @@ fun CommentCard(
                 // Placeholder avatar
 //                Icon(Icons.Outlined.ArrowUpward, contentDescription = "User Avatar")
 //                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = comment.userId ?: "Anonymous", // No `username` field in Comment, fallback
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                AsyncImage(
+                    model = currentUser?.profile_pic_url,
+                    contentDescription = "Profile picture",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .padding(end = 12.dp)
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .clickable { },
                 )
 //                Spacer(modifier = Modifier.width(8.dp))
                 Text(
