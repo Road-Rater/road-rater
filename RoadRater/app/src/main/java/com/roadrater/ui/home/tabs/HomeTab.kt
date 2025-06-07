@@ -47,6 +47,7 @@ import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.ReviewCard
 import com.roadrater.presentation.util.Tab
 import com.roadrater.ui.CarDetailsScreen
+import com.roadrater.ui.ReviewDetailsScreen
 import com.roadrater.utils.GetCarInfo
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -54,6 +55,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.roadrater.database.entities.Review
+
 
 object HomeTab : Tab {
     private fun readResolve(): Any = HomeTab
@@ -300,8 +305,15 @@ object HomeTab : Tab {
                     }
                     // Show a list of reviews on the home screen
                     LazyColumn(modifier = Modifier.padding(paddingValues)) {
-                        items(reviews) {
-                            ReviewCard(it)
+                        items(reviews) { review ->
+                            ReviewCard(
+                                review =review,
+                                onClick = {
+                                    review.id?.let { id ->
+                                        navigator.push(ReviewDetailsScreen(id.toString()))
+                                    }
+                                }
+                            )
                         }
                     }
                 }

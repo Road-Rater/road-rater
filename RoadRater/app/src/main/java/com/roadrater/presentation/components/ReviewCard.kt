@@ -32,6 +32,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ReviewCard(
     review: Review,
+    onClick: () -> Unit = {},
     onNumberPlateClick: () -> Unit = {},
 ) {
     val dateTime = try {
@@ -44,7 +45,8 @@ fun ReviewCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable(onClick=onClick),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
