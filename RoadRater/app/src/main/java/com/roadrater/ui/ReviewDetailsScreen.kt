@@ -33,6 +33,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import androidx.compose.foundation.layout.Column
 
 class ReviewDetailsScreen(private val reviewId: String) : Screen {
     @Composable
@@ -50,7 +51,7 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
             val review by screenModel.review.collectAsState()
             val comments by screenModel.comments.collectAsState()
             val voteMap by screenModel.voteMap.collectAsState()
-
+            val commentTree by screenModel.commentTree.collectAsState()
             var replyTo by remember { mutableStateOf<String?>(null) }
 
             Scaffold(topBar = {
@@ -64,20 +65,20 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
                     item {
                         review?.let { ReviewCard(it) }
                     }
-
-                    items(comments) { comment ->
-                        CommentCard(
-                            comment = comment,
-                            voteCount = voteMap[comment.id.toString()] ?: 0,
-                            onUpvote = { screenModel.voteOnComment(comment.id, 1) },
-                            onDownvote = { screenModel.voteOnComment(comment.id, -1) },
-                            onReply = { replyTo = comment.id.toString() }
+                    // Render threaded comments
+                    item {
+                        ThreadedComments(
+                            parentId = null,
+                            commentTree = commentTree,
+                            voteMap = voteMap,
+                            onUpvote = { screenModel.voteOnComment(it, 1) },
+                            onDownvote = { screenModel.voteOnComment(it, -1) },
+                            onReply = { replyTo = it }
                         )
                     }
-
                     item {
                         replyTo?.let {
-                            Text("Replying to comment ID: $it",style=MaterialTheme.typography.labelSmall)
+                            Text("Replying to comment ID: $it", style = MaterialTheme.typography.labelSmall)
                             Column {
                                 OutlinedTextField(
                                     value = screenModel.replyContent.value,
@@ -85,23 +86,18 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
                                     label = { Text("Reply") },
                                     modifier = Modifier.fillMaxWidth()
                                 )
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 8.dp),
-                                    contentAlignment = Alignment.CenterEnd
+                                Button(
+                                    onClick = {
+                                        screenModel.postComment(
+                                            content = screenModel.replyContent.value,
+                                            parentId = replyTo
+                                        )
+                                        screenModel.replyContent.value = ""
+                                        replyTo = null
+                                    },
+                                    modifier = Modifier.padding(top = 8.dp)
                                 ) {
-                                    Button(
-                                        onClick = {
-                                            screenModel.postComment(
-                                                content = screenModel.replyContent.value,
-                                                parentId = replyTo)
-                                            screenModel.replyContent.value = ""
-                                            replyTo = null
-                                        }
-                                    ) {
-                                        Text("Post Reply")
-                                    }
+                                    Text("Post Reply")
                                 }
                             }
                         }
@@ -197,5 +193,41 @@ fun formatRelativeTime(timestamp: String?): String {
         }
     } catch (e: Exception) {
         "Unknown time"
+    }
+}
+
+@Composable
+fun ThreadedComments(
+    parentId: String? = null,
+    commentTree: Map<String?, List<Comment>>,
+    voteMap: Map<String, Int>,
+    onUpvote: (String) -> Unit,
+    onDownvote: (String) -> Unit,
+    onReply: (String) -> Unit,
+    depth: Int = 0
+) {
+    commentTree[parentId]?.forEach { comment ->
+        Column(
+            modifier = Modifier
+                .padding(start = (depth * 16).dp, bottom = 8.dp)
+        ) {
+            CommentCard(
+                comment = comment,
+                voteCount = voteMap[comment.id.toString()] ?: 0,
+                onUpvote = { onUpvote(comment.id.toString()) },
+                onDownvote = { onDownvote(comment.id.toString()) },
+                onReply = { onReply(comment.id.toString()) }
+            )
+            // Recursive call to display child comments
+            ThreadedComments(
+                parentId = comment.id.toString(),
+                commentTree = commentTree,
+                voteMap = voteMap,
+                onUpvote = onUpvote,
+                onDownvote = onDownvote,
+                onReply = onReply,
+                depth = depth + 1
+            )
+        }
     }
 }

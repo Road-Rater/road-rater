@@ -15,7 +15,11 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import android.util.Log
-
+import androidx.compose.runtime.Composable
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 
 
 class ReviewDetailsScreenModel(
@@ -29,6 +33,10 @@ class ReviewDetailsScreenModel(
     val voteMap = MutableStateFlow<Map<String, Int>>(emptyMap())
     val replyTo = MutableStateFlow<String?>(null)
     val replyContent = mutableStateOf("")
+    private val _commentTree = MutableStateFlow<Map<String?, List<Comment>>>(emptyMap())
+    val commentTree: StateFlow<Map<String?, List<Comment>>> = _commentTree
+
+
 
     init {
         fetchReview()
@@ -60,6 +68,11 @@ class ReviewDetailsScreenModel(
 
                 comments.value = commentList
 
+                // Group by parentId as String?
+                val grouped = commentList.groupBy { it.parentId?.toString() }
+                _commentTree.value = grouped
+
+                // Vote fetching logic
                 val commentIds = commentList.map { it.id }
                 if (commentIds.isNotEmpty()) {
                     val voteList = supabaseClient.from("comment_votes")
@@ -124,30 +137,19 @@ class ReviewDetailsScreenModel(
         }
     }
 
-    fun postComment(content: String,parentId:String?) {
+    fun postComment(content: String, parentId: String?) {
         screenModelScope.launch(Dispatchers.IO) {
             try {
-                //val parentId = replyTo.value
                 val insertData = buildMap {
-                    put("review_id",reviewId)
-                    put("user_id",uid)
-                    put("content",content)
-                    if (!parentId.isNullOrBlank()) put("parent_id",parentId)
+                    put("review_id", reviewId)
+                    put("user_id", uid)
+                    put("content", content)
+                    if (!parentId.isNullOrBlank()) put("parent_id", parentId)
                 }
-
-                val result = supabaseClient.from("comments").insert(insertData)
-
-//                        mapOf(
-//                            "review_id" to reviewId,
-//                            "user_id" to uid,
-//                            "content" to content,
-//                            "parent_id" to replyTo.value.takeIf { !it.isNullOrBlank() }
-//                        )
-
+                supabaseClient.from("comments").insert(insertData)
                 fetchCommentsAndVotes()
             } catch (e: Exception) {
-                Log.e("PostComment","Error Submitting comment",e)
-
+                Log.e("PostComment", "Error Submitting comment", e)
             }
         }
     }
