@@ -55,10 +55,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
-import com.roadrater.database.entities.Review
-
 
 object HomeTab : Tab {
     private fun readResolve(): Any = HomeTab
@@ -307,12 +303,12 @@ object HomeTab : Tab {
                     LazyColumn(modifier = Modifier.padding(paddingValues)) {
                         items(reviews) { review ->
                             ReviewCard(
-                                review =review,
+                                review = review,
                                 onClick = {
                                     review.id?.let { id ->
                                         navigator.push(ReviewDetailsScreen(id.toString()))
                                     }
-                                }
+                                },
                             )
                         }
                     }

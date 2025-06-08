@@ -1,5 +1,6 @@
 package com.roadrater.ui
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
@@ -9,9 +10,8 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
-import android.util.Log
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class ReviewDetailsScreenModel(
     private val supabaseClient: SupabaseClient,

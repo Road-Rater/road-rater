@@ -10,5 +10,5 @@ data class Comment(
     @SerialName("user_id") val userId: String,
     val content: String,
     @SerialName("parent_id") val parentId: Long? = null,
-    @SerialName("created_at") val createdAt: String
+    @SerialName("created_at") val createdAt: String,
 )

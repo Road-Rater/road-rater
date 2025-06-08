@@ -1,44 +1,52 @@
 package com.roadrater.ui
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowDownward
-import androidx.compose.material.icons.outlined.ArrowUpward
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
-import com.roadrater.presentation.components.ReviewCard
 import com.roadrater.database.entities.Comment
-import com.roadrater.database.entities.Review
 import com.roadrater.preferences.GeneralPreferences
+import com.roadrater.presentation.components.ReviewCard
 import io.github.jan.supabase.SupabaseClient
-import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.koinInject
 import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import androidx.compose.foundation.layout.Column
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.LaunchedEffect
 
 class ReviewDetailsScreen(private val reviewId: String) : Screen {
     @Composable
@@ -64,14 +72,14 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
                 LazyColumn(
                     modifier = Modifier
                         .padding(padding)
-                        .padding(16.dp)
+                        .padding(16.dp),
                 ) {
                     item {
                         review?.let {
                             ReviewCard(it)
                             TextButton(
                                 onClick = { replyTo = "REVIEW" },
-                                modifier = Modifier.padding(top = 8.dp)
+                                modifier = Modifier.padding(top = 8.dp),
                             ) {
                                 Text("Reply to Review")
                             }
@@ -86,7 +94,7 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .imePadding()
+                                        .imePadding(),
                                 ) {
                                     Column {
                                         OutlinedTextField(
@@ -95,18 +103,18 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
                                             label = { Text("Reply") },
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .focusRequester(focusRequester)
+                                                .focusRequester(focusRequester),
                                         )
                                         Button(
                                             onClick = {
                                                 screenModel.postComment(
                                                     content = screenModel.replyContent.value,
-                                                    parentId = null
+                                                    parentId = null,
                                                 )
                                                 screenModel.replyContent.value = ""
                                                 replyTo = null
                                             },
-                                            modifier = Modifier.padding(top = 8.dp)
+                                            modifier = Modifier.padding(top = 8.dp),
                                         ) {
                                             Text("Post Reply")
                                         }
@@ -127,11 +135,11 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
                             onPostReply = { parentId ->
                                 screenModel.postComment(
                                     content = screenModel.replyContent.value,
-                                    parentId = parentId
+                                    parentId = parentId,
                                 )
                                 screenModel.replyContent.value = ""
                                 replyTo = null
-                            }
+                            },
                         )
                     }
                 }
@@ -143,7 +151,7 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
 @Composable
 fun CommentCard(
     comment: Comment,
-    onReply: () -> Unit
+    onReply: () -> Unit,
 ) {
     val generalPreferences = koinInject<GeneralPreferences>()
     val currentUser = generalPreferences.user.get()
@@ -155,7 +163,7 @@ fun CommentCard(
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             AsyncImage(
                 model = currentUser?.profile_pic_url,
@@ -170,17 +178,17 @@ fun CommentCard(
             Text(
                 text = formatRelativeTime(comment.createdAt),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         Text(
             text = comment.content,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(vertical = 4.dp)
+            modifier = Modifier.padding(vertical = 4.dp),
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Spacer(modifier = Modifier.weight(1f))
             TextButton(onClick = onReply) {
@@ -221,16 +229,16 @@ fun ThreadedComments(
     replyContent: String,
     onReplyContentChange: (String) -> Unit,
     onPostReply: (String?) -> Unit,
-    depth: Int = 0
+    depth: Int = 0,
 ) {
     commentTree[parentId]?.forEach { comment ->
         Column(
             modifier = Modifier
-                .padding(start = (depth * 16).dp, bottom = 8.dp)
+                .padding(start = (depth * 16).dp, bottom = 8.dp),
         ) {
             CommentCard(
                 comment = comment,
-                onReply = { setReplyTo(comment.id.toString()) }
+                onReply = { setReplyTo(comment.id.toString()) },
             )
             // Inline reply input under the comment being replied to
             if (replyTo == comment.id.toString()) {
@@ -243,7 +251,7 @@ fun ThreadedComments(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .imePadding()
+                        .imePadding(),
                 ) {
                     Column {
                         OutlinedTextField(
@@ -252,13 +260,13 @@ fun ThreadedComments(
                             label = { Text("Reply") },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .focusRequester(focusRequester)
+                                .focusRequester(focusRequester),
                         )
                         Button(
                             onClick = {
                                 onPostReply(comment.id.toString())
                             },
-                            modifier = Modifier.padding(top = 8.dp)
+                            modifier = Modifier.padding(top = 8.dp),
                         ) {
                             Text("Post Reply")
                         }
@@ -274,7 +282,7 @@ fun ThreadedComments(
                 replyContent = replyContent,
                 onReplyContentChange = onReplyContentChange,
                 onPostReply = onPostReply,
-                depth = depth + 1
+                depth = depth + 1,
             )
         }
     }

@@ -160,7 +160,8 @@ class DatabaseRepositoryImpl(
         reviewId: Long,
         userId: String,
         content: String,
-        parentId: Long? // nullable for top-level comments
+        parentId: Long?,
+        // nullable for top-level comments
     ): Comment {
         return supabaseClient.from("comments")
             .insert(
@@ -168,8 +169,8 @@ class DatabaseRepositoryImpl(
                     "review_id" to reviewId,
                     "user_id" to userId,
                     "content" to content,
-                    "parent_id" to parentId
-                )
+                    "parent_id" to parentId,
+                ),
             )
             .decodeSingle()
     }
@@ -190,7 +191,7 @@ class DatabaseRepositoryImpl(
                 .update(
                     {
                         set("vote", vote)
-                    }
+                    },
                 ) {
                     filter {
                         eq("id", existing.id)
@@ -202,14 +203,11 @@ class DatabaseRepositoryImpl(
                     mapOf(
                         "comment_id" to commentId,
                         "user_id" to userId,
-                        "vote" to vote
-                    )
+                        "vote" to vote,
+                    ),
                 )
         }
     }
-
-
-
 
     override suspend fun getVoteCount(commentId: Long): Int {
         val votes = supabaseClient.from("comment_votes")
@@ -222,7 +220,4 @@ class DatabaseRepositoryImpl(
 
         return votes.sumOf { it.vote }
     }
-
-
-
 }
