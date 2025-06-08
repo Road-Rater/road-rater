@@ -309,6 +309,7 @@ object HomeTab : Tab {
                                         navigator.push(ReviewDetailsScreen(id.toString()))
                                     }
                                 },
+                                supabaseClient = supabaseClient,
                             )
                         }
                     }

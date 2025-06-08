@@ -76,7 +76,10 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
                 ) {
                     item {
                         review?.let {
-                            ReviewCard(it)
+                            ReviewCard(
+                                review = it,
+                                supabaseClient = supabaseClient,
+                            )
                             TextButton(
                                 onClick = { replyTo = "REVIEW" },
                                 modifier = Modifier.padding(top = 8.dp),
