@@ -171,7 +171,10 @@ class CarDetailsScreen(val plate: String) : Screen {
                                 .fillMaxWidth(),
                         ) {
                             items(sortedReviews) { review ->
-                                ReviewCard(review)
+                                ReviewCard(
+                                    review,
+                                    supabaseClient = supabaseClient,
+                                )
                             }
                         }
                     }

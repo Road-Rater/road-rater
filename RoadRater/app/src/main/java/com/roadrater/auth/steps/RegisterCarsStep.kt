@@ -41,7 +41,7 @@ import kotlin.collections.plus
 
 internal class RegisterCarsStep : OnboardingStep {
 
-    private var _isComplete by mutableStateOf(false)
+    private var _isComplete by mutableStateOf(true)
 
     override val isComplete: Boolean
         get() = _isComplete
