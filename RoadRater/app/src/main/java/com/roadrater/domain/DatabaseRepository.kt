@@ -26,7 +26,4 @@ interface DatabaseRepository {
 
     suspend fun getCommentsForReview(reviewId: Long): List<Comment>
     suspend fun postComment(reviewId: Long, userId: String, content: String, parentId: Long?): Comment
-
-    suspend fun voteOnComment(commentId: Long, userId: String, vote: Int)
-    suspend fun getVoteCount(commentId: Long): Int
 }
