@@ -34,6 +34,11 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
 
 class ReviewDetailsScreen(private val reviewId: String) : Screen {
     @Composable
@@ -50,7 +55,6 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
 
             val review by screenModel.review.collectAsState()
             val comments by screenModel.comments.collectAsState()
-            val voteMap by screenModel.voteMap.collectAsState()
             val commentTree by screenModel.commentTree.collectAsState()
             var replyTo by remember { mutableStateOf<String?>(null) }
 
@@ -63,44 +67,72 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
                         .padding(16.dp)
                 ) {
                     item {
-                        review?.let { ReviewCard(it) }
+                        review?.let {
+                            ReviewCard(it)
+                            TextButton(
+                                onClick = { replyTo = "REVIEW" },
+                                modifier = Modifier.padding(top = 8.dp)
+                            ) {
+                                Text("Reply to Review")
+                            }
+                            // Inline reply input under the review
+                            if (replyTo == "REVIEW") {
+                                val focusRequester = remember { FocusRequester() }
+                                val keyboardController = LocalSoftwareKeyboardController.current
+                                LaunchedEffect(replyTo) {
+                                    focusRequester.requestFocus()
+                                    keyboardController?.show()
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .imePadding()
+                                ) {
+                                    Column {
+                                        OutlinedTextField(
+                                            value = screenModel.replyContent.value,
+                                            onValueChange = { screenModel.replyContent.value = it },
+                                            label = { Text("Reply") },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .focusRequester(focusRequester)
+                                        )
+                                        Button(
+                                            onClick = {
+                                                screenModel.postComment(
+                                                    content = screenModel.replyContent.value,
+                                                    parentId = null
+                                                )
+                                                screenModel.replyContent.value = ""
+                                                replyTo = null
+                                            },
+                                            modifier = Modifier.padding(top = 8.dp)
+                                        ) {
+                                            Text("Post Reply")
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-                    // Render threaded comments
                     item {
                         ThreadedComments(
                             parentId = null,
                             commentTree = commentTree,
-                            voteMap = voteMap,
-                            onUpvote = { screenModel.voteOnComment(it, 1) },
-                            onDownvote = { screenModel.voteOnComment(it, -1) },
-                            onReply = { replyTo = it }
-                        )
-                    }
-                    item {
-                        replyTo?.let {
-                            Text("Replying to comment ID: $it", style = MaterialTheme.typography.labelSmall)
-                            Column {
-                                OutlinedTextField(
-                                    value = screenModel.replyContent.value,
-                                    onValueChange = { screenModel.replyContent.value = it },
-                                    label = { Text("Reply") },
-                                    modifier = Modifier.fillMaxWidth()
+
+                            replyTo = replyTo,
+                            setReplyTo = { replyTo = it },
+                            replyContent = screenModel.replyContent.value,
+                            onReplyContentChange = { screenModel.replyContent.value = it },
+                            onPostReply = { parentId ->
+                                screenModel.postComment(
+                                    content = screenModel.replyContent.value,
+                                    parentId = parentId
                                 )
-                                Button(
-                                    onClick = {
-                                        screenModel.postComment(
-                                            content = screenModel.replyContent.value,
-                                            parentId = replyTo
-                                        )
-                                        screenModel.replyContent.value = ""
-                                        replyTo = null
-                                    },
-                                    modifier = Modifier.padding(top = 8.dp)
-                                ) {
-                                    Text("Post Reply")
-                                }
+                                screenModel.replyContent.value = ""
+                                replyTo = null
                             }
-                        }
+                        )
                     }
                 }
             }
@@ -111,9 +143,6 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
 @Composable
 fun CommentCard(
     comment: Comment,
-    voteCount: Int,
-    onUpvote: () -> Unit,
-    onDownvote: () -> Unit,
     onReply: () -> Unit
 ) {
     val generalPreferences = koinInject<GeneralPreferences>()
@@ -124,56 +153,43 @@ fun CommentCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Placeholder avatar
-//                Icon(Icons.Outlined.ArrowUpward, contentDescription = "User Avatar")
-//                Spacer(modifier = Modifier.width(8.dp))
-                AsyncImage(
-                    model = currentUser?.profile_pic_url,
-                    contentDescription = "Profile picture",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .padding(end = 12.dp)
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .clickable { },
-                )
-//                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = formatRelativeTime(comment.createdAt),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            //Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = comment.content,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(vertical = 4.dp)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            AsyncImage(
+                model = currentUser?.profile_pic_url,
+                contentDescription = "Profile picture",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .clickable { },
             )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                IconButton(onClick = onUpvote,modifier=Modifier.size(24.dp)) {
-                    Icon(Icons.Outlined.ArrowUpward, contentDescription = "Upvote", modifier = Modifier.size(16.dp))
-                }
-                Text("$voteCount",style=MaterialTheme.typography.labelMedium)
-                IconButton(onClick = onDownvote, modifier = Modifier.size(24.dp)) {
-                    Icon(Icons.Outlined.ArrowDownward, contentDescription = "Downvote", modifier = Modifier.size(16.dp))
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                TextButton(onClick = onReply) {
-                    Text("Reply",style=MaterialTheme.typography.labelSmall)
-                }
-            }
-        Divider(modifier = Modifier.padding(top=8.dp))
+            Text(
+                text = formatRelativeTime(comment.createdAt),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
+        Text(
+            text = comment.content,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+            TextButton(onClick = onReply) {
+                Text("Reply", style = MaterialTheme.typography.labelSmall)
+            }
+        }
+        Divider(modifier = Modifier.padding(top = 8.dp))
     }
+}
 
 @Composable
 fun formatRelativeTime(timestamp: String?): String {
@@ -200,10 +216,11 @@ fun formatRelativeTime(timestamp: String?): String {
 fun ThreadedComments(
     parentId: String? = null,
     commentTree: Map<String?, List<Comment>>,
-    voteMap: Map<String, Int>,
-    onUpvote: (String) -> Unit,
-    onDownvote: (String) -> Unit,
-    onReply: (String) -> Unit,
+    replyTo: String?,
+    setReplyTo: (String?) -> Unit,
+    replyContent: String,
+    onReplyContentChange: (String) -> Unit,
+    onPostReply: (String?) -> Unit,
     depth: Int = 0
 ) {
     commentTree[parentId]?.forEach { comment ->
@@ -213,19 +230,50 @@ fun ThreadedComments(
         ) {
             CommentCard(
                 comment = comment,
-                voteCount = voteMap[comment.id.toString()] ?: 0,
-                onUpvote = { onUpvote(comment.id.toString()) },
-                onDownvote = { onDownvote(comment.id.toString()) },
-                onReply = { onReply(comment.id.toString()) }
+                onReply = { setReplyTo(comment.id.toString()) }
             )
+            // Inline reply input under the comment being replied to
+            if (replyTo == comment.id.toString()) {
+                val focusRequester = remember { FocusRequester() }
+                val keyboardController = LocalSoftwareKeyboardController.current
+                LaunchedEffect(replyTo) {
+                    focusRequester.requestFocus()
+                    keyboardController?.show()
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .imePadding()
+                ) {
+                    Column {
+                        OutlinedTextField(
+                            value = replyContent,
+                            onValueChange = onReplyContentChange,
+                            label = { Text("Reply") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester)
+                        )
+                        Button(
+                            onClick = {
+                                onPostReply(comment.id.toString())
+                            },
+                            modifier = Modifier.padding(top = 8.dp)
+                        ) {
+                            Text("Post Reply")
+                        }
+                    }
+                }
+            }
             // Recursive call to display child comments
             ThreadedComments(
                 parentId = comment.id.toString(),
                 commentTree = commentTree,
-                voteMap = voteMap,
-                onUpvote = onUpvote,
-                onDownvote = onDownvote,
-                onReply = onReply,
+                replyTo = replyTo,
+                setReplyTo = setReplyTo,
+                replyContent = replyContent,
+                onReplyContentChange = onReplyContentChange,
+                onPostReply = onPostReply,
                 depth = depth + 1
             )
         }

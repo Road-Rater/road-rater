@@ -10,17 +10,8 @@ import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import android.util.Log
-import androidx.compose.runtime.Composable
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
-
 
 class ReviewDetailsScreenModel(
     private val supabaseClient: SupabaseClient,
@@ -30,17 +21,14 @@ class ReviewDetailsScreenModel(
 
     val review = MutableStateFlow<Review?>(null)
     val comments = MutableStateFlow<List<Comment>>(emptyList())
-    val voteMap = MutableStateFlow<Map<String, Int>>(emptyMap())
     val replyTo = MutableStateFlow<String?>(null)
     val replyContent = mutableStateOf("")
     private val _commentTree = MutableStateFlow<Map<String?, List<Comment>>>(emptyMap())
     val commentTree: StateFlow<Map<String?, List<Comment>>> = _commentTree
 
-
-
     init {
         fetchReview()
-        fetchCommentsAndVotes()
+        fetchComments()
     }
 
     private fun fetchReview() {
@@ -55,7 +43,7 @@ class ReviewDetailsScreenModel(
         }
     }
 
-    private fun fetchCommentsAndVotes() {
+    private fun fetchComments() {
         screenModelScope.launch(Dispatchers.IO) {
             try {
                 val commentList = supabaseClient.from("comments")
@@ -71,66 +59,6 @@ class ReviewDetailsScreenModel(
                 // Group by parentId as String?
                 val grouped = commentList.groupBy { it.parentId?.toString() }
                 _commentTree.value = grouped
-
-                // Vote fetching logic
-                val commentIds = commentList.map { it.id }
-                if (commentIds.isNotEmpty()) {
-                    val voteList = supabaseClient.from("comment_votes")
-                        .select()
-                        .decodeList<Map<String, Any>>()
-
-                    val voteCounts = voteList
-                        .filter { it["comment_id"] in commentIds }
-                        .groupBy { it["comment_id"].toString() }
-                        .mapValues { entry ->
-                            entry.value.sumOf {
-                                (it["vote"] as? Number)?.toInt() ?: 0
-                            }
-                        }
-
-                    voteMap.value = voteCounts
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    fun voteOnComment(commentId: Long, vote: Int) {
-        screenModelScope.launch(Dispatchers.IO) {
-            try {
-                val existingVotes = supabaseClient.from("comment_votes")
-                    .select {
-                        filter {
-                            eq("comment_id", commentId)
-                            eq("user_id", uid)
-                        }
-                    }
-                    .decodeList<Map<String, Any>>()
-
-                if (existingVotes.isNotEmpty()) {
-                    val existing = existingVotes.first()
-                    supabaseClient.from("comment_votes")
-                        .update(
-                            {
-                                set("vote", vote)
-                            }
-                        ) {
-                            filter {
-                                eq("id", existing["id"]!!)
-                            }
-                        }
-                } else {
-                    supabaseClient.from("comment_votes")
-                        .insert(
-                            mapOf(
-                                "comment_id" to commentId,
-                                "user_id" to uid,
-                                "vote" to vote
-                            )
-                        )
-                }
-                fetchCommentsAndVotes()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -147,14 +75,12 @@ class ReviewDetailsScreenModel(
                     if (!parentId.isNullOrBlank()) put("parent_id", parentId)
                 }
                 supabaseClient.from("comments").insert(insertData)
-                fetchCommentsAndVotes()
+                fetchComments()
             } catch (e: Exception) {
                 Log.e("PostComment", "Error Submitting comment", e)
             }
         }
     }
-
-
 
     fun setReplyTo(commentId: String?) {
         replyTo.value = commentId
