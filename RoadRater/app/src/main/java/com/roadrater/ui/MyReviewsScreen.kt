@@ -159,6 +159,7 @@ object MyReviewsScreen : Screen() {
                             onNumberPlateClick = {
                                 navigator.push(CarDetailsScreen(review.numberPlate))
                             },
+                            supabaseClient = supabaseClient,
                         )
                     }
                 }

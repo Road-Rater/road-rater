@@ -13,4 +13,5 @@ data class Review(
     val title: String = "No Title",
     val labels: List<String> = emptyList(),
     @SerialName("number_plate") val numberPlate: String,
+    @SerialName("is_flagged") val isFlagged: Boolean = false,
 )
