@@ -47,6 +47,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ReviewCard(
     review: Review,
+    onClick: () -> Unit = {},
     onNumberPlateClick: () -> Unit = {},
     onModChange: () -> Unit = {},
     supabaseClient: SupabaseClient,
@@ -68,7 +69,7 @@ fun ReviewCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .combinedClickable(
-                onClick = {},
+                onClick = onClick,
                 onLongClick = {
                     if (isModerator == true) {
                         showModDialog = true
@@ -141,26 +142,6 @@ fun ReviewCard(
             )
 
             Spacer(modifier = Modifier.height(8.dp))
-
-//            Row(
-//                modifier = Modifier
-//                    .horizontalScroll(rememberScrollState()),
-//            ) {
-//                review.labels.forEach { label ->
-//                    Text(
-//                        text = label,
-//                        color = MaterialTheme.colorScheme.onPrimary,
-//                        style = MaterialTheme.typography.labelSmall,
-//                        modifier = Modifier
-//                            .padding(end = 8.dp)
-//                            .background(
-//                                color = MaterialTheme.colorScheme.primary,
-//                                shape = RoundedCornerShape(10.dp),
-//                            )
-//                            .padding(horizontal = 8.dp, vertical = 4.dp),
-//                    )
-//                }
-//            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
