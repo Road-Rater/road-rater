@@ -105,6 +105,23 @@
     <string name="newest_first">Newest First</string>
     <string name="no_reviews">No reviews yet.</string>
 
+    <!-- My Cars -->
+    <string name="my_cars">My Cars</string>
+    <string name="vehicle_to_register">Vehicle to register</string>
+    <string name="submit">Submit</string>
+    <string name="unregister">Unregister</string>
+    <string name="confirm_unregister">Confirm Unregister</string>
+    <string name="unregister_confirm_message">Are you sure you want to unregister plate %1$s?</string>
+    <string name="back">Back</string>
+    <string name="already_own">You already own this car</string>
+    <string name="claimed">Car has already been claimed</string>
+    <string name="max_limit">You already registered the max of 2 cars</string>
+    <string name="success_register">Car successfully registered</string>
+    <string name="unregister_success">Car successfully unregistered</string>
+    <string name="unregister_failed">Failed to unregister car</string>
+    <string name="generic_error">Something went wrong. Try again later</string>
+
+
     <!-- Watched Cars -->
     <string name="no_cars">No cars in your watchlist</string>
     <string name="empty_watchlist">Add cars to your watchlist to track their reviews</string>
