@@ -45,6 +45,7 @@ import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import java.time.Instant
 
@@ -169,10 +170,18 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                             Log.d("NewReviewScreen", "Submitting review: $newReview")
                             val response = supabaseClient.from("reviews").insert(newReview)
                             Log.d("NewReviewScreen", "Supabase insert response: $response")
-                            Toast.makeText(context, context.getString(R.string.review_submitted), Toast.LENGTH_SHORT).show()
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(context, context.getString(R.string.review_submitted), Toast.LENGTH_SHORT).show()
+                            }
                         } catch (e: Exception) {
                             Log.e("NewReviewScreen", "Error submitting review", e)
-                            Toast.makeText(context, context.getString(R.string.review_insert_failed, e.message ?: "Unknown error"), Toast.LENGTH_SHORT).show()
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.review_insert_failed, e.message ?: "Unknown error"),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     }
                 }) {
