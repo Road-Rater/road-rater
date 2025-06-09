@@ -36,9 +36,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.roadrater.database.entities.Review
+import com.roadrater.database.entities.User
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.Screen
 import com.roadrater.presentation.components.ReviewCard
+import com.roadrater.presentation.components.ReviewsDisplay
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Order
@@ -46,6 +48,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import kotlin.collections.plus
 
 object MyReviews : Screen() {
     private fun readResolve(): Any = MyReviews
@@ -57,6 +60,7 @@ object MyReviews : Screen() {
         val generalPreferences = koinInject<GeneralPreferences>()
         val currentUser = generalPreferences.user.get()
         val reviews = remember { mutableStateOf<List<Review>>(emptyList()) }
+        val reviewsAndReviewers = remember { mutableStateOf<Map<Review, User>>(emptyMap()) }
         // List of labels for filtering reviews
         val labels = listOf("All", "Speeding", "Safe", "Reckless")
         var selectedLabel by remember { mutableStateOf("All") }
@@ -84,26 +88,50 @@ object MyReviews : Screen() {
                             }
                             .decodeList<Review>()
                         reviews.value = reviewsResult
+
+                        val reviewerIds = reviewsResult.map {
+                            it.createdBy
+                        }
+
+                        val reviewersResult = supabaseClient.from("users")
+                            .select {
+                                filter {
+                                    isIn("uid", reviewerIds)
+                                }
+                            }
+                            .decodeList<User>()
+
+                        reviewsResult.forEach { review ->
+                            val reviewer = reviewersResult.find {
+                                it.uid == review.createdBy
+                            }
+                            if (reviewer != null) {
+                                reviewsAndReviewers.value += Pair(review, reviewer)
+                            }
+                        }
                     }
                 }
 
                 // Filter and sort reviews based on user selection
-                val filteredReviews = reviews.value.filter { review ->
-                    selectedLabel == "All" || (review.labels ?: emptyList()).contains(selectedLabel)
-                }.let {
-                    when (sortOption) {
-                        "Title" -> if (sortAsc) {
-                            it.sortedBy { review -> review.title }
-                        } else {
-                            it.sortedByDescending { review -> review.title }
-                        }
-                        else -> if (sortAsc) {
-                            it.sortedBy { review -> review.createdAt }
-                        } else {
-                            it.sortedByDescending { review -> review.createdAt }
+                val filteredReviews = reviewsAndReviewers.value.entries
+                    .filter { (review, _) ->
+                        selectedLabel == "All" || review.labels.contains(selectedLabel)
+                    }
+                    .let { entries ->
+                        when (sortOption) {
+                            "Title" -> if (sortAsc) {
+                                entries.sortedBy { it.key.title }
+                            } else {
+                                entries.sortedByDescending { it.key.title }
+                            }
+                            else -> if (sortAsc) {
+                                entries.sortedBy { it.key.createdAt }
+                            } else {
+                                entries.sortedByDescending { it.key.createdAt }
+                            }
                         }
                     }
-                }
+                    .associate { it.toPair() } // Converts the sorted list of Map.Entry back into a Map
 
                 Row(
                     modifier = Modifier
@@ -179,11 +207,7 @@ object MyReviews : Screen() {
                     }
                 }
 
-                LazyColumn {
-                    items(filteredReviews) { review ->
-                        ReviewCard(review)
-                    }
-                }
+                ReviewsDisplay(Modifier, filteredReviews)
             }
         }
     }

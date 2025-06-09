@@ -2,9 +2,11 @@ package com.roadrater.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.roadrater.R
 
 val Typography = Typography(
     bodyLarge = TextStyle(
@@ -14,4 +16,8 @@ val Typography = Typography(
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp,
     ),
+)
+
+val Licenz = FontFamily(
+    Font(R.font.licenz, FontWeight.Bold)
 )

@@ -5,7 +5,6 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.roadrater.database.Migrations
 import com.roadrater.database.RRDatabase
-import com.roadrater.database.repository.CarRepositoryImpl
 import com.roadrater.domain.CarRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
@@ -24,6 +23,4 @@ val DatabaseModule = module {
             })
             .build()
     }
-
-    singleOf(::CarRepositoryImpl).bind(CarRepository::class)
 }

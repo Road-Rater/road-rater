@@ -47,8 +47,10 @@ import com.roadrater.database.entities.TableUser
 import com.roadrater.database.entities.WatchedCar
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.ReviewCard
+import com.roadrater.presentation.components.ReviewsDisplay
 import com.roadrater.presentation.util.Tab
 import com.roadrater.ui.CarDetailScreen
+import com.roadrater.ui.ProfileScreenModel
 import com.roadrater.utils.GetCarInfo
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -56,6 +58,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import org.koin.core.parameter.parametersOf
+import org.koin.java.KoinJavaComponent
 
 object HomeTab : Tab {
     private fun readResolve(): Any = HomeTab
@@ -78,15 +82,14 @@ object HomeTab : Tab {
         val context = LocalContext.current
         val navigator = LocalNavigator.currentOrThrow
         val supabaseClient = koinInject<SupabaseClient>()
+
         val generalPreferences = koinInject<GeneralPreferences>()
         val currentUser = generalPreferences.user.get()
-        // ViewModel for managing reviews and state
+
         val screenModel = rememberScreenModel {
-            HomeTabScreenModel(
-                supabaseClient = supabaseClient,
-                currentUser!!.uid,
-            )
+            KoinJavaComponent.getKoin().get<HomeTabScreenModel>(parameters = { parametersOf(currentUser) })
         }
+
         var searchHistory by rememberSaveable { mutableStateOf(listOf<String>()) }
         var searchResults by remember { mutableStateOf(listOf<String>()) }
         var text by remember { mutableStateOf("") }
@@ -96,7 +99,7 @@ object HomeTab : Tab {
         var pendingNavigationPlate by remember { mutableStateOf<String?>(null) }
 
         // List of reviews for the home feed
-        val reviews by screenModel.reviews.collectAsState()
+        val reviews = screenModel.reviewsAndReviewers.collectAsState()
 
         Scaffold(
             topBar = {
@@ -171,25 +174,10 @@ object HomeTab : Tab {
                                             .decodeList<Map<String, String>>()
                                             .isNotEmpty()
                                         if (carExists) {
-                                            // Fetch users linked to this car
-                                            val watchedUsers = supabaseClient.from("watched_cars")
-                                                .select { filter { eq("number_plate", upperText) } }
-                                                .decodeList<WatchedCar>()
-                                            val userIds = watchedUsers.map { it.uid }
-                                            val users = if (userIds.isNotEmpty()) {
-                                                supabaseClient.from("users")
-                                                    .select()
-                                                    .decodeList<TableUser>()
-                                                    .filter { it.uid in userIds }
-                                            } else {
-                                                emptyList()
-                                            }
-                                            userResults = userResults + (upperText to users)
                                             searchHistory = listOf(upperText) + searchHistory.filter { it != upperText }
                                             pendingNavigationPlate = upperText
                                             active = false
                                             text = ""
-                                            noResults = false
                                         } else {
                                             // Try to scrape car info if not found
                                             val scrapedCar = try {
@@ -307,11 +295,7 @@ object HomeTab : Tab {
                         }
                     }
                     // Show a list of reviews on the home screen
-                    LazyColumn(modifier = Modifier.padding(paddingValues)) {
-                        items(reviews) {
-                            ReviewCard(it)
-                        }
-                    }
+                    ReviewsDisplay(Modifier.padding(paddingValues), reviews.value)
                 }
                 // Navigate to car detail screen if needed
                 LaunchedEffect(pendingNavigationPlate) {

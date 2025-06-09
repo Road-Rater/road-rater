@@ -1,32 +1,34 @@
-package com.roadrater.ui.home.tabs
+package com.roadrater.ui
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.roadrater.database.entities.Car
 import com.roadrater.database.entities.Review
+import com.roadrater.database.entities.TableUser
 import com.roadrater.database.entities.User
-import com.roadrater.database.entities.WatchedCar
 import com.roadrater.database.repository.CarRepository
 import com.roadrater.database.repository.ReviewRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.query.Columns
+import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.MissingFieldException
 
-class HomeTabScreenModel(
-    private val currentUser: User,
+class CarDetailScreenModel(
+    private val plate: String,
     private val reviewRepository: ReviewRepository,
     private val carRepository: CarRepository
 ) : ScreenModel {
-    val reviewsAndReviewers = MutableStateFlow<Map<Review, User>>(emptyMap())
+    val car = mutableStateOf<Car?>(null)
+    val reviewsAndReviewers = mutableStateOf<Map<Review, User>>(emptyMap())
 
     init {
         screenModelScope.launch(Dispatchers.IO) {
-            val reviews = reviewRepository.getReviewsByUser(currentUser.uid)
+            car.value = carRepository.getCarByPlate(plate)
+            val reviews = reviewRepository.getReviewsByPlate(plate)
             reviewsAndReviewers.value = reviewRepository.mapReviewsToUsers(reviews)
         }
     }

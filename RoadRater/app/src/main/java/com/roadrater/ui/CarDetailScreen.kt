@@ -1,5 +1,6 @@
 package com.roadrater.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -41,16 +43,16 @@ import com.roadrater.R
 import com.roadrater.database.entities.Car
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.TableUser
-import com.roadrater.database.entities.WatchedCar
-import com.roadrater.presentation.components.ReviewCard
+import com.roadrater.presentation.components.ReviewsDisplay
 import com.roadrater.ui.newReviewScreen.NewReviewScreen
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Order
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import org.koin.core.parameter.parametersOf
+import org.koin.java.KoinJavaComponent
 
 class CarDetailScreen(val plate: String) : Screen {
 
@@ -58,72 +60,16 @@ class CarDetailScreen(val plate: String) : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val supabaseClient = koinInject<SupabaseClient>()
-        val car = remember { mutableStateOf<Car?>(null) }
-        val reviews = remember { mutableStateOf<List<Review>>(emptyList()) }
-        val watchedUsers = remember { mutableStateOf<List<TableUser>>(emptyList()) }
+
+        val screenModel = rememberScreenModel {
+            KoinJavaComponent.getKoin().get<CarDetailScreenModel>(parameters = { parametersOf(plate) })
+        }
+
+        val car = screenModel.car.value
+        val reviewsAndReviewers = screenModel.reviewsAndReviewers.value
+
         var sortAsc by remember { mutableStateOf(true) } // true = Oldest First, false = Newest First
         var showDialog by remember { mutableStateOf(false) }
-        val userId = "testId" // Replace with actual userId if needed
-
-        LaunchedEffect(plate) {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    // Fetch car details (case-insensitive)
-                    val carResult = supabaseClient.from("cars")
-                        .select {
-                            filter {
-                                ilike("number_plate", plate)
-                            }
-                        }
-                        .decodeSingleOrNull<Car>()
-                    car.value = carResult
-
-                    if (carResult != null) {
-                        // Fetch reviews from 'reviews' table (case-insensitive)
-                        val reviewsResult = supabaseClient.from("reviews")
-                            .select {
-                                filter {
-                                    ilike("number_plate", plate)
-                                }
-                                order("created_at", Order.DESCENDING)
-                            }
-                            .decodeList<Review>()
-                        val reviewList = reviewsResult.map { review ->
-                            Review(
-                                title = review.title,
-                                createdAt = review.createdAt,
-                                labels = review.labels ?: emptyList(),
-                                description = review.description,
-                                rating = review.rating,
-                                createdBy = review.createdBy,
-                                numberPlate = review.numberPlate,
-                            )
-                        }
-                        reviews.value = reviewList
-
-                        // Fetch associated users
-                        val watchedRows = supabaseClient.from("watched_cars")
-                            .select { filter { ilike("number_plate", plate) } }
-                            .decodeList<WatchedCar>()
-                        val userIds = watchedRows.map { it.uid }
-                        val users = if (userIds.isNotEmpty()) {
-                            supabaseClient.from("users")
-                                .select()
-                                .decodeList<TableUser>()
-                                .filter { it.uid in userIds }
-                        } else {
-                            emptyList()
-                        }
-                        watchedUsers.value = users
-                    } else {
-                        reviews.value = emptyList()
-                        watchedUsers.value = emptyList()
-                    }
-                } catch (e: Exception) {
-                    println("Error fetching car details: ${e.message}")
-                }
-            }
-        }
 
         Scaffold(
             topBar = {
@@ -141,7 +87,7 @@ class CarDetailScreen(val plate: String) : Screen {
                 }
             },
         ) { innerPadding ->
-            if (car.value == null) {
+            if (car == null) {
                 Text("Car not found.", modifier = Modifier.padding(16.dp))
             } else {
                 Column(
@@ -165,13 +111,13 @@ class CarDetailScreen(val plate: String) : Screen {
                     )
 
                     Text(
-                        text = "${car.value?.make ?: ""} ${car.value?.model ?: ""}",
+                        text = "${car.make ?: ""} ${car.model ?: ""}",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
                     )
 
                     Text(
-                        text = car.value?.year ?: "",
+                        text = car.year ?: "",
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(bottom = 20.dp),
                     )
@@ -196,7 +142,7 @@ class CarDetailScreen(val plate: String) : Screen {
                     )
 
                     // Only show sort UI if there are reviews
-                    if (reviews.value.isNotEmpty()) {
+                    if (reviewsAndReviewers.isNotEmpty()) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -213,26 +159,20 @@ class CarDetailScreen(val plate: String) : Screen {
                     }
 
                     // Apply sorting to reviews (by date only)
-                    val sortedReviews = reviews.value.let {
-                        if (sortAsc) {
-                            it.sortedBy { review -> review.createdAt }
-                        } else {
-                            it.sortedByDescending { review -> review.createdAt }
-                        }
+                    val sortedReviewsAndReviewers = if (sortAsc) {
+                        reviewsAndReviewers.entries
+                            .sortedBy { it.key.createdAt }
+                            .associate { it.key to it.value }
+                    } else {
+                        reviewsAndReviewers.entries
+                            .sortedByDescending { it.key.createdAt }
+                            .associate { it.key to it.value }
                     }
 
-                    if (sortedReviews.isEmpty()) {
+                    if (sortedReviewsAndReviewers.isEmpty()) {
                         Text("No reviews yet.", modifier = Modifier.padding(16.dp))
                     } else {
-                        LazyColumn(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
-                        ) {
-                            items(sortedReviews) { review ->
-                                ReviewCard(review)
-                            }
-                        }
+                        ReviewsDisplay(modifier = Modifier, sortedReviewsAndReviewers)
                     }
                 }
             }
@@ -250,7 +190,7 @@ class CarDetailScreen(val plate: String) : Screen {
                 },
                 confirmButton = {
                     TextButton(onClick = {
-                        CoroutineScope(Dispatchers.IO).launch {
+                        kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
                             supabaseClient.from("watched_cars")
                                 .delete {
                                     filter {
