@@ -1,5 +1,8 @@
 package com.roadrater.presentation.components
 
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
@@ -142,25 +145,30 @@ fun ReviewCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-//            Row(
-//                modifier = Modifier
-//                    .horizontalScroll(rememberScrollState()),
-//            ) {
-//                review.labels.forEach { label ->
-//                    Text(
-//                        text = label,
-//                        color = MaterialTheme.colorScheme.onPrimary,
-//                        style = MaterialTheme.typography.labelSmall,
-//                        modifier = Modifier
-//                            .padding(end = 8.dp)
-//                            .background(
-//                                color = MaterialTheme.colorScheme.primary,
-//                                shape = RoundedCornerShape(10.dp),
-//                            )
-//                            .padding(horizontal = 8.dp, vertical = 4.dp),
-//                    )
-//                }
-//            }
+// Replace the commented out section with this:
+            if (review.labels.isNotEmpty() && review.labels.first().isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .horizontalScroll(rememberScrollState()),
+                ) {
+                    review.labels.forEach { label ->
+                        if (label.isNotEmpty()) {
+                            Text(
+                                text = label,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier
+                                    .padding(end = 8.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = RoundedCornerShape(10.dp),
+                                    )
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                            )
+                        }
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 

@@ -288,40 +288,7 @@ object MyReviewsScreen : Screen() {
                                 supabaseClient = supabaseClient,
                             )
 
-                            // Show labels if they exist
-                            if (review.labels.isNotEmpty() && review.labels.first().isNotEmpty()) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 8.dp, start = 16.dp, end = 16.dp)
-                                ) {
-                                    Text(
-                                        text = "Labels: ",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    FlowRow(
-                                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp),
-                                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        review.labels.forEach { label ->
-                                            if (label.isNotEmpty()) {
-                                                Text(
-                                                    text = label,
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                                    modifier = Modifier
-                                                        .background(
-                                                            MaterialTheme.colorScheme.primaryContainer,
-                                                            RoundedCornerShape(8.dp)
-                                                        )
-                                                        .padding(horizontal = 8.dp, vertical = 2.dp)
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            // 
                         }
                     }
                 }
