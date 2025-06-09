@@ -34,6 +34,7 @@ import com.roadrater.ui.WatchedCarsScreen
 import com.roadrater.ui.preferences.PreferencesScreen
 import com.roadrater.ui.preferences.options.AboutPreferencesScreen
 import org.koin.compose.koinInject
+import com.roadrater.ui.myCars.MyCarsScreen
 
 object MoreTab : Tab {
     private fun readResolve(): Any = HomeTab
@@ -81,7 +82,7 @@ object MoreTab : Tab {
                     TextPreferenceWidget(
                         title = "My Cars",
                         icon = Icons.Outlined.DirectionsCarFilled,
-                        onPreferenceClick = { },
+                        onPreferenceClick = { navigator.push(MyCarsScreen) },
                     )
                 }
 
