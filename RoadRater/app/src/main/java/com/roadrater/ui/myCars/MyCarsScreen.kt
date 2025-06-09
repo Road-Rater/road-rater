@@ -4,8 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -13,6 +12,7 @@ import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.roadrater.presentation.components.CarWatchingCard
 import com.roadrater.preferences.GeneralPreferences
 import io.github.jan.supabase.SupabaseClient
 import org.koin.compose.koinInject
@@ -21,6 +21,8 @@ object MyCarsScreen : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+
+        //SUPABASE CLIENT
         val supabaseClient: SupabaseClient = koinInject()
         val screenModel = rememberScreenModel { MyCarsScreenModel(supabaseClient) }
 
@@ -28,6 +30,14 @@ object MyCarsScreen : Screen {
         val generalPreferences = koinInject<GeneralPreferences>()
         val currentUser = generalPreferences.user.get()
         val userId = currentUser?.uid
+
+        //TRACK SELECTED PLATE FOR CONFIRMATION
+        var plateToUnregister by remember { mutableStateOf<String?>(null) }
+
+        //LOAD CARS ON INIT
+        LaunchedEffect(userId) {
+            userId?.let { screenModel.loadOwnedCars(it) }
+        }
 
         //TOP BAR
         Scaffold(
@@ -83,7 +93,37 @@ object MyCarsScreen : Screen {
                 }
 
                 //TODO: ADD OWNED CARS CARDS BELOW
+                screenModel.ownedCars.forEach { car ->
+                    CarWatchingCard(
+                        car = car,
+                        onClick = {
+                            plateToUnregister = car.number_plate
+                        }
+                    )
+                }
             }
+        }
+
+        //UNREGISTER CONFIRMATION DIALOG
+        if (plateToUnregister != null) {
+            AlertDialog(
+                onDismissRequest = { plateToUnregister = null },
+                confirmButton = {
+                    TextButton(onClick = {
+                        screenModel.unregisterCar(userId, plateToUnregister!!)
+                        plateToUnregister = null
+                    }) {
+                        Text("Unregister")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { plateToUnregister = null }) {
+                        Text("Cancel")
+                    }
+                },
+                title = { Text("Confirm Unregister") },
+                text = { Text("Are you sure you want to unregister plate ${plateToUnregister}?") }
+            )
         }
     }
 }
