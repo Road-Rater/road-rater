@@ -12,8 +12,8 @@ import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import com.roadrater.utils.ValidationUtils
 import com.roadrater.R
-import androidx.compose.ui.res.stringResource // used if needed in composables (not directly used here)
 
 class MyCarsScreenModel(
     private val supabaseClient: SupabaseClient
@@ -42,7 +42,7 @@ class MyCarsScreenModel(
         }
 
         //VALIDATING LICENSE PLATE INPUT FORMAT
-        if (!plate.matches(Regex("^[A-Za-z0-9]{1,6}$"))) {
+        if (!ValidationUtils.isValidNumberPlate(plate)) {
             feedbackMessage.value = "Invalid number plate format. Please check and try again."
             onResult(false, "Invalid number plate format. Please check and try again.")
             return
