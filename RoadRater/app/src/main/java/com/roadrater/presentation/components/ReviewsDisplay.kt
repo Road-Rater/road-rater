@@ -1,6 +1,5 @@
 package com.roadrater.presentation.components
 
-import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateFloatAsState
@@ -24,10 +23,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,16 +31,12 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.User
-import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.postgrest.from
-import kotlinx.coroutines.Dispatchers
-import org.koin.compose.koinInject
 
 @Composable
 fun ReviewsDisplay(
     modifier: Modifier,
     reviewsAndReviewers: Map<Review, User>,
-    showReviewSummary: Boolean = false
+    showReviewSummary: Boolean = false,
 ) {
     LazyColumn(modifier = modifier) {
         if (showReviewSummary) {
@@ -75,11 +67,11 @@ fun ReviewSummary(reviewsForTab: List<Review>) {
                 transitionSpec = {
                     fadeIn(animationSpec = tween(300)) togetherWith fadeOut(
                         animationSpec = tween(
-                            300
-                        )
+                            300,
+                        ),
                     )
                 },
-                label = "StarRatingFade"
+                label = "StarRatingFade",
             ) { average ->
                 StarRating(average, 40.dp)
             }
@@ -92,18 +84,19 @@ fun ReviewSummary(reviewsForTab: List<Review>) {
                         // If the target number is larger, it slides up and fades in
                         // while the initial (smaller) number slides up and fades out.
                         slideInVertically { height -> height } + fadeIn() togetherWith
-                                slideOutVertically { height -> -height } + fadeOut()
+                            slideOutVertically { height -> -height } + fadeOut()
                     } else {
                         // If the target number is smaller, it slides down and fades in
                         // while the initial number slides down and fades out.
                         slideInVertically { height -> -height } + fadeIn() togetherWith
-                                slideOutVertically { height -> height } + fadeOut()
+                            slideOutVertically { height -> height } + fadeOut()
                     }.using(
                         // Disable clipping since the faded slide-in/out should
                         // be displayed out of bounds.
-                        SizeTransform(clip = false)
+                        SizeTransform(clip = false),
                     )
-                }, label = "animated content"
+                },
+                label = "animated content",
             ) { averageFormatted ->
                 Text(
                     text = if (reviewsForTab.isNotEmpty()) averageFormatted else "0.0",
@@ -133,18 +126,18 @@ fun RatingBarBreakdown(reviews: List<Review>) {
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(),
     ) {
         ratingDistribution.forEachIndexed { index, progress ->
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(text = "${5 - index}", modifier = Modifier.width(24.dp))
                 // Animate the progress value
                 val animatedProgress by animateFloatAsState(
                     targetValue = progress,
                     animationSpec = tween(durationMillis = 600),
-                    label = "Rating Bar Animation"
+                    label = "Rating Bar Animation",
                 )
                 LinearProgressIndicator(
                     progress = { animatedProgress },
@@ -155,7 +148,7 @@ fun RatingBarBreakdown(reviews: List<Review>) {
                     trackColor = Color.LightGray,
                     strokeCap = StrokeCap.Round,
                     gapSize = (-5).dp,
-                    drawStopIndicator = {}
+                    drawStopIndicator = {},
                 )
             }
         }

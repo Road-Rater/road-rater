@@ -1,7 +1,6 @@
 package com.roadrater.database.repository
 
 import android.util.Log
-
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.User
 import io.github.jan.supabase.SupabaseClient

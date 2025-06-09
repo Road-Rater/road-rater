@@ -7,15 +7,15 @@ import com.roadrater.ui.home.tabs.HomeTabScreenModel
 import org.koin.dsl.module
 
 val ScreenModelModule = module {
-    factory {
-        (user: User) -> ProfileScreenModel(user, get(), get())
+    factory { (user: User) ->
+        ProfileScreenModel(user, get(), get())
     }
 
-    factory {
-        (plate: String) -> CarDetailScreenModel(plate, get(), get())
+    factory { (plate: String) ->
+        CarDetailScreenModel(plate, get(), get())
     }
 
-    factory {
-        (currentUser: User) -> HomeTabScreenModel(currentUser, get(), get())
+    factory { (currentUser: User) ->
+        HomeTabScreenModel(currentUser, get(), get())
     }
 }

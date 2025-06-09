@@ -1,26 +1,19 @@
 package com.roadrater.ui.home.tabs
 
-import android.util.Log
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.User
-import com.roadrater.database.entities.WatchedCar
 import com.roadrater.database.repository.CarRepository
 import com.roadrater.database.repository.ReviewRepository
-import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.MissingFieldException
 
 class HomeTabScreenModel(
     private val currentUser: User,
     private val reviewRepository: ReviewRepository,
-    private val carRepository: CarRepository
+    private val carRepository: CarRepository,
 ) : ScreenModel {
     val reviewsAndReviewers = MutableStateFlow<Map<Review, User>>(emptyMap())
 

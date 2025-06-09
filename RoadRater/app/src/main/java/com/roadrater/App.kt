@@ -33,7 +33,7 @@ class App : Application() {
                 RepositoryModule,
                 DatabaseModule,
                 SupabaseModule,
-                ScreenModelModule
+                ScreenModelModule,
             )
         }
 

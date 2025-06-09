@@ -1,19 +1,12 @@
 package com.roadrater.ui
 
-import android.util.Log
-import androidx.credentials.exceptions.domerrors.NotFoundError
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.roadrater.database.entities.Car
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.User
-import com.roadrater.database.entities.WatchedCar
 import com.roadrater.database.repository.CarRepository
 import com.roadrater.database.repository.ReviewRepository
-import com.roadrater.domain.DatabaseRepository
-import com.roadrater.preferences.GeneralPreferences
-import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +15,7 @@ import kotlinx.coroutines.launch
 class ProfileScreenModel(
     private val user: User,
     private val reviewRepository: ReviewRepository,
-    private val carRepository: CarRepository
+    private val carRepository: CarRepository,
 ) : ScreenModel {
     private val _reviewsGiven = MutableStateFlow<List<Review>>(emptyList())
     val reviewsGiven: StateFlow<List<Review>> = _reviewsGiven
@@ -45,7 +38,6 @@ class ProfileScreenModel(
     private val _watchedCars = MutableStateFlow<List<Car>>(emptyList())
     val watchedCars: StateFlow<List<Car>> = _watchedCars
 
-
     fun setSelectedSecondaryTab(tab: Int) {
         _selectedSecondaryTab.value = tab
     }
@@ -59,11 +51,11 @@ class ProfileScreenModel(
             _reviewsGiven.value = reviewRepository.getReviewsByUser(user.uid)
             _watchedCars.value = carRepository.getWatchedCars(user.uid)
             _reviewsReceived.value = reviewRepository.getReviewsByPlates(
-                watchedCars.value.map { it.number_plate }
+                watchedCars.value.map { it.number_plate },
             )
             _reviewsReceivedAndReviewers.value = reviewRepository
                 .mapReviewsToUsers(
-                    reviewsGiven.value + reviewsReceived.value
+                    reviewsGiven.value + reviewsReceived.value,
                 )
 
             _reviewsGivenAndReviewers.value = reviewsGiven.value.associate { review ->
@@ -71,5 +63,4 @@ class ProfileScreenModel(
             }
         }
     }
-
 }

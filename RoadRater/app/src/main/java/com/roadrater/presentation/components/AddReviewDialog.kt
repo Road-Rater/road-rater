@@ -1,6 +1,5 @@
 package com.roadrater.presentation.components
 
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,10 +34,8 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import okhttp3.Request
 
 @Preview
 @Composable
@@ -51,21 +48,21 @@ fun AddReviewDialog(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
 
-    fun validTitle(title: String) : Boolean {
+    fun validTitle(title: String): Boolean {
         return true
     }
 
-    fun validDescription(description: String) : Boolean {
+    fun validDescription(description: String): Boolean {
         return true
     }
 
-    fun validNumberPlate(numberPlate: String) : Boolean {
+    fun validNumberPlate(numberPlate: String): Boolean {
         return true
     }
 
     Dialog(onDismissRequest = {}) {
         Card(
-            Modifier.padding(12.dp)
+            Modifier.padding(12.dp),
         ) {
             NumberPlateInput()
             Row {
@@ -97,14 +94,14 @@ fun AddReviewDialog(
                 IconButton(onClick = {}) {
                     Icon(
                         imageVector = Icons.Filled.Close,
-                        contentDescription = "Cancel"
+                        contentDescription = "Cancel",
                     )
                 }
 
                 IconButton(onClick = {}) {
                     Icon(
                         imageVector = Icons.Filled.Check,
-                        contentDescription = "Confirm"
+                        contentDescription = "Confirm",
                     )
                 }
             }
@@ -118,7 +115,7 @@ fun NumberPlateInput() {
     val focusRequesters = List(6) { FocusRequester() }
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         plate.forEachIndexed { index, char ->
             OutlinedTextField(

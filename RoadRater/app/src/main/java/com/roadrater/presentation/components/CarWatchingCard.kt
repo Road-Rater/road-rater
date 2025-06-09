@@ -1,11 +1,9 @@
 package com.roadrater.presentation.components
 
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +34,6 @@ import androidx.compose.ui.unit.sp
 import com.roadrater.database.entities.Car
 import com.roadrater.ui.theme.Licenz
 
-
 @Composable
 fun CarWatchingCard(
     car: Car,
@@ -57,10 +54,10 @@ fun CarWatchingCard(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.Top,
         ) {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 LogoByName(car.make.toString(), Modifier.size(50.dp))
                 Spacer(Modifier.height(10.dp))
@@ -69,7 +66,7 @@ fun CarWatchingCard(
                         .border(1.dp, Color.Black, shape = RoundedCornerShape(5.dp))
                         .clip(RoundedCornerShape(5.dp))
                         .background(Color.White),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         car.number_plate,
@@ -88,6 +85,7 @@ fun CarWatchingCard(
         }
     }
 }
+
 @Composable
 fun LogoByName(make: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
@@ -103,7 +101,7 @@ fun LogoByName(make: String, modifier: Modifier = Modifier) {
             painter = painterResource(id = resId),
             contentDescription = cleanedMake,
             modifier = modifier,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
         )
     } else {
         // Optional fallback if the image is missing

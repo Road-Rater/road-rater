@@ -19,5 +19,5 @@ val Typography = Typography(
 )
 
 val Licenz = FontFamily(
-    Font(R.font.licenz, FontWeight.Bold)
+    Font(R.font.licenz, FontWeight.Bold),
 )

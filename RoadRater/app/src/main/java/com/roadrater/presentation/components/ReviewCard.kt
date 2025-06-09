@@ -1,8 +1,8 @@
 package com.roadrater.presentation.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,11 +16,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.DirectionsCar
-import androidx.compose.material.icons.outlined.StarBorder
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material.icons.twotone.AccountCircle
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -36,32 +34,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.roadrater.R
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.rememberAsyncImagePainter
+import com.roadrater.R
 import com.roadrater.database.entities.Review
+import com.roadrater.database.entities.User
 import com.roadrater.preferences.GeneralPreferences
-import io.github.jan.supabase.SupabaseClient
+import com.roadrater.ui.ProfileScreen
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
-import com.roadrater.database.entities.User
-import com.roadrater.ui.ProfileScreen
-import com.roadrater.R
-import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
-fun ReviewCard(review: Review, createdBy: User, onModChange: () -> Unit = {},) {
+fun ReviewCard(review: Review, createdBy: User, onModChange: () -> Unit = {}) {
     val dateTime = try {
         val odt = OffsetDateTime.parse(review.createdAt)
         odt.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
@@ -105,18 +97,18 @@ fun ReviewCard(review: Review, createdBy: User, onModChange: () -> Unit = {},) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 StarRating(review.rating.toInt(), 25.dp)
                 IconButton(
                     onClick = { navigator.push(ProfileScreen(createdBy)) },
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier.size(30.dp),
                 ) {
                     if (createdBy.profile_pic_url != null) {
                         Image(
                             painter = rememberAsyncImagePainter(createdBy.profile_pic_url),
                             contentDescription = "Profile picture",
-                            modifier = Modifier.clip(CircleShape)
+                            modifier = Modifier.clip(CircleShape),
                         )
                     } else {
                         Icon(Icons.TwoTone.AccountCircle, "Blank Profile Picture")
