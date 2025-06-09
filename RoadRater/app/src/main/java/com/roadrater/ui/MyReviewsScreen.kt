@@ -1,5 +1,9 @@
 package com.roadrater.ui
 
+import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -7,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -52,27 +57,45 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 
 object MyReviewsScreen : Screen() {
     private fun readResolve(): Any = MyReviewsScreen
 
-    // Predefined labels for filtering (same as in AddReviewScreen)
-    private val availableLabels = listOf(
-        "All",
-        "Speeding",
-        "Courteous",
-        "Aggressive",
-        "Road Rage",
-        "Tailgating",
-        "Bad Driving",
-        "Good Driving",
-        "Reckless",
-        "Patient",
-        "Distracted",
-        "Lane Cutting",
-        "Parking Issues"
-    )
+    @Composable
+    fun FilterButton(
+        label: String,
+        isSelected: Boolean,
+        onSelect: () -> Unit,
+        modifier: Modifier = Modifier
+    ) {
+        val backgroundColor = if (isSelected) {
+            Color(0xd97757) // Blue for selected
+        } else {
+            Color(0xFF2A2A2A) // Dark gray for unselected
+        }
 
+        val textColor = Color.White
+
+        Box(
+            modifier = modifier
+                .clip(RoundedCornerShape(8.dp)) // Changed from 20.dp to 8.dp for rectangular look
+                .background(backgroundColor)
+                .clickable { onSelect() }
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = label,
+                color = textColor,
+                fontSize = 14.sp,
+                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal
+            )
+        }
+    }
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
     override fun Content() {
@@ -108,33 +131,62 @@ object MyReviewsScreen : Screen() {
                     }
                 }
 
-                // Label Filter Section
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        text = "Filter by Label",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
-                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
-                    ) {
-                        availableLabels.forEach { label ->
-                            LabelFilterChip(
-                                label = label,
-                                isSelected = selectedLabel == label,
-                                onSelect = { selectedLabel = label }
-                            )
+                val availableLabels = remember(reviews.value) {
+                    val allLabels = mutableSetOf<String>()
+                    reviews.value.forEach { review ->
+                        review.labels.forEach { label ->
+                            if (label.isNotEmpty()) {
+                                allLabels.add(label)
+                            }
                         }
                     }
+                    listOf("All") + allLabels.sorted()
                 }
+
+                // Replace the FlowRow section with this:
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp)
+                ) {
+                    items(availableLabels) { label ->
+                        FilterButton(
+                            label = label,
+                            isSelected = selectedLabel == label,
+                            onSelect = { selectedLabel = label }
+                        )
+                    }
+                }
+
+
+
+                // Label Filter Section
+//                Column(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(horizontal = 16.dp, vertical = 8.dp)
+//                ) {
+//                    Text(
+//                        text = "Filter by Label",
+//                        style = MaterialTheme.typography.bodyLarge,
+//                        fontWeight = FontWeight.Medium,
+//                        modifier = Modifier.padding(bottom = 8.dp)
+//                    )
+//
+//                    FlowRow(
+//                        modifier = Modifier.fillMaxWidth(),
+//                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+//                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+//                    ) {
+//                        availableLabels.forEach { label ->
+//                            LabelFilterChip(
+//                                label = label,
+//                                isSelected = selectedLabel == label,
+//                                onSelect = { selectedLabel = label }
+//                            )
+//                        }
+//                    }
+//                }
 
                 // Sort Controls
                 Row(
@@ -187,7 +239,7 @@ object MyReviewsScreen : Screen() {
                             contentDescription = "Toggle sort order",
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(if (sortAsc) "Asc" else "Desc")
+                        Text(if (sortAsc) "" else "")
                     }
                 }
 
