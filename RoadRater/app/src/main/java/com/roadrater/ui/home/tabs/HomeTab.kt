@@ -50,7 +50,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -61,7 +60,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import coil3.compose.AsyncImage
 import com.roadrater.R
-import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.TableUser
 import com.roadrater.database.entities.WatchedCar
 import com.roadrater.preferences.GeneralPreferences
@@ -71,7 +69,6 @@ import com.roadrater.ui.CarDetailsScreen
 import com.roadrater.utils.GetCarInfo
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -97,7 +94,7 @@ object HomeTab : Tab {
         label: String,
         isSelected: Boolean,
         onSelect: () -> Unit,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
     ) {
         val backgroundColor = if (isSelected) {
             Color(0xd97757) // Fixed color format
@@ -113,13 +110,13 @@ object HomeTab : Tab {
                 .background(backgroundColor)
                 .clickable { onSelect() }
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = label,
                 color = textColor,
                 fontSize = 14.sp,
-                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal
+                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
             )
         }
     }
@@ -372,13 +369,13 @@ object HomeTab : Tab {
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 ) {
                     items(availableLabels) { label ->
                         FilterButton(
                             label = label,
                             isSelected = selectedLabel == label,
-                            onSelect = { selectedLabel = label }
+                            onSelect = { selectedLabel = label },
                         )
                     }
                 }
@@ -463,7 +460,7 @@ object HomeTab : Tab {
                     text = "Showing ${filteredReviews.size} of ${reviews.size} reviews",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 )
 
                 // Reviews list
@@ -474,7 +471,7 @@ object HomeTab : Tab {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
                         ) {
                             ReviewCard(
                                 review = review,

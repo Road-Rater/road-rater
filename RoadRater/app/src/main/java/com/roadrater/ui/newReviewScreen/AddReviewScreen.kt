@@ -37,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -73,7 +72,7 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
         "Patient",
         "Distracted",
         "Lane Cutting",
-        "Parking Issues"
+        "Parking Issues",
     )
 
     @OptIn(ExperimentalLayoutApi::class)
@@ -172,19 +171,19 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                 // LABELS SECTION
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(
                         text = "Labels (Select all that apply)",
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
 
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         availableLabels.forEach { label ->
                             LabelChip(
@@ -196,7 +195,7 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                                     } else {
                                         selectedLabels + label
                                     }
-                                }
+                                },
                             )
                         }
                     }
@@ -205,7 +204,7 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                         Text(
                             text = "Selected: ${selectedLabels.joinToString(", ")}",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -269,7 +268,7 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
     private fun LabelChip(
         label: String,
         isSelected: Boolean,
-        onToggle: () -> Unit
+        onToggle: () -> Unit,
     ) {
         val backgroundColor = if (isSelected) {
             MaterialTheme.colorScheme.primaryContainer
@@ -296,16 +295,16 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                 .border(
                     width = 1.dp,
                     color = borderColor,
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
                 )
                 .clickable { onToggle() }
-                .padding(horizontal = 12.dp, vertical = 6.dp)
+                .padding(horizontal = 12.dp, vertical = 6.dp),
         ) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodySmall,
                 color = textColor,
-                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal
+                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
             )
         }
     }

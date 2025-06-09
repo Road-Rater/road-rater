@@ -1,22 +1,20 @@
 package com.roadrater.ui
 
-import androidx.compose.material3.Text
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -41,8 +39,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.database.entities.Review
@@ -57,10 +57,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.sp
 
 object MyReviewsScreen : Screen() {
     private fun readResolve(): Any = MyReviewsScreen
@@ -70,7 +66,7 @@ object MyReviewsScreen : Screen() {
         label: String,
         isSelected: Boolean,
         onSelect: () -> Unit,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
     ) {
         val backgroundColor = if (isSelected) {
             Color(0xd97757) // Blue for selected
@@ -86,16 +82,17 @@ object MyReviewsScreen : Screen() {
                 .background(backgroundColor)
                 .clickable { onSelect() }
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = label,
                 color = textColor,
                 fontSize = 14.sp,
-                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal
+                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
             )
         }
     }
+
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
     override fun Content() {
@@ -147,18 +144,16 @@ object MyReviewsScreen : Screen() {
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 4.dp)
+                    contentPadding = PaddingValues(horizontal = 4.dp),
                 ) {
                     items(availableLabels) { label ->
                         FilterButton(
                             label = label,
                             isSelected = selectedLabel == label,
-                            onSelect = { selectedLabel = label }
+                            onSelect = { selectedLabel = label },
                         )
                     }
                 }
-
-
 
                 // Label Filter Section
 //                Column(
@@ -268,7 +263,7 @@ object MyReviewsScreen : Screen() {
                     text = "Showing ${filteredReviews.size} of ${reviews.value.size} reviews",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 )
 
                 LazyColumn(
@@ -278,7 +273,7 @@ object MyReviewsScreen : Screen() {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
                         ) {
                             ReviewCard(
                                 review = review,
@@ -287,7 +282,6 @@ object MyReviewsScreen : Screen() {
                                 },
                                 supabaseClient = supabaseClient,
                             )
-
                         }
                     }
                 }
@@ -299,7 +293,7 @@ object MyReviewsScreen : Screen() {
     private fun LabelFilterChip(
         label: String,
         isSelected: Boolean,
-        onSelect: () -> Unit
+        onSelect: () -> Unit,
     ) {
         val backgroundColor = if (isSelected) {
             MaterialTheme.colorScheme.primaryContainer
@@ -327,13 +321,13 @@ object MyReviewsScreen : Screen() {
                 .border(
                     width = 1.dp,
                     color = borderColor,
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
                 )
                 .clickable { onSelect() }
                 .padding(horizontal = 12.dp, vertical = 6.dp),
             color = textColor,
             style = MaterialTheme.typography.bodySmall,
-            fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal
+            fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
         )
     }
 }
