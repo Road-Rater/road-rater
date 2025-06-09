@@ -145,6 +145,7 @@ fun ReviewCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+// Replace the commented out section with this:
             if (review.labels.isNotEmpty() && review.labels.first().isNotEmpty()) {
                 Row(
                     modifier = Modifier
