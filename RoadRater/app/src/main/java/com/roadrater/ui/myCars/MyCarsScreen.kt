@@ -16,6 +16,8 @@ import com.roadrater.presentation.components.CarWatchingCard
 import com.roadrater.preferences.GeneralPreferences
 import io.github.jan.supabase.SupabaseClient
 import org.koin.compose.koinInject
+import androidx.compose.ui.res.stringResource
+import com.roadrater.R
 
 object MyCarsScreen : Screen {
     @Composable
@@ -43,10 +45,10 @@ object MyCarsScreen : Screen {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("My Cars") },
+                    title = { Text(stringResource(R.string.my_cars)) },
                     navigationIcon = {
                         IconButton(onClick = { navigator.pop() }) {
-                            Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.back)) // new
                         }
                     },
                 )
@@ -67,7 +69,7 @@ object MyCarsScreen : Screen {
                     onValueChange = {
                         if (it.text.length <= 6) screenModel.inputText.value = it
                     },
-                    label = { Text("Vehicle to register") },
+                    label = { Text(stringResource(R.string.vehicle_to_register)) },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 1
                 )
@@ -78,7 +80,7 @@ object MyCarsScreen : Screen {
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Submit")
+                    Text(stringResource(R.string.submit)) // updated
                 }
 
                 //FEEDBACK MESSAGE
@@ -91,7 +93,6 @@ object MyCarsScreen : Screen {
                             .padding(top = 4.dp)
                     )
                 }
-
 
                 screenModel.ownedCars.forEach { car ->
                     CarWatchingCard(
@@ -113,16 +114,16 @@ object MyCarsScreen : Screen {
                         screenModel.unregisterCar(userId, plateToUnregister!!)
                         plateToUnregister = null
                     }) {
-                        Text("Unregister")
+                        Text(stringResource(R.string.unregister)) // new
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { plateToUnregister = null }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel)) // already exists
                     }
                 },
-                title = { Text("Confirm Unregister") },
-                text = { Text("Are you sure you want to unregister plate ${plateToUnregister}?") }
+                title = { Text(stringResource(R.string.confirm_unregister)) }, // new
+                text = { Text(stringResource(R.string.unregister_confirm_message, plateToUnregister!!)) } // new
             )
         }
     }
