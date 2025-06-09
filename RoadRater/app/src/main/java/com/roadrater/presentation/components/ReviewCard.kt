@@ -45,7 +45,9 @@ import com.roadrater.R
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.User
 import com.roadrater.preferences.GeneralPreferences
+import com.roadrater.ui.CarDetailsScreen
 import com.roadrater.ui.ProfileScreen
+import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -54,14 +56,9 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun ReviewCard(review: Review, createdBy: User, onModChange: () -> Unit = {}) {
-    val dateTime = try {
-        val odt = OffsetDateTime.parse(review.createdAt)
-        odt.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
-    } catch (e: Exception) {
-        ""
-    }
     val navigator = LocalNavigator.currentOrThrow
     val generalPreferences = koinInject<GeneralPreferences>()
+    val supabaseClient = koinInject<SupabaseClient>()
     val isModerator = generalPreferences.user.get()?.is_moderator
     var showReportDialog by remember { mutableStateOf(false) }
     var showModDialog by remember { mutableStateOf(false) }
@@ -122,7 +119,9 @@ fun ReviewCard(review: Review, createdBy: User, onModChange: () -> Unit = {}) {
             Surface(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .clickable(onClick = onNumberPlateClick),
+                    .clickable(onClick = {
+                        navigator.push(CarDetailsScreen(review.numberPlate))
+                    }),
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(8.dp),
             ) {

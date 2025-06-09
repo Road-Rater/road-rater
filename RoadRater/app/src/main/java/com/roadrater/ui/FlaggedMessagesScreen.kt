@@ -1,5 +1,6 @@
 package com.roadrater.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,6 +11,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -17,6 +19,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.R
 import com.roadrater.database.entities.Review
+import com.roadrater.database.entities.User
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.Screen
 import com.roadrater.presentation.components.ReviewCard
@@ -36,6 +39,7 @@ object FlaggedMessagesScreen : Screen() {
         val supabaseClient = koinInject<SupabaseClient>()
         val generalPreferences = koinInject<GeneralPreferences>()
         val reviews = remember { mutableStateListOf<Review>() }
+        val reviewsAndReviewers = remember { mutableStateOf<Map<Review, User>>(emptyMap()) }
         val navigator = LocalNavigator.currentOrThrow
 
         fun loadFlaggedReviews() {
@@ -51,6 +55,28 @@ object FlaggedMessagesScreen : Screen() {
                 reviews.clear() // Clear the existing list
                 reviews.addAll(reviewsResult) // Add new reviews
             }
+
+        }
+
+        fun mapReviewsToUsers(reviews: List<Review>) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val reviewerIds = reviews.map { it.createdBy }.distinct()
+
+                val reviewers = supabaseClient
+                    .from("users")
+                    .select {
+                        filter {
+                            isIn("uid", reviewerIds)
+                        }
+                    }
+                    .decodeList<User>()
+
+                val userMap = reviewers.associateBy { it.uid }
+
+                reviewsAndReviewers.value = reviews.mapNotNull { review ->
+                    userMap[review.createdBy]?.let { review to it }
+                }.toMap()
+            }
         }
 
         Scaffold(
@@ -64,6 +90,7 @@ object FlaggedMessagesScreen : Screen() {
                 // Load flagged reviews from the database
                 LaunchedEffect(Unit) {
                     loadFlaggedReviews()
+                    mapReviewsToUsers(reviews)
                 }
 
                 LazyColumn(
@@ -73,13 +100,10 @@ object FlaggedMessagesScreen : Screen() {
                     items(reviews) { review ->
                         ReviewCard(
                             review = review,
-                            onNumberPlateClick = {
-                                navigator.push(CarDetailsScreen(review.numberPlate))
-                            },
-                            supabaseClient = supabaseClient,
                             onModChange = {
                                 reviews.remove(review) // Remove the review from the list
                             },
+                            createdBy = reviewsAndReviewers.value[review]!!
                         )
                     }
                 }

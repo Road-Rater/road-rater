@@ -1,9 +1,11 @@
 package com.roadrater.ui
 
+import android.util.Log
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.roadrater.database.entities.Car
 import com.roadrater.database.entities.Review
+import com.roadrater.database.entities.User
 import com.roadrater.database.entities.WatchedCar
 import com.roadrater.utils.GetCarInfo
 import io.github.jan.supabase.SupabaseClient
@@ -22,11 +24,13 @@ class CarDetailsScreenModel(
     var isWatching = MutableStateFlow<Boolean>(false)
     var car = MutableStateFlow<Car?>(null)
     var reviews = MutableStateFlow<List<Review>>(emptyList())
+    var reviewsAndReviewers = MutableStateFlow<Map<Review, User>>(emptyMap())
 
     init {
         isWatching()
         fetchCar()
         fetchReviews()
+        mapReviewsToUsers(reviews.value)
     }
 
     fun fetchCar() {
@@ -51,6 +55,27 @@ class CarDetailsScreenModel(
                     order("created_at", Order.DESCENDING)
                 }
                 .decodeList<Review>()
+        }
+    }
+
+    fun mapReviewsToUsers(reviews: List<Review>) {
+        screenModelScope.launch(Dispatchers.IO) {
+            val reviewerIds = reviews.map { it.createdBy }.distinct()
+
+            val reviewers = supabaseClient
+                .from("users")
+                .select {
+                    filter {
+                        isIn("uid", reviewerIds)
+                    }
+                }
+                .decodeList<User>()
+
+            val userMap = reviewers.associateBy { it.uid }
+
+            reviewsAndReviewers.value = reviews.mapNotNull { review ->
+                userMap[review.createdBy]?.let { review to it }
+            }.toMap()
         }
     }
 

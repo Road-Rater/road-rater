@@ -44,7 +44,6 @@ import com.roadrater.database.entities.WatchedCar
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.ReviewsDisplay
 import com.roadrater.presentation.util.Tab
-import com.roadrater.ui.CarDetailScreen
 import com.roadrater.ui.CarDetailsScreen
 import com.roadrater.utils.GetCarInfo
 import io.github.jan.supabase.SupabaseClient
@@ -246,7 +245,7 @@ object HomeTab : Tab {
                                             .fillMaxWidth()
                                             .clickable {
                                                 searchHistory = listOf(plate) + searchHistory.filter { it != plate }
-                                                navigator.push(CarDetailScreen(plate))
+                                                navigator.push(CarDetailsScreen(plate))
                                                 text = ""
                                                 active = false
                                             }
