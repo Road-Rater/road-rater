@@ -34,12 +34,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
+import com.roadrater.R
 import com.roadrater.database.entities.Comment
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.ReviewCard
@@ -67,7 +69,7 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
             var replyTo by remember { mutableStateOf<String?>(null) }
 
             Scaffold(topBar = {
-                TopAppBar(title = { Text("Review Details") })
+                TopAppBar(title = { Text(stringResource(R.string.review_details)) })
             }) { padding ->
                 LazyColumn(
                     modifier = Modifier
@@ -84,7 +86,7 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
                                 onClick = { replyTo = "REVIEW" },
                                 modifier = Modifier.padding(top = 8.dp),
                             ) {
-                                Text("Reply to Review")
+                                Text(stringResource(R.string.review_reply))
                             }
                             // Inline reply input under the review
                             if (replyTo == "REVIEW") {
@@ -103,7 +105,7 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
                                         OutlinedTextField(
                                             value = screenModel.replyContent.value,
                                             onValueChange = { screenModel.replyContent.value = it },
-                                            label = { Text("Reply") },
+                                            label = { Text(stringResource(R.string.reply)) },
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .focusRequester(focusRequester),
@@ -119,7 +121,7 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
                                             },
                                             modifier = Modifier.padding(top = 8.dp),
                                         ) {
-                                            Text("Post Reply")
+                                            Text(stringResource(R.string.post_reply))
                                         }
                                     }
                                 }
@@ -170,7 +172,7 @@ fun CommentCard(
         ) {
             AsyncImage(
                 model = currentUser?.profile_pic_url,
-                contentDescription = "Profile picture",
+                contentDescription = stringResource(R.string.pfp),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .padding(end = 12.dp)
@@ -260,7 +262,7 @@ fun ThreadedComments(
                         OutlinedTextField(
                             value = replyContent,
                             onValueChange = onReplyContentChange,
-                            label = { Text("Reply") },
+                            label = { Text(stringResource(R.string.reply)) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .focusRequester(focusRequester),
@@ -271,7 +273,7 @@ fun ThreadedComments(
                             },
                             modifier = Modifier.padding(top = 8.dp),
                         ) {
-                            Text("Post Reply")
+                            Text(stringResource(R.string.post_reply))
                         }
                     }
                 }
