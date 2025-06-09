@@ -44,7 +44,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.draw.clip
+import com.roadrater.utils.ValidationUtils
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 
 object AddReviewTab : Tab {
     private fun readResolve(): Any = AddReviewTab
@@ -123,7 +127,9 @@ object AddReviewTab : Tab {
     override fun Content() {
         val supabaseClient = koinInject<SupabaseClient>()
         val generalPreferences = koinInject<com.roadrater.preferences.GeneralPreferences>()
+        val context = LocalContext.current
         val userId = generalPreferences.user.get()?.uid ?: ""
+
         var numberPlate by remember { mutableStateOf("") }
         var title by remember { mutableStateOf("") }
         var description by remember { mutableStateOf("") }
@@ -133,80 +139,205 @@ object AddReviewTab : Tab {
         val coroutineScope = rememberCoroutineScope()
         var selectedLabels by remember { mutableStateOf(setOf<String>()) }
 
+        // Error states for validation
+        var numberPlateError by remember { mutableStateOf(false) }
+        var titleError by remember { mutableStateOf(false) }
+        var descriptionError by remember { mutableStateOf(false) }
+        var ratingError by remember { mutableStateOf(false) }
 
+        // Character limits
+        val maxTitleLength = 60
+        val maxDescriptionLength = 500
+
+        // Show success/error messages as toasts
+        message?.let { msg ->
+            LaunchedEffect(msg) {
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Add scrollable modifier to the main Column
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("Create a Review", style = MaterialTheme.typography.titleLarge)
+
             OutlinedTextField(
                 value = numberPlate,
-                onValueChange = { numberPlate = it.uppercase() },
+                onValueChange = {
+                    numberPlate = ValidationUtils.formatNumberPlate(it)
+                    numberPlateError = !ValidationUtils.isValidNumberPlate(numberPlate) && numberPlate.isNotEmpty()
+                    message = null // Clear any previous messages
+                },
                 label = { Text("Number Plate") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                repeat(5) { index ->
-                    IconButton(
-                        onClick = { rating = index + 1 }
-                    ) {
-                        Icon(
-                            imageVector = if (index < rating) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                            contentDescription = "Star",
-                            modifier = Modifier.size(24.dp),
-                            tint = MaterialTheme.colorScheme.primary,
+                singleLine = true,
+                isError = numberPlateError,
+                supportingText = {
+                    if (numberPlateError) {
+                        Text(
+                            text = "Please enter a valid number plate format",
+                            color = MaterialTheme.colorScheme.error
                         )
                     }
                 }
-            }
-            OutlinedTextField(
-                value = title,
-                onValueChange = { title = it },
-                label = { Text("Review Title (Max 60 characters):") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
-                label = { Text("Your review (Max 500 characters):") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3,
-                maxLines = 10
             )
 
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                //Text("", style = MaterialTheme.typography.bodyMedium)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    repeat(5) { index ->
+                        IconButton(
+                            onClick = {
+                                rating = index + 1
+                                ratingError = false
+                                message = null
+                            }
+                        ) {
+                            Icon(
+                                imageVector = if (index < rating) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                                contentDescription = "Star ${index + 1}",
+                                modifier = Modifier.size(24.dp),
+                                tint = if (ratingError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+                }
+                if (ratingError) {
+                    Text(
+                        text = "Please select a rating",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+
+            OutlinedTextField(
+                value = title,
+                onValueChange = {
+                    if (it.length <= maxTitleLength) {
+                        title = it
+                        titleError = title.isBlank()
+                        message = null
+                    }
+                },
+                label = { Text("Review Title") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = titleError,
+                supportingText = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        if (titleError) {
+                            Text(
+                                text = "Title is required",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.width(1.dp))
+                        }
+                        Text(
+                            text = "${title.length}/$maxTitleLength",
+                            color = if (title.length > maxTitleLength * 0.9) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            )
+
+            OutlinedTextField(
+                value = description,
+                onValueChange = {
+                    if (it.length <= maxDescriptionLength) {
+                        description = it
+                        descriptionError = description.isBlank()
+                        message = null
+                    }
+                },
+                label = { Text("Your review") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3,
+                maxLines = 10,
+                isError = descriptionError,
+                supportingText = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        if (descriptionError) {
+                            Text(
+                                text = "Review description is required",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.width(1.dp))
+                        }
+                        Text(
+                            text = "${description.length}/$maxDescriptionLength",
+                            color = if (description.length > maxDescriptionLength * 0.9) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            )
+
+            Text(
+                text = "Labels (Select all that apply)",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Use LazyVerticalGrid instead of FlowRow for better layout stability
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "Labels (Select all that apply)",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    availableLabels.forEach { label ->
-                        LabelChip(
-                            label = label,
-                            isSelected = selectedLabels.contains(label),
-                            onToggle = {
-                                selectedLabels = if (selectedLabels.contains(label)) {
-                                    selectedLabels - label
-                                } else {
-                                    selectedLabels + label
+                // Create rows of chips manually
+                val chunkedLabels = availableLabels.chunked(3)
+                chunkedLabels.forEach { rowLabels ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        rowLabels.forEach { label ->
+                            LabelChip(
+                                label = label,
+                                isSelected = selectedLabels.contains(label),
+                                onToggle = {
+                                    selectedLabels = if (selectedLabels.contains(label)) {
+                                        selectedLabels - label
+                                    } else {
+                                        selectedLabels + label
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
+                        // Fill remaining space if row is not full
+                        repeat(3 - rowLabels.size) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
                     }
                 }
 
@@ -219,40 +350,77 @@ object AddReviewTab : Tab {
                 }
             }
 
+            // Submit Button - Moved here to ensure visibility
             Button(
                 onClick = {
-                    isSubmitting = true
-                    message = null
-                    coroutineScope.launch {
-                        try {
-                            supabaseClient.from("reviews").insert(
-                                mapOf(
+                    // Validate all fields before submission
+                    numberPlateError = !ValidationUtils.isValidNumberPlate(numberPlate)
+                    titleError = title.isBlank()
+                    descriptionError = description.isBlank()
+                    ratingError = rating == 0
+
+                    if (!numberPlateError && !titleError && !descriptionError && !ratingError) {
+                        isSubmitting = true
+                        message = null
+                        coroutineScope.launch {
+                            try {
+                                val reviewData = mutableMapOf<String, Any>(
                                     "number_plate" to numberPlate,
-                                    "title" to title,
-                                    "description" to description,
+                                    "title" to title.trim(),
+                                    "description" to description.trim(),
+                                    "rating" to rating,
                                     "rating" to rating,
                                     "created_by" to userId
                                 )
-                            )
-                            message = "Review submitted!"
-                            numberPlate = ""
-                            title = ""
-                            description = ""
-                            rating = 0
-                        } catch (e: Exception) {
-                            message = "Error: ${e.message}"
-                        } finally {
-                            isSubmitting = false
+
+                                // Add labels if any are selected
+                                if (selectedLabels.isNotEmpty()) {
+                                    reviewData["labels"] = selectedLabels.toList()
+                                }
+
+                                supabaseClient.from("reviews").insert(reviewData)
+
+                                message = "Review submitted successfully!"
+
+                                // Reset form
+                                numberPlate = ""
+                                title = ""
+                                description = ""
+                                rating = 0
+                                selectedLabels = setOf()
+
+                            } catch (e: Exception) {
+                                message = "Failed to submit review: ${e.message}"
+                            } finally {
+                                isSubmitting = false
+                            }
                         }
+                    } else {
+                        message = "Please fix the errors above"
                     }
                 },
-                enabled = !isSubmitting && numberPlate.isNotBlank() && title.isNotBlank() && description.isNotBlank()
+                enabled = !isSubmitting,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Submit Review")
+                if (isSubmitting) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Text("Submitting...")
+                    }
+                } else {
+                    Text("Submit Review")
+                }
             }
-            message?.let {
-                Text(it, color = if (it.startsWith("Error")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
-            }
+
+            // Add some bottom padding to ensure button is fully visible
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
