@@ -3,6 +3,7 @@ package com.roadrater.ui.home.tabs
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Label
+import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.QueryStats
@@ -26,7 +27,8 @@ import com.roadrater.presentation.components.LogoHeader
 import com.roadrater.presentation.components.preferences.TextPreferenceWidget
 import com.roadrater.presentation.util.ScrollbarLazyColumn
 import com.roadrater.presentation.util.Tab
-import com.roadrater.ui.MyReviews
+import com.roadrater.ui.FlaggedMessagesScreen
+import com.roadrater.ui.MyReviewsScreen
 import com.roadrater.ui.WatchedCarsScreen
 import com.roadrater.ui.preferences.PreferencesScreen
 import com.roadrater.ui.preferences.options.AboutPreferencesScreen
@@ -52,6 +54,7 @@ object MoreTab : Tab {
         val navigator = LocalNavigator.currentOrThrow
         val screenModel = rememberScreenModel { MoreTabScreenModel() }
         val generalPreferences = koinInject<GeneralPreferences>()
+        val currentUser = generalPreferences.user.get()
 
         Scaffold(
             topBar = {
@@ -90,7 +93,7 @@ object MoreTab : Tab {
                     TextPreferenceWidget(
                         title = stringResource(R.string.my_reviews),
                         icon = Icons.Outlined.Storage,
-                        onPreferenceClick = { navigator.push(MyReviews) },
+                        onPreferenceClick = { navigator.push(MyReviewsScreen) },
                     )
                 }
 
@@ -109,6 +112,15 @@ object MoreTab : Tab {
                         icon = Icons.Outlined.Info,
                         onPreferenceClick = { navigator.push(AboutPreferencesScreen) },
                     )
+                }
+                if (currentUser?.is_moderator == true) {
+                    item {
+                        TextPreferenceWidget(
+                            title = stringResource(R.string.flagged_messages),
+                            icon = Icons.Outlined.Flag,
+                            onPreferenceClick = { navigator.push(FlaggedMessagesScreen) },
+                        )
+                    }
                 }
             }
         }

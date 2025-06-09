@@ -1,4 +1,4 @@
-package com.roadrater.presentation
+package com.roadrater.presentation.themes
 
 import android.annotation.SuppressLint
 import android.app.UiModeManager

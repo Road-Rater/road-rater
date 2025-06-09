@@ -51,6 +51,7 @@ import com.roadrater.presentation.components.ReviewsDisplay
 import com.roadrater.presentation.util.Tab
 import com.roadrater.ui.CarDetailScreen
 import com.roadrater.ui.ProfileScreenModel
+import com.roadrater.ui.CarDetailsScreen
 import com.roadrater.utils.GetCarInfo
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -82,10 +83,9 @@ object HomeTab : Tab {
         val context = LocalContext.current
         val navigator = LocalNavigator.currentOrThrow
         val supabaseClient = koinInject<SupabaseClient>()
-
         val generalPreferences = koinInject<GeneralPreferences>()
         val currentUser = generalPreferences.user.get()
-
+        // ViewModel for managing reviews and state
         val screenModel = rememberScreenModel {
             KoinJavaComponent.getKoin().get<HomeTabScreenModel>(parameters = { parametersOf(currentUser) })
         }
@@ -120,13 +120,7 @@ object HomeTab : Tab {
                     },
                 )
             },
-            floatingActionButton = {
-//                IconButton(
-//                    onClick = screenModel.openAddReviewDialog()
-//                ) {
-//                    Icon(Icons.Default.Add, "Add Review")
-//                }
-            },
+            floatingActionButton = {},
         ) { paddingValues ->
             Column(modifier = Modifier.padding(paddingValues)) {
                 Scaffold {
@@ -174,10 +168,25 @@ object HomeTab : Tab {
                                             .decodeList<Map<String, String>>()
                                             .isNotEmpty()
                                         if (carExists) {
+                                            // Fetch users linked to this car
+                                            val watchedUsers = supabaseClient.from("watched_cars")
+                                                .select { filter { eq("number_plate", upperText) } }
+                                                .decodeList<WatchedCar>()
+                                            val userIds = watchedUsers.map { it.uid }
+                                            val users = if (userIds.isNotEmpty()) {
+                                                supabaseClient.from("users")
+                                                    .select()
+                                                    .decodeList<TableUser>()
+                                                    .filter { it.uid in userIds }
+                                            } else {
+                                                emptyList()
+                                            }
+                                            userResults = userResults + (upperText to users)
                                             searchHistory = listOf(upperText) + searchHistory.filter { it != upperText }
                                             pendingNavigationPlate = upperText
                                             active = false
                                             text = ""
+                                            noResults = false
                                         } else {
                                             // Try to scrape car info if not found
                                             val scrapedCar = try {
@@ -208,7 +217,7 @@ object HomeTab : Tab {
                             active = it
                         },
                         placeholder = {
-                            Text(text = "Search")
+                            Text(stringResource(R.string.search_tab))
                         },
                         leadingIcon = {
                             Icon(
@@ -234,7 +243,7 @@ object HomeTab : Tab {
                     ) {
                         if (text.isBlank()) {
                             if (searchHistory.isEmpty()) {
-                                Text("No search history yet", modifier = Modifier.padding(14.dp))
+                                Text(stringResource(R.string.search_no_history), modifier = Modifier.padding(14.dp))
                             } else {
                                 // Show previous search history
                                 searchHistory.forEach { plate ->
@@ -261,7 +270,7 @@ object HomeTab : Tab {
                         } else {
                             if (noResults || searchResults.isEmpty()) {
                                 Text(
-                                    text = "No results found",
+                                    text = stringResource(R.string.no_results),
                                     modifier = Modifier.padding(14.dp),
                                 )
                             } else {
@@ -277,7 +286,7 @@ object HomeTab : Tab {
                                                 .fillMaxWidth()
                                                 .clickable {
                                                     searchHistory = listOf(plate) + searchHistory.filter { it != plate }
-                                                    navigator.push(CarDetailScreen(plate))
+                                                    navigator.push(CarDetailsScreen(plate))
                                                     text = ""
                                                     active = false
                                                 },
@@ -300,7 +309,7 @@ object HomeTab : Tab {
                 // Navigate to car detail screen if needed
                 LaunchedEffect(pendingNavigationPlate) {
                     pendingNavigationPlate?.let { plate ->
-                        navigator.push(CarDetailScreen(plate))
+                        navigator.push(CarDetailsScreen(plate))
                         pendingNavigationPlate = null
                     }
                 }

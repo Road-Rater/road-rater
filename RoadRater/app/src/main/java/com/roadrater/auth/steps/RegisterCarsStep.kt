@@ -30,6 +30,7 @@ import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.CarWatchingCard
 import com.roadrater.ui.theme.spacing
 import com.roadrater.utils.GetCarInfo
+import com.roadrater.utils.ValidationUtils
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.CoroutineScope
@@ -52,10 +53,9 @@ internal class RegisterCarsStep : OnboardingStep {
 
         var car by remember { mutableStateOf("") }
         var cars by remember { mutableStateOf(listOf<Car>()) }
-
+        var showError by remember { mutableStateOf(false) }
         val focusRequester = remember { FocusRequester() }
         val supabaseClient = koinInject<SupabaseClient>()
-
         val generalPreferences = koinInject<GeneralPreferences>()
         val currentUser = generalPreferences.user.get()
 
@@ -70,18 +70,27 @@ internal class RegisterCarsStep : OnboardingStep {
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
                 value = car,
-                onValueChange = { car = it },
+                onValueChange = {
+                    car = ValidationUtils.formatNumberPlate(it)
+                    showError = false
+                },
                 label = {
                     Text(stringResource(R.string.number_plate))
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Companion.Text),
                 singleLine = true,
+                isError = showError,
+                supportingText = {
+                    if (showError) {
+                        Text(stringResource(R.string.plate_format))
+                    }
+                },
             )
 
             Button(
                 modifier = Modifier.Companion.fillMaxWidth(),
                 onClick = {
-                    if (car.isNotBlank()) {
+                    if (ValidationUtils.isValidNumberPlate(car)) {
                         if (currentUser?.uid == null) return@Button
                         CoroutineScope(Dispatchers.IO).launch {
                             val watchedCar = watchCar(currentUser.uid, car, supabaseClient)
@@ -89,8 +98,11 @@ internal class RegisterCarsStep : OnboardingStep {
                                 cars = cars + watchedCar
                                 car = ""
                                 _isComplete = true
+                                showError = false
                             }
                         }
+                    } else {
+                        showError = true
                     }
                 },
             ) {
@@ -115,17 +127,11 @@ internal class RegisterCarsStep : OnboardingStep {
 
     // Simple watchCar function
     private fun watchCar(uid: String, numberPlate: String, supabaseClient: SupabaseClient): Car {
-        var car: Car? = Car(
-            number_plate = "",
-            make = "",
-            model = "",
-            year = ""
-        )
+        val car = GetCarInfo.getCarInfo(numberPlate)
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                car = supabaseClient.from("cars").select { filter { eq("number_plate", numberPlate) } }.decodeSingleOrNull<Car>()
-                //supabaseClient.from("cars").upsert(car)
+                supabaseClient.from("cars").upsert(car)
                 supabaseClient.from("watched_cars").upsert(
                     WatchedCar(
                         number_plate = numberPlate,
@@ -136,6 +142,6 @@ internal class RegisterCarsStep : OnboardingStep {
                 e.printStackTrace()
             }
         }
-        return car!!
+        return car
     }
 }

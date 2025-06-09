@@ -16,10 +16,7 @@ import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -33,13 +30,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.User
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.Screen
 import com.roadrater.presentation.components.ReviewCard
+import com.roadrater.ui.CarDetailsScreen
 import com.roadrater.presentation.components.ReviewsDisplay
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -50,12 +49,11 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import kotlin.collections.plus
 
-object MyReviews : Screen() {
-    private fun readResolve(): Any = MyReviews
+object MyReviewsScreen : Screen() {
+    private fun readResolve(): Any = MyReviewsScreen
 
     @Composable
     override fun Content() {
-        val context = LocalContext.current
         val supabaseClient = koinInject<SupabaseClient>()
         val generalPreferences = koinInject<GeneralPreferences>()
         val currentUser = generalPreferences.user.get()
@@ -66,6 +64,7 @@ object MyReviews : Screen() {
         var selectedLabel by remember { mutableStateOf("All") }
         var sortOption by remember { mutableStateOf("Date") } // "Date" or "Title"
         var sortAsc by remember { mutableStateOf(true) }
+        val navigator = LocalNavigator.currentOrThrow
 
         Scaffold(
             topBar = {
@@ -73,7 +72,6 @@ object MyReviews : Screen() {
                     title = { Text("My Reviews") },
                 )
             },
-            floatingActionButton = {},
         ) { paddingValues ->
             Column(modifier = Modifier.padding(paddingValues)) {
                 // Load reviews for the current user from the database
@@ -132,27 +130,6 @@ object MyReviews : Screen() {
                         }
                     }
                     .associate { it.toPair() } // Converts the sorted list of Map.Entry back into a Map
-
-                Row(
-                    modifier = Modifier
-                        .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                ) {
-                    labels.forEach { label ->
-                        FilterChip(
-                            selected = label == selectedLabel,
-                            onClick = { selectedLabel = label },
-                            label = { Text(label) },
-                            modifier = Modifier.padding(end = 8.dp),
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                labelColor = MaterialTheme.colorScheme.onSurface,
-                            ),
-                        )
-                    }
-                }
 
                 Row(
                     modifier = Modifier
