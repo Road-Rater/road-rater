@@ -1,6 +1,5 @@
 package com.roadrater.ui
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -55,7 +54,6 @@ object FlaggedMessagesScreen : Screen() {
                 reviews.clear() // Clear the existing list
                 reviews.addAll(reviewsResult) // Add new reviews
             }
-
         }
 
         fun mapReviewsToUsers(reviews: List<Review>) {
@@ -103,7 +101,7 @@ object FlaggedMessagesScreen : Screen() {
                             onModChange = {
                                 reviews.remove(review) // Remove the review from the list
                             },
-                            createdBy = reviewsAndReviewers.value[review]!!
+                            createdBy = reviewsAndReviewers.value[review]!!,
                         )
                     }
                 }

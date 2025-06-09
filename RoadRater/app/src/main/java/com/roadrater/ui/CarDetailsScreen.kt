@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Add
@@ -40,7 +38,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.R
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.RemoveCarDialog
-import com.roadrater.presentation.components.ReviewCard
 import com.roadrater.presentation.components.ReviewsDisplay
 import com.roadrater.ui.newReviewScreen.AddReviewScreen
 import io.github.jan.supabase.SupabaseClient

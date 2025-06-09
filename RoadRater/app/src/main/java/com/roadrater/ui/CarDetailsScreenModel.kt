@@ -1,6 +1,5 @@
 package com.roadrater.ui
 
-import android.util.Log
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.roadrater.database.entities.Car
