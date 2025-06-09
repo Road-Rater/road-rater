@@ -50,6 +50,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ReviewCard(
     review: Review,
+    onClick: () -> Unit = {},
     onNumberPlateClick: () -> Unit = {},
     onModChange: () -> Unit = {},
     supabaseClient: SupabaseClient,
@@ -71,7 +72,7 @@ fun ReviewCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .combinedClickable(
-                onClick = {},
+                onClick = onClick,
                 onLongClick = {
                     if (isModerator == true) {
                         showModDialog = true
@@ -145,7 +146,8 @@ fun ReviewCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-// Replace the commented out section with this:
+
+            // Replace the commented out section with this:
             if (review.labels.isNotEmpty() && review.labels.first().isNotEmpty()) {
                 Row(
                     modifier = Modifier

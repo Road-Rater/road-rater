@@ -1,6 +1,7 @@
 package com.roadrater.database.repository
 
 import com.roadrater.database.entities.Car
+import com.roadrater.database.entities.Comment
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.TableUser
 import com.roadrater.database.entities.WatchedCar
@@ -141,5 +142,35 @@ class DatabaseRepositoryImpl(
             e.printStackTrace()
             false
         }
+    }
+
+    override suspend fun getCommentsForReview(reviewId: Long): List<Comment> {
+        return supabaseClient
+            .from("comments")
+            .select {
+                filter {
+                    eq("review_id", reviewId)
+                }
+            }
+            .decodeList<Comment>()
+    }
+
+    override suspend fun postComment(
+        reviewId: Long,
+        userId: String,
+        content: String,
+        parentId: Long?,
+        // nullable for top-level comments
+    ): Comment {
+        return supabaseClient.from("comments")
+            .insert(
+                mapOf(
+                    "review_id" to reviewId,
+                    "user_id" to userId,
+                    "content" to content,
+                    "parent_id" to parentId,
+                ),
+            )
+            .decodeSingle()
     }
 }

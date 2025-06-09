@@ -66,6 +66,7 @@ import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.ReviewCard
 import com.roadrater.presentation.util.Tab
 import com.roadrater.ui.CarDetailsScreen
+import com.roadrater.ui.ReviewDetailsScreen
 import com.roadrater.utils.GetCarInfo
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -455,6 +456,7 @@ object HomeTab : Tab {
                         }
                     }
 
+
                 // Show filtered count
                 Text(
                     text = "Showing ${filteredReviews.size} of ${reviews.size} reviews",
@@ -478,6 +480,10 @@ object HomeTab : Tab {
                                 onNumberPlateClick = {
                                     navigator.push(CarDetailsScreen(review.numberPlate))
                                 },
+                                onClick = {
+                                    review.id?.let { id ->
+                                        navigator.push(ReviewDetailsScreen(id.toString()))
+                                }
                                 supabaseClient = supabaseClient,
                             )
                         }
