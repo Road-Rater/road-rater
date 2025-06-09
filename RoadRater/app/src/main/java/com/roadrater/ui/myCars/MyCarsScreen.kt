@@ -92,7 +92,7 @@ object MyCarsScreen : Screen {
                     )
                 }
 
-                //TODO: ADD OWNED CARS CARDS BELOW
+
                 screenModel.ownedCars.forEach { car ->
                     CarWatchingCard(
                         car = car,
