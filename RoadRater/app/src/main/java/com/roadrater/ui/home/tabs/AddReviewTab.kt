@@ -13,13 +13,38 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import com.roadrater.presentation.util.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
-import com.roadrater.R
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 
 object AddReviewTab : Tab {
     private fun readResolve(): Any = AddReviewTab
@@ -33,6 +58,67 @@ object AddReviewTab : Tab {
             )
         }
 
+    // Predefined labels for categorizing reviews
+    private val availableLabels = listOf(
+        "Speeding",
+        "Courteous",
+        "Aggressive",
+        "Road Rage",
+        "Tailgating",
+        "Bad Driving",
+        "Good Driving",
+        "Reckless",
+        "Patient",
+        "Distracted",
+        "Lane Cutting",
+        "Parking Issues"
+    )
+
+    @Composable
+    private fun LabelChip(
+        label: String,
+        isSelected: Boolean,
+        onToggle: () -> Unit
+    ) {
+        val backgroundColor = if (isSelected) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surface
+        }
+
+        val textColor = if (isSelected) {
+            MaterialTheme.colorScheme.onPrimaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        }
+
+        val borderColor = if (isSelected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.outline
+        }
+
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(backgroundColor)
+                .border(
+                    width = 1.dp,
+                    color = borderColor,
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .clickable { onToggle() }
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodySmall,
+                color = textColor,
+                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal
+            )
+        }
+    }
+
     @Composable
     override fun Content() {
         val supabaseClient = koinInject<SupabaseClient>()
@@ -45,6 +131,8 @@ object AddReviewTab : Tab {
         var isSubmitting by remember { mutableStateOf(false) }
         var message by remember { mutableStateOf<String?>(null) }
         val coroutineScope = rememberCoroutineScope()
+        var selectedLabels by remember { mutableStateOf(setOf<String>()) }
+
 
         Column(
             modifier = Modifier
@@ -90,6 +178,47 @@ object AddReviewTab : Tab {
                 minLines = 3,
                 maxLines = 10
             )
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "Labels (Select all that apply)",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    availableLabels.forEach { label ->
+                        LabelChip(
+                            label = label,
+                            isSelected = selectedLabels.contains(label),
+                            onToggle = {
+                                selectedLabels = if (selectedLabels.contains(label)) {
+                                    selectedLabels - label
+                                } else {
+                                    selectedLabels + label
+                                }
+                            }
+                        )
+                    }
+                }
+
+                if (selectedLabels.isNotEmpty()) {
+                    Text(
+                        text = "Selected: ${selectedLabels.joinToString(", ")}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
             Button(
                 onClick = {
                     isSubmitting = true

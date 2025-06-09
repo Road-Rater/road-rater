@@ -288,7 +288,6 @@ object MyReviewsScreen : Screen() {
                                 supabaseClient = supabaseClient,
                             )
 
-                            // 
                         }
                     }
                 }
