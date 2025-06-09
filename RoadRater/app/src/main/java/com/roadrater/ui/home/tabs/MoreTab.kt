@@ -31,10 +31,10 @@ import com.roadrater.presentation.util.Tab
 import com.roadrater.ui.FlaggedMessagesScreen
 import com.roadrater.ui.MyReviewsScreen
 import com.roadrater.ui.WatchedCarsScreen
+import com.roadrater.ui.myCars.MyCarsScreen
 import com.roadrater.ui.preferences.PreferencesScreen
 import com.roadrater.ui.preferences.options.AboutPreferencesScreen
 import org.koin.compose.koinInject
-import com.roadrater.ui.myCars.MyCarsScreen
 
 object MoreTab : Tab {
     private fun readResolve(): Any = HomeTab
@@ -77,7 +77,7 @@ object MoreTab : Tab {
 
                 item { HorizontalDivider() }
 
-                //MY CARS
+                // MY CARS
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.my_cars),
@@ -88,7 +88,7 @@ object MoreTab : Tab {
 
                 item { HorizontalDivider() }
 
-                //WATCHED CARS
+                // WATCHED CARS
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.watched_cars),
@@ -97,7 +97,7 @@ object MoreTab : Tab {
                     )
                 }
 
-                //STATS
+                // STATS
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.stats),
@@ -106,7 +106,7 @@ object MoreTab : Tab {
                     )
                 }
 
-                //MY REVIEWS
+                // MY REVIEWS
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.my_reviews),
@@ -117,7 +117,7 @@ object MoreTab : Tab {
 
                 item { HorizontalDivider() }
 
-                //SETTINGS
+                // SETTINGS
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.settings),
@@ -126,7 +126,7 @@ object MoreTab : Tab {
                     )
                 }
 
-                //ABOUT
+                // ABOUT
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.about),
