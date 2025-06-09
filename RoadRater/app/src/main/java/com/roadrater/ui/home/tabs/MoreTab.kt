@@ -3,6 +3,7 @@ package com.roadrater.ui.home.tabs
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Label
+import androidx.compose.material.icons.outlined.DirectionsCarFilled
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MoreHoriz
@@ -75,6 +76,18 @@ object MoreTab : Tab {
 
                 item { HorizontalDivider() }
 
+                //MY CARS
+                item {
+                    TextPreferenceWidget(
+                        title = "My Cars",
+                        icon = Icons.Outlined.DirectionsCarFilled,
+                        onPreferenceClick = { },
+                    )
+                }
+
+                item { HorizontalDivider() }
+
+                //WATCHED CARS
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.watched_cars),
@@ -82,6 +95,8 @@ object MoreTab : Tab {
                         onPreferenceClick = { navigator.push(WatchedCarsScreen) },
                     )
                 }
+
+                //STATS
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.stats),
@@ -89,6 +104,8 @@ object MoreTab : Tab {
                         onPreferenceClick = { },
                     )
                 }
+
+                //MY REVIEWS
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.my_reviews),
@@ -99,6 +116,7 @@ object MoreTab : Tab {
 
                 item { HorizontalDivider() }
 
+                //SETTINGS
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.settings),
@@ -106,6 +124,8 @@ object MoreTab : Tab {
                         onPreferenceClick = { navigator.push(PreferencesScreen) },
                     )
                 }
+
+                //ABOUT
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.about),
