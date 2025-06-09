@@ -80,7 +80,7 @@ object MoreTab : Tab {
                 //MY CARS
                 item {
                     TextPreferenceWidget(
-                        title = "My Cars",
+                        title = stringResource(R.string.my_cars),
                         icon = Icons.Outlined.DirectionsCarFilled,
                         onPreferenceClick = { navigator.push(MyCarsScreen) },
                     )
