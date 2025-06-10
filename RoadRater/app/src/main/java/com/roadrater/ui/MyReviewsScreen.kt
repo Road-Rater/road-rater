@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,9 +45,10 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.database.entities.Review
+import com.roadrater.database.entities.User
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.Screen
-import com.roadrater.presentation.components.ReviewCard
+import com.roadrater.presentation.components.ReviewsDisplay
 import com.roadrater.ui.CarDetailsScreen
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -57,6 +57,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import kotlin.collections.plus
 
 object MyReviewsScreen : Screen() {
     private fun readResolve(): Any = MyReviewsScreen
@@ -100,6 +101,9 @@ object MyReviewsScreen : Screen() {
         val generalPreferences = koinInject<GeneralPreferences>()
         val currentUser = generalPreferences.user.get()
         val reviews = remember { mutableStateOf<List<Review>>(emptyList()) }
+        val reviewsAndReviewers = remember { mutableStateOf<Map<Review, User>>(emptyMap()) }
+        // List of labels for filtering reviews
+        val labels = listOf("All", "Speeding", "Safe", "Reckless")
         var selectedLabel by remember { mutableStateOf("All") }
         var sortOption by remember { mutableStateOf("Date") } // "Date" or "Title"
         var sortAsc by remember { mutableStateOf(true) }
@@ -125,8 +129,50 @@ object MyReviewsScreen : Screen() {
                             }
                             .decodeList<Review>()
                         reviews.value = reviewsResult
+
+                        val reviewerIds = reviewsResult.map {
+                            it.createdBy
+                        }
+
+                        val reviewersResult = supabaseClient.from("users")
+                            .select {
+                                filter {
+                                    isIn("uid", reviewerIds)
+                                }
+                            }
+                            .decodeList<User>()
+
+                        reviewsResult.forEach { review ->
+                            val reviewer = reviewersResult.find {
+                                it.uid == review.createdBy
+                            }
+                            if (reviewer != null) {
+                                reviewsAndReviewers.value += Pair(review, reviewer)
+                            }
+                        }
                     }
                 }
+
+                // Filter and sort reviews based on user selection
+                val filteredReviews = reviewsAndReviewers.value.entries
+                    .filter { (review, _) ->
+                        selectedLabel == "All" || review.labels.contains(selectedLabel)
+                    }
+                    .let { entries ->
+                        when (sortOption) {
+                            "Title" -> if (sortAsc) {
+                                entries.sortedBy { it.key.title }
+                            } else {
+                                entries.sortedByDescending { it.key.title }
+                            }
+                            else -> if (sortAsc) {
+                                entries.sortedBy { it.key.createdAt }
+                            } else {
+                                entries.sortedByDescending { it.key.createdAt }
+                            }
+                        }
+                    }
+                    .associate { it.toPair() } // Converts the sorted list of Map.Entry back into a Map
 
                 val availableLabels = remember(reviews.value) {
                     val allLabels = mutableSetOf<String>()
@@ -237,27 +283,6 @@ object MyReviewsScreen : Screen() {
                         Text(if (sortAsc) "" else "")
                     }
                 }
-
-                // Filter and sort reviews based on user selection
-                val filteredReviews = reviews.value
-                    .filter { review ->
-                        selectedLabel == "All" || review.labels.contains(selectedLabel)
-                    }
-                    .let {
-                        when (sortOption) {
-                            "Title" -> if (sortAsc) {
-                                it.sortedBy { review -> review.title }
-                            } else {
-                                it.sortedByDescending { review -> review.title }
-                            }
-                            else -> if (sortAsc) {
-                                it.sortedBy { review -> review.createdAt }
-                            } else {
-                                it.sortedByDescending { review -> review.createdAt }
-                            }
-                        }
-                    }
-
                 // Show filtered count
                 Text(
                     text = "Showing ${filteredReviews.size} of ${reviews.value.size} reviews",
@@ -266,25 +291,7 @@ object MyReviewsScreen : Screen() {
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 )
 
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                ) {
-                    items(filteredReviews) { review ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                        ) {
-                            ReviewCard(
-                                review = review,
-                                onNumberPlateClick = {
-                                    navigator.push(CarDetailsScreen(review.numberPlate))
-                                },
-                                supabaseClient = supabaseClient,
-                            )
-                        }
-                    }
-                }
+                ReviewsDisplay(Modifier, filteredReviews)
             }
         }
     }
