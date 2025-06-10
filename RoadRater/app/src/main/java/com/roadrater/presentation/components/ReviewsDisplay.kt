@@ -49,11 +49,12 @@ fun ReviewsDisplay(
             }
         }
         items(reviewsAndReviewers.entries.toList()) { (review, reviewer) ->
-            ReviewCard(review,
+            ReviewCard(
+                review,
                 reviewer,
                 onPlateClick = {
                     navigator.push(CarDetailsScreen(review.numberPlate))
-                }
+                },
             )
         }
     }

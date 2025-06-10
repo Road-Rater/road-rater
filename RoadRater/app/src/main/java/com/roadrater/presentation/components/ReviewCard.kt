@@ -55,10 +55,11 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ReviewCard(review: Review,
-   createdBy: User,
-   onPlateClick: () -> Unit = {},
-   onModChange: () -> Unit = {}
+fun ReviewCard(
+    review: Review,
+    createdBy: User,
+    onClick: () -> Unit = {},
+    onModChange: () -> Unit = {},
 ) {
     val navigator = LocalNavigator.currentOrThrow
     val generalPreferences = koinInject<GeneralPreferences>()
@@ -123,9 +124,7 @@ fun ReviewCard(review: Review,
             Surface(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .clickable(onClick = {
-                        navigator.push(CarDetailsScreen(review.numberPlate))
-                    }),
+                    .clickable(onClick = onClick),
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(8.dp),
             ) {

@@ -100,7 +100,6 @@ class CarDetailsScreenModel(
         screenModelScope.launch(Dispatchers.IO) {
             val reviewerIds = reviews.map { it.createdBy }.distinct()
 
-
             val reviewers = supabaseClient
                 .from("users")
                 .select {
