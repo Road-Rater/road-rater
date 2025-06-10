@@ -52,7 +52,7 @@ fun ReviewsDisplay(
             ReviewCard(
                 review,
                 reviewer,
-                onPlateClick = {
+                onClick = {
                     navigator.push(CarDetailsScreen(review.numberPlate))
                 },
             )

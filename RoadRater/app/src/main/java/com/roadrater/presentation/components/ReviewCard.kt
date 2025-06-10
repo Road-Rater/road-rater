@@ -45,7 +45,6 @@ import com.roadrater.R
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.User
 import com.roadrater.preferences.GeneralPreferences
-import com.roadrater.ui.CarDetailsScreen
 import com.roadrater.ui.ProfileScreen
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
