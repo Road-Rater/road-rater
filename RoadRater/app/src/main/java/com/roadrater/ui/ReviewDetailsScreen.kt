@@ -87,6 +87,8 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
                             ReviewCard(
                                 review = currentReview,
                                 createdBy = currentReviewer,
+                                onClick = {},
+                                onPlateClick = { navigator.push(CarDetailsScreen(currentReview.numberPlate)) },
                             )
                             TextButton(
                                 onClick = { replyTo = "REVIEW" },

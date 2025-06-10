@@ -34,6 +34,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.User
 import com.roadrater.ui.CarDetailsScreen
+import com.roadrater.ui.ReviewDetailsScreen
 
 @Composable
 fun ReviewsDisplay(
@@ -52,6 +53,7 @@ fun ReviewsDisplay(
             ReviewCard(
                 review,
                 reviewer,
+                onClick = { navigator.push(ReviewDetailsScreen(review.id.toString())) },
                 onPlateClick = {
                     navigator.push(CarDetailsScreen(review.numberPlate))
                 },

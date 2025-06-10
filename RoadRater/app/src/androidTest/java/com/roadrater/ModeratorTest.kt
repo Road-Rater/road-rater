@@ -58,6 +58,7 @@ class ModeratorTest {
                     review = review,
                     createdBy = moderator,
                     currentUser = moderator,
+                    onClick = { },
                 )
             }
         }
@@ -79,6 +80,7 @@ class ModeratorTest {
                     review = review,
                     createdBy = moderator,
                     currentUser = user,
+                    onClick = { },
                 )
             }
         }
@@ -100,6 +102,7 @@ class ModeratorTest {
                     review = review,
                     createdBy = moderator,
                     currentUser = user,
+                    onClick = { },
                 )
             }
         }
@@ -121,6 +124,7 @@ class ModeratorTest {
                     review = review,
                     createdBy = moderator,
                     currentUser = moderator,
+                    onClick = { },
                 )
             }
         }
