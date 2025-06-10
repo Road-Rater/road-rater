@@ -3,6 +3,7 @@ package com.roadrater.presentation.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -50,17 +52,25 @@ fun CarWatchingCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
         shape = RoundedCornerShape(16.dp),
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.Top,
+            horizontalAlignment = Alignment.Start,
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                LogoByName(car.make.toString(), Modifier.size(50.dp))
-                Spacer(Modifier.height(10.dp))
+                Surface(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable(onClick = onClick),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(8.dp),
+                ) {
+                    LogoByName(car.make.toString(), Modifier.width(50.dp))
+                }
+                Spacer(modifier = Modifier.width(10.dp))
                 Box(
                     modifier = Modifier
                         .border(1.dp, Color.Black, shape = RoundedCornerShape(5.dp))
@@ -80,7 +90,7 @@ fun CarWatchingCard(
                     )
                 }
             }
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.height(5.dp))
             Text("${car.year} ${car.make} ${car.model?.substringBefore(" ")}")
         }
     }
