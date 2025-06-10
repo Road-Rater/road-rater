@@ -64,6 +64,7 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
             }
 
             val review by screenModel.review.collectAsState()
+            val reviewer by screenModel.reviewer.collectAsState()
             val comments by screenModel.comments.collectAsState()
             val commentTree by screenModel.commentTree.collectAsState()
             var replyTo by remember { mutableStateOf<String?>(null) }
@@ -77,10 +78,12 @@ class ReviewDetailsScreen(private val reviewId: String) : Screen {
                         .padding(16.dp),
                 ) {
                     item {
-                        review?.let {
+                        val currentReview = review
+                        val currentReviewer = reviewer
+                        if (currentReview != null && currentReviewer != null) {
                             ReviewCard(
-                                review = it,
-                                supabaseClient = supabaseClient,
+                                review = currentReview,
+                                createdBy = currentReviewer,
                             )
                             TextButton(
                                 onClick = { replyTo = "REVIEW" },

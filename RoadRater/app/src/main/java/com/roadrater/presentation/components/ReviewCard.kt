@@ -49,6 +49,7 @@ import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.User
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.ui.ProfileScreen
+import com.roadrater.ui.ReviewDetailsScreen
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
@@ -82,7 +83,9 @@ fun ReviewCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .combinedClickable(
-                onClick = {},
+                onClick = {
+                    navigator.push(ReviewDetailsScreen(review.id.toString()))
+                },
                 onLongClick = {
                     if (isModerator == true) {
                         showModDialog = true

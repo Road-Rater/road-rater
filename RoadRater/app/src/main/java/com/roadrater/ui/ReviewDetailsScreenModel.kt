@@ -6,6 +6,7 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.roadrater.database.entities.Comment
 import com.roadrater.database.entities.Review
+import com.roadrater.database.entities.User
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
@@ -20,6 +21,7 @@ class ReviewDetailsScreenModel(
 ) : ScreenModel {
 
     val review = MutableStateFlow<Review?>(null)
+    val reviewer = MutableStateFlow<User?>(null)
     val comments = MutableStateFlow<List<Comment>>(emptyList())
     val replyTo = MutableStateFlow<String?>(null)
     val replyContent = mutableStateOf("")
@@ -33,13 +35,23 @@ class ReviewDetailsScreenModel(
 
     private fun fetchReview() {
         screenModelScope.launch(Dispatchers.IO) {
-            review.value = supabaseClient.from("reviews")
+            val reviewResult = supabaseClient.from("reviews")
                 .select {
                     filter {
                         eq("id", reviewId)
                     }
                 }
-                .decodeSingleOrNull()
+                .decodeSingleOrNull<Review>()
+            if (reviewResult != null) {
+                review.value = reviewResult
+                reviewer.value = supabaseClient.from("users")
+                    .select {
+                        filter {
+                            eq("uid", reviewResult.createdBy)
+                        }
+                    }
+                    .decodeSingleOrNull<User>()
+            }
         }
     }
 

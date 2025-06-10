@@ -147,7 +147,7 @@ object HomeTab : Tab {
         var pendingNavigationPlate by remember { mutableStateOf<String?>(null) }
 
         // List of reviews for the home feed
-        val reviews = screenModel.reviewsAndReviewers.collectAsState()
+        val reviewsAndReviewers = screenModel.reviewsAndReviewers.collectAsState()
 
         Scaffold(
             topBar = {
@@ -350,10 +350,10 @@ object HomeTab : Tab {
                     }
                 }
 
-                // Calculate available labels from reviews
-                val availableLabels = remember(reviews) {
+                // Calculate available labels from reviewsAndReviewers
+                val availableLabels = remember(reviewsAndReviewers) {
                     val allLabels = mutableSetOf<String>()
-                    reviews.forEach { review ->
+                    reviewsAndReviewers.value.keys.forEach { review ->
                         review.labels.forEach { label ->
                             if (label.isNotEmpty()) {
                                 allLabels.add(label)
@@ -434,7 +434,7 @@ object HomeTab : Tab {
                 }
 
                 // Filter and sort reviews based on user selection
-                val filteredReviews = reviews.value.entries
+                val filteredReviews = reviewsAndReviewers.value.entries
                     .filter { (review, _) ->
                         selectedLabel == "All" || review.labels.contains(selectedLabel)
                     }
@@ -456,14 +456,14 @@ object HomeTab : Tab {
 
                 // Show filtered count
                 Text(
-                    text = "Showing ${filteredReviews.size} of ${reviews.size} reviews",
+                    text = "Showing ${filteredReviews.size} of ${reviewsAndReviewers.value.size} reviews",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 )
 
                 // Show a list of reviews on the home screen
-                ReviewsDisplay(Modifier.padding(paddingValues), reviews.value)
+                ReviewsDisplay(Modifier.padding(paddingValues), reviewsAndReviewers.value)
                 // Navigate to car detail screen if needed
                 LaunchedEffect(pendingNavigationPlate) {
                     pendingNavigationPlate?.let { plate ->
