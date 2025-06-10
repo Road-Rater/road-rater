@@ -45,35 +45,31 @@ object FlaggedMessagesScreen : Screen() {
             CoroutineScope(Dispatchers.IO).launch {
                 val reviewsResult = supabaseClient.from("reviews")
                     .select {
-                        filter {
-                            eq("is_flagged", true)
-                        }
+                        filter { eq("is_flagged", true) }
                         order("created_at", Order.DESCENDING)
                     }
                     .decodeList<Review>()
-                reviews.clear() // Clear the existing list
-                reviews.addAll(reviewsResult) // Add new reviews
-            }
-        }
 
-        fun mapReviewsToUsers(reviews: List<Review>) {
-            CoroutineScope(Dispatchers.IO).launch {
-                val reviewerIds = reviews.map { it.createdBy }.distinct()
+                reviews.clear()
+                reviews.addAll(reviewsResult)
 
-                val reviewers = supabaseClient
-                    .from("users")
-                    .select {
-                        filter {
-                            isIn("uid", reviewerIds)
-                        }
-                    }
+                // After reviews loaded, map reviews to users
+                val reviewerIds = reviewsResult.map { it.createdBy }.distinct()
+                val reviewers = supabaseClient.from("users")
+                    .select { filter { isIn("uid", reviewerIds) } }
                     .decodeList<User>()
 
                 val userMap = reviewers.associateBy { it.uid }
 
-                reviewsAndReviewers.value = reviews.mapNotNull { review ->
+                // Map each review to its user (if found)
+                val reviewUserMap = reviewsResult.mapNotNull { review ->
                     userMap[review.createdBy]?.let { review to it }
                 }.toMap()
+
+                // Update state on main thread
+                kotlinx.coroutines.withContext(Dispatchers.Main) {
+                    reviewsAndReviewers.value = reviewUserMap
+                }
             }
         }
 
@@ -88,24 +84,19 @@ object FlaggedMessagesScreen : Screen() {
                 // Load flagged reviews from the database
                 LaunchedEffect(Unit) {
                     loadFlaggedReviews()
-                    mapReviewsToUsers(reviews)
                 }
 
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f),
-                ) {
+                LazyColumn(modifier = Modifier.weight(1f)) {
                     items(reviews) { review ->
-                        ReviewCard(
-                            review = review,
-                            onModChange = {
-                                reviews.remove(review) // Remove the review from the list
-                            },
-                            onPlateClick = {
-                                navigator.push(CarDetailsScreen(review.numberPlate))
-                            },
-                            createdBy = reviewsAndReviewers.value[review]!!,
-                        )
+                        val user = reviewsAndReviewers.value[review]
+                        if (user != null) {
+                            ReviewCard(
+                                review = review,
+                                onModChange = { reviews.remove(review) },
+                                onPlateClick = { navigator.push(CarDetailsScreen(review.numberPlate)) },
+                                createdBy = user,
+                            )
+                        }
                     }
                 }
             }

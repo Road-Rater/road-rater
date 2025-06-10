@@ -169,10 +169,25 @@ object HomeTab : Tab {
                 )
             },
         ) { paddingValues ->
-            Column(modifier = Modifier.padding(paddingValues)) {
+
+            val topPadding = paddingValues.calculateTopPadding()
+            val bottomPadding = paddingValues.calculateBottomPadding()
+
+            Column(
+                modifier = Modifier
+                    .padding(
+                        bottom = bottomPadding,
+                        top = 0.dp,
+                    ),
+            ) {
                 // Search bar for searching cars by plate
                 SearchBar(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 60.dp)
+                        .padding(
+                            horizontal = 4.dp,
+                        ),
                     query = text,
                     onQueryChange = { newText ->
                         text = newText
@@ -463,7 +478,7 @@ object HomeTab : Tab {
                 )
 
                 // Show a list of reviews on the home screen
-                ReviewsDisplay(Modifier.padding(paddingValues), reviewsAndReviewers.value)
+                ReviewsDisplay(Modifier.padding(), filteredReviews)
                 // Navigate to car detail screen if needed
                 LaunchedEffect(pendingNavigationPlate) {
                     pendingNavigationPlate?.let { plate ->
