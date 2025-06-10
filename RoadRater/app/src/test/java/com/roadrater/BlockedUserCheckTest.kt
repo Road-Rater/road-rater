@@ -1,11 +1,11 @@
 package com.roadrater
 
 import com.roadrater.database.entities.BlockedUser
-import org.junit.Assert.*
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class BlockedUserCheckTest {
-
 
     @Test
     fun `User is blocked when matching user_blocking and blocked_user`() {
@@ -13,7 +13,7 @@ class BlockedUserCheckTest {
         val currentUser = "reviewer456"
 
         val blockedList = listOf(
-            BlockedUser(uid = "abc", blocked_user = currentUser, user_blocking = userBlocking)
+            BlockedUser(uid = "abc", blocked_user = currentUser, user_blocking = userBlocking),
         )
 
         val isBlocked = blockedList.any {
@@ -25,9 +25,8 @@ class BlockedUserCheckTest {
 
     @Test
     fun `User is not blocked if blocked_user does not match`() {
-
         val blockedList = listOf(
-            BlockedUser(uid = "abc", blocked_user = "someone_else", user_blocking = "owner123")
+            BlockedUser(uid = "abc", blocked_user = "someone_else", user_blocking = "owner123"),
         )
 
         val isBlocked = blockedList.any {
@@ -35,12 +34,10 @@ class BlockedUserCheckTest {
         }
 
         assertFalse(isBlocked)
-
     }
 
     @Test
     fun `User is not blocked when list is empty`() {
-
         val blockedList = emptyList<BlockedUser>()
 
         val isBlocked = blockedList.any {

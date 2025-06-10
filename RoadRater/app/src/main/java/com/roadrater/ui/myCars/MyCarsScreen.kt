@@ -1,10 +1,11 @@
 package com.roadrater.ui.myCars
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.AlertDialog
@@ -36,9 +37,6 @@ import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.CarWatchingCard
 import io.github.jan.supabase.SupabaseClient
 import org.koin.compose.koinInject
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-
 
 object MyCarsScreen : Screen {
     @Composable
@@ -82,7 +80,7 @@ object MyCarsScreen : Screen {
                     .padding(paddingValues)
                     .padding(horizontal = 16.dp, vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 item {
                     OutlinedTextField(
@@ -124,11 +122,10 @@ object MyCarsScreen : Screen {
                         car = car,
                         onClick = {
                             plateToUnregister = car.number_plate
-                        }
+                        },
                     )
                 }
             }
-
         }
 
         // UNREGISTER CONFIRMATION DIALOG
