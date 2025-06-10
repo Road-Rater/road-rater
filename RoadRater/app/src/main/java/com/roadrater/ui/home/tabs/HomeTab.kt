@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -66,7 +65,6 @@ import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.ReviewsDisplay
 import com.roadrater.presentation.util.Tab
 import com.roadrater.ui.CarDetailsScreen
-import com.roadrater.ui.ReviewDetailsScreen
 import com.roadrater.utils.GetCarInfo
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -455,7 +453,7 @@ object HomeTab : Tab {
                         }
                     }
                     .associate { it.toPair() } // Converts the sorted list of Map.Entry back into a Map
-                    
+
                 // Show filtered count
                 Text(
                     text = "Showing ${filteredReviews.size} of ${reviews.size} reviews",
@@ -463,7 +461,7 @@ object HomeTab : Tab {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 )
-                
+
                 // Show a list of reviews on the home screen
                 ReviewsDisplay(Modifier.padding(paddingValues), reviews.value)
                 // Navigate to car detail screen if needed
