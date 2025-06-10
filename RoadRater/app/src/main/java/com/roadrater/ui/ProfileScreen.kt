@@ -54,7 +54,7 @@ class ProfileScreen(val user: User) : Screen() {
 
         var selectedPrimaryTab = screenModel.selectedPrimaryTab.collectAsState()
 
-        val primaryTabTitles = listOf<String>("Reviews", "Vehicles", "Other")
+        val primaryTabTitles = listOf<String>("Reviews", "Vehicles")
 
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -96,15 +96,9 @@ class ProfileScreen(val user: User) : Screen() {
                 when (target) {
                     0 -> ReviewsTabContent(screenModel)
                     1 -> VehiclesTabContent(screenModel)
-                    2 -> OtherTabContent(screenModel)
                 }
             }
         }
-    }
-
-    @Composable
-    fun OtherTabContent(screenModel: ProfileScreenModel) {
-        UserStatistics(screenModel)
     }
 
     @Composable
