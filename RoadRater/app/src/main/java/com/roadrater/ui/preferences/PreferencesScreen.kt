@@ -24,6 +24,7 @@ import com.roadrater.R
 import com.roadrater.presentation.Screen
 import com.roadrater.ui.preferences.options.AboutPreferencesScreen
 import com.roadrater.ui.preferences.options.AppearancePreferencesScreen
+import com.roadrater.ui.preferences.options.OptOutScreen
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import me.zhanghai.compose.preference.preference
 
@@ -80,6 +81,14 @@ object PreferencesScreen : Screen() {
                         icon = { Icon(Icons.Outlined.Info, null) },
                         onClick = { navigator.push(AboutPreferencesScreen) },
                     )
+                    preference(
+                        key = "opt_out",
+                        title = { Text(text = "Opt Out") },
+                        summary = { Text(text = "Hide your reviews, comments, and mentions") },
+                        //icon = { Icon(ImageVector.vectorResource(R.drawable.visibility_off_24px), null) },
+                        onClick = { navigator.push(OptOutScreen) },
+                    )
+
                 }
             }
         }
