@@ -36,6 +36,9 @@ import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.CarWatchingCard
 import io.github.jan.supabase.SupabaseClient
 import org.koin.compose.koinInject
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+
 
 object MyCarsScreen : Screen {
     @Composable
@@ -73,54 +76,59 @@ object MyCarsScreen : Screen {
             },
         ) { paddingValues ->
 
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(24.dp),
+                    .padding(horizontal = 16.dp, vertical = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // NUMPLATE INPUT FIELD
-                OutlinedTextField(
-                    value = screenModel.inputText.value,
-                    onValueChange = {
-                        if (it.text.length <= 6) screenModel.inputText.value = it
-                    },
-                    label = { Text(stringResource(R.string.vehicle_to_register)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 1,
-                )
-
-                Button(
-                    onClick = {
-                        screenModel.submitCar(userId) { _, _ -> }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(stringResource(R.string.submit)) // updated
-                }
-
-                // FEEDBACK MESSAGE
-                screenModel.feedbackMessage.value?.let { message ->
-                    Text(
-                        text = message,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier
-                            .align(Alignment.Start)
-                            .padding(top = 4.dp),
+                item {
+                    OutlinedTextField(
+                        value = screenModel.inputText.value,
+                        onValueChange = {
+                            if (it.text.length <= 6) screenModel.inputText.value = it
+                        },
+                        label = { Text(stringResource(R.string.vehicle_to_register)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 1,
                     )
                 }
 
-                screenModel.ownedCars.forEach { car ->
+                item {
+                    Button(
+                        onClick = {
+                            screenModel.submitCar(userId) { _, _ -> }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.submit))
+                    }
+                }
+
+                item {
+                    screenModel.feedbackMessage.value?.let { message ->
+                        Text(
+                            text = message,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp),
+                        )
+                    }
+                }
+
+                items(screenModel.ownedCars, key = { it.number_plate }) { car ->
                     CarWatchingCard(
                         car = car,
                         onClick = {
                             plateToUnregister = car.number_plate
-                        },
+                        }
                     )
                 }
             }
+
         }
 
         // UNREGISTER CONFIRMATION DIALOG
