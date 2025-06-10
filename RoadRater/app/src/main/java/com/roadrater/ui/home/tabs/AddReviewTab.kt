@@ -44,12 +44,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import com.roadrater.database.entities.Review
+import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.util.Tab
 import com.roadrater.utils.ValidationUtils
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import java.time.Instant
 
 object AddReviewTab : Tab {
     private fun readResolve(): Any = AddReviewTab
@@ -127,7 +130,7 @@ object AddReviewTab : Tab {
     @Composable
     override fun Content() {
         val supabaseClient = koinInject<SupabaseClient>()
-        val generalPreferences = koinInject<com.roadrater.preferences.GeneralPreferences>()
+        val generalPreferences = koinInject<GeneralPreferences>()
         val context = LocalContext.current
         val userId = generalPreferences.user.get()?.uid ?: ""
 
@@ -365,21 +368,17 @@ object AddReviewTab : Tab {
                         message = null
                         coroutineScope.launch {
                             try {
-                                val reviewData = mutableMapOf<String, Any>(
-                                    "number_plate" to numberPlate,
-                                    "title" to title.trim(),
-                                    "description" to description.trim(),
-                                    "rating" to rating,
-                                    "rating" to rating,
-                                    "created_by" to userId,
+                                val review = Review(
+                                    numberPlate = numberPlate,
+                                    title = title.trim(),
+                                    description = description.trim(),
+                                    rating = rating,
+                                    labels = selectedLabels.toList(),
+                                    createdBy = userId,
+                                    createdAt = Instant.now().toString(),
                                 )
 
-                                // Add labels if any are selected
-                                if (selectedLabels.isNotEmpty()) {
-                                    reviewData["labels"] = selectedLabels.toList()
-                                }
-
-                                supabaseClient.from("reviews").insert(reviewData)
+                                supabaseClient.from("reviews").insert(review)
 
                                 message = "Review submitted successfully!"
 
