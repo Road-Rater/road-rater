@@ -46,6 +46,8 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.R
+import com.roadrater.database.entities.BlockedUser
+import com.roadrater.database.entities.CarOwnership
 import com.roadrater.database.entities.Review
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.utils.ValidationUtils
@@ -224,7 +226,6 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                         return@Button
                     }
 
-                    // Convert selected labels to list, or use empty list if none selected
                     val labelsList = selectedLabels.toList().ifEmpty { emptyList() }
 
                     val newReview = Review(
@@ -240,21 +241,50 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                     CoroutineScope(Dispatchers.Main).launch {
                         try {
                             Log.d("NewReviewScreen", "Submitting review: $newReview")
-                            val response = supabaseClient.from("reviews").insert(newReview)
-                            Log.d("NewReviewScreen", "Supabase insert response: $response")
 
-                            // Switch to Main thread for UI updates
-                            CoroutineScope(Dispatchers.Main).launch {
-                                Toast.makeText(context, context.getString(R.string.review_submitted), Toast.LENGTH_SHORT).show()
-                                navigator.pop() // Navigate back after successful submission
+                            // FETCHING CAR OWNER ID FROM CAR OWNERSHIP TABLE
+                            val ownerships = supabaseClient
+                                .from("car_ownership")
+                                .select {
+                                    filter {
+                                        eq("number_plate", editableNumberPlate.text.uppercase())
+                                    }
+                                }
+                                .decodeList<CarOwnership>()
+
+                            val carOwnerId = ownerships.firstOrNull()?.user_id
+                            Log.d("NewReviewScreen", "Owner of ${editableNumberPlate.text}: $carOwnerId")
+
+                            // CHECKING IF USER IS BLOCKED
+                            if (!carOwnerId.isNullOrBlank() && carOwnerId != currentUserId) {
+                                val blocked = supabaseClient
+                                    .from("blocked_users")
+                                    .select {
+                                        filter {
+                                            eq("user_blocking", carOwnerId)
+                                            eq("blocked_user", currentUserId)
+                                        }
+                                    }
+                                    .decodeList<BlockedUser>()
+
+                                if (blocked.isNotEmpty()) {
+                                    Log.d("NewReviewScreen", "User $currentUserId is BLOCKED by $carOwnerId")
+                                    Toast.makeText(context, "You are blocked by the owner of this plate", Toast.LENGTH_LONG).show()
+                                    return@launch
+                                } else {
+                                    Log.d("NewReviewScreen", "User $currentUserId is NOT blocked by $carOwnerId")
+                                }
                             }
+
+                            // SUBMIT REVIEW
+                            supabaseClient.from("reviews").insert(newReview)
+                            Log.d("NewReviewScreen", "Review inserted successfully")
+
+                            Toast.makeText(context, context.getString(R.string.review_submitted), Toast.LENGTH_SHORT).show()
+                            navigator.pop()
                         } catch (e: Exception) {
                             Log.e("NewReviewScreen", "Error submitting review", e)
-
-                            // Switch to Main thread for UI updates
-                            CoroutineScope(Dispatchers.Main).launch {
-                                Toast.makeText(context, context.getString(R.string.review_insert_failed, e.message ?: "Unknown error"), Toast.LENGTH_SHORT).show()
-                            }
+                            Toast.makeText(context, context.getString(R.string.review_insert_failed, e.message ?: "Unknown error"), Toast.LENGTH_SHORT).show()
                         }
                     }
                 }) {

@@ -44,6 +44,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import com.roadrater.database.entities.BlockedUser
+import com.roadrater.database.entities.CarOwnership
 import com.roadrater.database.entities.Review
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.util.Tab
@@ -366,8 +368,38 @@ object AddReviewTab : Tab {
                     if (!numberPlateError && !titleError && !descriptionError && !ratingError) {
                         isSubmitting = true
                         message = null
+
                         coroutineScope.launch {
                             try {
+                                // GETTING OWNER OF PLATE
+                                val ownerships = supabaseClient
+                                    .from("car_ownership")
+                                    .select {
+                                        filter { eq("number_plate", numberPlate.uppercase()) }
+                                    }
+                                    .decodeList<CarOwnership>()
+
+                                val carOwnerId = ownerships.firstOrNull()?.user_id
+
+                                // IF CURRENT USER IS NOT OWNER, CHECK IF BLOCKED
+                                if (!carOwnerId.isNullOrBlank() && carOwnerId != userId) {
+                                    val blocked = supabaseClient
+                                        .from("blocked_users")
+                                        .select {
+                                            filter {
+                                                eq("user_blocking", carOwnerId)
+                                                eq("blocked_user", userId)
+                                            }
+                                        }
+                                        .decodeList<BlockedUser>()
+
+                                    if (blocked.isNotEmpty()) {
+                                        message = "You are blocked by the owner of this plate"
+                                        return@launch
+                                    }
+                                }
+
+                                // SUBMIT REVIEW
                                 val review = Review(
                                     numberPlate = numberPlate,
                                     title = title.trim(),
@@ -382,7 +414,6 @@ object AddReviewTab : Tab {
 
                                 message = "Review submitted successfully!"
 
-                                // Reset form
                                 numberPlate = ""
                                 title = ""
                                 description = ""
