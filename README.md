@@ -30,8 +30,13 @@ Road Rater is a mobile app designed to provide a constructive and engaging outle
 ## Building the app / Forking
 <div align="left">
 
+- Download Android Studio
+- Clone this project `git clone https://github.com/Road-Rater/road-rater.git`
+- Open the project
 - Change the supabase URL to match your database
-- Update googleservices.json to communicate with your own firebase project
+- Update googleservices.json to communicate with your own Firebase project
+- Upload your keystore signing key to Firebase
+- Build -> Generate App Bundles or APKs -> Generate APKs
 
 </div>
 
