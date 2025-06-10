@@ -44,6 +44,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import com.roadrater.database.entities.BlockedUser
+import com.roadrater.database.entities.CarOwnership
 import com.roadrater.database.entities.Review
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.util.Tab
@@ -53,9 +55,6 @@ import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import java.time.Instant
-import com.roadrater.database.entities.CarOwnership
-import com.roadrater.database.entities.BlockedUser
-
 
 object AddReviewTab : Tab {
     private fun readResolve(): Any = AddReviewTab
@@ -394,7 +393,6 @@ object AddReviewTab : Tab {
                                         }
                                         .decodeList<BlockedUser>()
 
-
                                     if (blocked.isNotEmpty()) {
                                         message = "You are blocked by the owner of this plate"
                                         return@launch
@@ -427,7 +425,6 @@ object AddReviewTab : Tab {
                                 isSubmitting = false
                             }
                         }
-
                     } else {
                         message = "Please fix the errors above"
                     }

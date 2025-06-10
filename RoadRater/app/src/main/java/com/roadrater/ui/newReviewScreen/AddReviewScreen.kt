@@ -46,6 +46,8 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.R
+import com.roadrater.database.entities.BlockedUser
+import com.roadrater.database.entities.CarOwnership
 import com.roadrater.database.entities.Review
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.utils.ValidationUtils
@@ -56,9 +58,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import java.time.Instant
-import com.roadrater.database.entities.BlockedUser
-import com.roadrater.database.entities.CarOwnership
-
 
 class AddReviewScreen(private val numberPlate: String) : Screen {
 
@@ -268,7 +267,6 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                                     }
                                     .decodeList<BlockedUser>()
 
-
                                 if (blocked.isNotEmpty()) {
                                     Log.d("NewReviewScreen", "User $currentUserId is BLOCKED by $carOwnerId")
                                     Toast.makeText(context, "You are blocked by the owner of this plate", Toast.LENGTH_LONG).show()
@@ -289,7 +287,6 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                             Toast.makeText(context, context.getString(R.string.review_insert_failed, e.message ?: "Unknown error"), Toast.LENGTH_SHORT).show()
                         }
                     }
-
                 }) {
                     Text(stringResource(R.string.submit_review))
                 }

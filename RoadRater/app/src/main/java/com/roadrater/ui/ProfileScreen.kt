@@ -1,5 +1,6 @@
 package com.roadrater.ui
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
@@ -21,49 +22,45 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import coil3.compose.rememberAsyncImagePainter
+import com.roadrater.database.entities.BlockedUser
 import com.roadrater.database.entities.User
+import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.Screen
 import com.roadrater.presentation.components.CarWatchingCard
 import com.roadrater.presentation.components.ReviewsDisplay
 import com.roadrater.ui.ProfileScreenModel
-import org.koin.core.parameter.parametersOf
-import org.koin.java.KoinJavaComponent
-import android.widget.Toast
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Block
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Button
-import androidx.compose.ui.platform.LocalContext
-import com.roadrater.database.entities.BlockedUser
-import com.roadrater.preferences.GeneralPreferences
-import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.LaunchedEffect
-
-
+import org.koin.core.parameter.parametersOf
+import org.koin.java.KoinJavaComponent
 
 class ProfileScreen(val user: User) : Screen() {
     @Composable
@@ -72,13 +69,10 @@ class ProfileScreen(val user: User) : Screen() {
             KoinJavaComponent.getKoin().get<ProfileScreenModel>(parameters = { parametersOf(user) })
         }
 
-
-
         val generalPreferences = koinInject<GeneralPreferences>()
         val currentUserId = generalPreferences.user.get()?.uid
         val supabaseClient = koinInject<SupabaseClient>()
         val context = LocalContext.current
-
 
         var selectedPrimaryTab = screenModel.selectedPrimaryTab.collectAsState()
         val isBlocked = remember { mutableStateOf(false) }
@@ -101,9 +95,6 @@ class ProfileScreen(val user: User) : Screen() {
                 }
             }
         }
-
-
-
 
         val primaryTabTitles = listOf<String>("Reviews", "Vehicles")
 
@@ -144,8 +135,8 @@ class ProfileScreen(val user: User) : Screen() {
                                             BlockedUser(
                                                 uid = newUid,
                                                 blocked_user = user.uid,
-                                                user_blocking = currentUserId!!
-                                            )
+                                                user_blocking = currentUserId!!,
+                                            ),
                                         )
                                         isBlocked.value = true
                                         CoroutineScope(Dispatchers.Main).launch {
@@ -166,11 +157,7 @@ class ProfileScreen(val user: User) : Screen() {
                         Icon(Icons.Outlined.Block, contentDescription = "Block Icon", modifier = Modifier.padding(end = 8.dp))
                         Text(if (isBlocked.value) "Unblock User" else "Block User")
                     }
-
-
                 }
-
-
             }
 
             PrimaryTabRow(selectedTabIndex = selectedPrimaryTab.value) {
