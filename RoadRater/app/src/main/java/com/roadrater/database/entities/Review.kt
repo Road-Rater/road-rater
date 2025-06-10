@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Review(
-    val id: Int? = null,
+    @SerialName("id") val id: Int? = null,
     @SerialName("created_at") val createdAt: String,
     @SerialName("created_by") val createdBy: String,
     @SerialName("rating") val rating: Int,

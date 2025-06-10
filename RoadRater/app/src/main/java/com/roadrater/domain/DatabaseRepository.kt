@@ -1,6 +1,7 @@
 package com.roadrater.domain
 
 import com.roadrater.database.entities.Car
+import com.roadrater.database.entities.Comment
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.TableUser
 
@@ -22,4 +23,7 @@ interface DatabaseRepository {
     suspend fun insertUser(user: TableUser)
     suspend fun updateNickname(uid: String, nickname: String)
     suspend fun nicknameAvailable(nickname: String): Boolean
+
+    suspend fun getCommentsForReview(reviewId: Long): List<Comment>
+    suspend fun postComment(reviewId: Long, userId: String, content: String, parentId: Long?): Comment
 }

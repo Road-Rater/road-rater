@@ -4,6 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DirectionsCar
@@ -164,25 +167,30 @@ fun ReviewCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-//            Row(
-//                modifier = Modifier
-//                    .horizontalScroll(rememberScrollState()),
-//            ) {
-//                review.labels.forEach { label ->
-//                    Text(
-//                        text = label,
-//                        color = MaterialTheme.colorScheme.onPrimary,
-//                        style = MaterialTheme.typography.labelSmall,
-//                        modifier = Modifier
-//                            .padding(end = 8.dp)
-//                            .background(
-//                                color = MaterialTheme.colorScheme.primary,
-//                                shape = RoundedCornerShape(10.dp),
-//                            )
-//                            .padding(horizontal = 8.dp, vertical = 4.dp),
-//                    )
-//                }
-//            }
+// Replace the commented out section with this:
+            if (review.labels.isNotEmpty() && review.labels.first().isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .horizontalScroll(rememberScrollState()),
+                ) {
+                    review.labels.forEach { label ->
+                        if (label.isNotEmpty()) {
+                            Text(
+                                text = label,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier
+                                    .padding(end = 8.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = RoundedCornerShape(10.dp),
+                                    )
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                            )
+                        }
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 

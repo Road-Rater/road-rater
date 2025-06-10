@@ -3,6 +3,7 @@ package com.roadrater.ui.home.tabs
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Label
+import androidx.compose.material.icons.outlined.DirectionsCarFilled
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MoreHoriz
@@ -30,6 +31,7 @@ import com.roadrater.presentation.util.Tab
 import com.roadrater.ui.FlaggedMessagesScreen
 import com.roadrater.ui.MyReviewsScreen
 import com.roadrater.ui.WatchedCarsScreen
+import com.roadrater.ui.myCars.MyCarsScreen
 import com.roadrater.ui.preferences.PreferencesScreen
 import com.roadrater.ui.preferences.options.AboutPreferencesScreen
 import org.koin.compose.koinInject
@@ -75,6 +77,18 @@ object MoreTab : Tab {
 
                 item { HorizontalDivider() }
 
+                // MY CARS
+                item {
+                    TextPreferenceWidget(
+                        title = stringResource(R.string.my_cars),
+                        icon = Icons.Outlined.DirectionsCarFilled,
+                        onPreferenceClick = { navigator.push(MyCarsScreen) },
+                    )
+                }
+
+                item { HorizontalDivider() }
+
+                // WATCHED CARS
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.watched_cars),
@@ -82,6 +96,8 @@ object MoreTab : Tab {
                         onPreferenceClick = { navigator.push(WatchedCarsScreen) },
                     )
                 }
+
+                // STATS
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.stats),
@@ -89,6 +105,8 @@ object MoreTab : Tab {
                         onPreferenceClick = { },
                     )
                 }
+
+                // MY REVIEWS
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.my_reviews),
@@ -99,6 +117,7 @@ object MoreTab : Tab {
 
                 item { HorizontalDivider() }
 
+                // SETTINGS
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.settings),
@@ -106,6 +125,8 @@ object MoreTab : Tab {
                         onPreferenceClick = { navigator.push(PreferencesScreen) },
                     )
                 }
+
+                // ABOUT
                 item {
                     TextPreferenceWidget(
                         title = stringResource(R.string.about),
