@@ -101,6 +101,9 @@ object FlaggedMessagesScreen : Screen() {
                             onModChange = {
                                 reviews.remove(review) // Remove the review from the list
                             },
+                            onPlateClick = {
+                                navigator.push(CarDetailsScreen(review.numberPlate))
+                            },
                             createdBy = reviewsAndReviewers.value[review]!!,
                         )
                     }

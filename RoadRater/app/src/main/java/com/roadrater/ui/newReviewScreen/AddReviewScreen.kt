@@ -164,7 +164,7 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                         labels = listOf(""),
                     )
 
-                    CoroutineScope(Dispatchers.IO).launch {
+                    CoroutineScope(Dispatchers.Main).launch {
                         try {
                             Log.d("NewReviewScreen", "Submitting review: $newReview")
                             val response = supabaseClient.from("reviews").insert(newReview)

@@ -55,7 +55,11 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ReviewCard(review: Review, createdBy: User, onModChange: () -> Unit = {}) {
+fun ReviewCard(review: Review,
+   createdBy: User,
+   onPlateClick: () -> Unit = {},
+   onModChange: () -> Unit = {}
+) {
     val navigator = LocalNavigator.currentOrThrow
     val generalPreferences = koinInject<GeneralPreferences>()
     val supabaseClient = koinInject<SupabaseClient>()
@@ -147,7 +151,7 @@ fun ReviewCard(review: Review, createdBy: User, onModChange: () -> Unit = {}) {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "${review.title} - ${review.createdBy}",
+                text = review.title,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )

@@ -29,8 +29,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.User
+import com.roadrater.ui.CarDetailsScreen
 
 @Composable
 fun ReviewsDisplay(
@@ -38,6 +41,7 @@ fun ReviewsDisplay(
     reviewsAndReviewers: Map<Review, User>,
     showReviewSummary: Boolean = false,
 ) {
+    val navigator = LocalNavigator.currentOrThrow
     LazyColumn(modifier = modifier) {
         if (showReviewSummary) {
             item {
@@ -45,7 +49,12 @@ fun ReviewsDisplay(
             }
         }
         items(reviewsAndReviewers.entries.toList()) { (review, reviewer) ->
-            ReviewCard(review, reviewer)
+            ReviewCard(review,
+                reviewer,
+                onPlateClick = {
+                    navigator.push(CarDetailsScreen(review.numberPlate))
+                }
+            )
         }
     }
 }

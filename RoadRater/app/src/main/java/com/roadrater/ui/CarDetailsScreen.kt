@@ -1,5 +1,6 @@
 package com.roadrater.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.DirectionsCarFilled
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -54,6 +56,8 @@ class CarDetailsScreen(val plate: String) : Screen {
         val screenModel = rememberScreenModel { CarDetailsScreenModel(supabaseClient, plate, currentUser!!.uid) }
         val car by screenModel.car.collectAsState()
         val isWatching by screenModel.isWatching.collectAsState()
+        val isCarLoading by screenModel.isCarLoading.collectAsState()
+        val isReviewsLoading by screenModel.isReviewsLoading.collectAsState()
         val reviewsAndReviewers by screenModel.reviewsAndReviewers.collectAsState()
         var sortAsc by remember { mutableStateOf(true) } // true = Oldest First, false = Newest First
         var showDialog by remember { mutableStateOf(false) }
@@ -74,7 +78,16 @@ class CarDetailsScreen(val plate: String) : Screen {
                 }
             },
         ) { innerPadding ->
-            if (car == null) {
+            if (isCarLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (car == null) {
                 Text(stringResource(R.string.car_not_found), modifier = Modifier.padding(16.dp))
             } else {
                 Column(
@@ -162,10 +175,15 @@ class CarDetailsScreen(val plate: String) : Screen {
                             .associate { it.toPair() }
                     }
 
-                    if (sortedReviews.isEmpty()) {
+                    if (isReviewsLoading) {
+                        CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                    } else if (sortedReviews.isEmpty()) {
                         Text(stringResource(R.string.no_reviews), modifier = Modifier.padding(16.dp))
                     } else {
-                        ReviewsDisplay(Modifier, sortedReviews)
+                        ReviewsDisplay(
+                            Modifier,
+                            sortedReviews,
+                        )
                     }
                 }
             }
