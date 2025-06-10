@@ -262,11 +262,12 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                                     .from("blocked_users")
                                     .select {
                                         filter {
-                                            eq("uid", carOwnerId)
+                                            eq("user_blocking", carOwnerId)
                                             eq("blocked_user", currentUserId)
                                         }
                                     }
                                     .decodeList<BlockedUser>()
+
 
                                 if (blocked.isNotEmpty()) {
                                     Log.d("NewReviewScreen", "User $currentUserId is BLOCKED by $carOwnerId")

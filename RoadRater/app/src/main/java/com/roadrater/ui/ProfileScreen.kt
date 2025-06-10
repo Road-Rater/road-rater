@@ -44,6 +44,26 @@ import com.roadrater.presentation.components.ReviewsDisplay
 import com.roadrater.ui.ProfileScreenModel
 import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent
+import android.widget.Toast
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Block
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Button
+import androidx.compose.ui.platform.LocalContext
+import com.roadrater.database.entities.BlockedUser
+import com.roadrater.preferences.GeneralPreferences
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.SupabaseClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+
+
 
 class ProfileScreen(val user: User) : Screen() {
     @Composable
@@ -52,7 +72,38 @@ class ProfileScreen(val user: User) : Screen() {
             KoinJavaComponent.getKoin().get<ProfileScreenModel>(parameters = { parametersOf(user) })
         }
 
+
+
+        val generalPreferences = koinInject<GeneralPreferences>()
+        val currentUserId = generalPreferences.user.get()?.uid
+        val supabaseClient = koinInject<SupabaseClient>()
+        val context = LocalContext.current
+
+
         var selectedPrimaryTab = screenModel.selectedPrimaryTab.collectAsState()
+        val isBlocked = remember { mutableStateOf(false) }
+
+        LaunchedEffect(currentUserId, user.uid) {
+            if (currentUserId != null && currentUserId != user.uid) {
+                try {
+                    val result = supabaseClient
+                        .from("blocked_users")
+                        .select {
+                            filter {
+                                eq("user_blocking", currentUserId)
+                                eq("blocked_user", user.uid)
+                            }
+                        }
+                        .decodeList<BlockedUser>()
+
+                    isBlocked.value = result.isNotEmpty()
+                } catch (e: Exception) {
+                }
+            }
+        }
+
+
+
 
         val primaryTabTitles = listOf<String>("Reviews", "Vehicles")
 
@@ -68,6 +119,58 @@ class ProfileScreen(val user: User) : Screen() {
             ) {
                 Spacer(modifier = Modifier.height(40.dp))
                 UserDetails(user)
+
+                if (currentUserId != null && currentUserId != user.uid) {
+                    Button(
+                        onClick = {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                try {
+                                    if (isBlocked.value) {
+                                        // UNBLOCK
+                                        supabaseClient.from("blocked_users").delete {
+                                            filter {
+                                                eq("user_blocking", currentUserId)
+                                                eq("blocked_user", user.uid)
+                                            }
+                                        }
+                                        isBlocked.value = false
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            Toast.makeText(context, "User unblocked", Toast.LENGTH_SHORT).show()
+                                        }
+                                    } else {
+                                        // BLOCK
+                                        val newUid = java.util.UUID.randomUUID().toString()
+                                        supabaseClient.from("blocked_users").insert(
+                                            BlockedUser(
+                                                uid = newUid,
+                                                blocked_user = user.uid,
+                                                user_blocking = currentUserId!!
+                                            )
+                                        )
+                                        isBlocked.value = true
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            Toast.makeText(context, "User blocked", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .padding(top = 12.dp)
+                            .fillMaxWidth(),
+                    ) {
+                        Icon(Icons.Outlined.Block, contentDescription = "Block Icon", modifier = Modifier.padding(end = 8.dp))
+                        Text(if (isBlocked.value) "Unblock User" else "Block User")
+                    }
+
+
+                }
+
+
             }
 
             PrimaryTabRow(selectedTabIndex = selectedPrimaryTab.value) {

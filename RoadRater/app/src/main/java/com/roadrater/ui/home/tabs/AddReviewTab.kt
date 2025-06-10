@@ -388,11 +388,12 @@ object AddReviewTab : Tab {
                                         .from("blocked_users")
                                         .select {
                                             filter {
-                                                eq("uid", carOwnerId)
+                                                eq("user_blocking", carOwnerId)
                                                 eq("blocked_user", userId)
                                             }
                                         }
                                         .decodeList<BlockedUser>()
+
 
                                     if (blocked.isNotEmpty()) {
                                         message = "You are blocked by the owner of this plate"
