@@ -1,9 +1,13 @@
 package com.roadrater
 
-import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.createComposeRule
-import cafe.adriel.voyager.navigator.Navigator
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performTouchInput
+import cafe.adriel.voyager.navigator.Navigator
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.User
 import com.roadrater.presentation.Screen
@@ -130,4 +134,3 @@ class ModeratorTest {
             .assertIsNotDisplayed()
     }
 }
-
