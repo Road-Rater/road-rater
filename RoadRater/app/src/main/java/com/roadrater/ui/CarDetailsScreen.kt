@@ -1,5 +1,6 @@
 package com.roadrater.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,14 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.DirectionsCarFilled
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +40,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.roadrater.R
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.RemoveCarDialog
-import com.roadrater.presentation.components.ReviewCard
+import com.roadrater.presentation.components.ReviewsDisplay
 import com.roadrater.ui.newReviewScreen.AddReviewScreen
 import io.github.jan.supabase.SupabaseClient
 import org.koin.compose.koinInject
@@ -56,7 +56,9 @@ class CarDetailsScreen(val plate: String) : Screen {
         val screenModel = rememberScreenModel { CarDetailsScreenModel(supabaseClient, plate, currentUser!!.uid) }
         val car by screenModel.car.collectAsState()
         val isWatching by screenModel.isWatching.collectAsState()
-        val reviews by screenModel.reviews.collectAsState()
+        val isCarLoading by screenModel.isCarLoading.collectAsState()
+        val isReviewsLoading by screenModel.isReviewsLoading.collectAsState()
+        val reviewsAndReviewers by screenModel.reviewsAndReviewers.collectAsState()
         var sortAsc by remember { mutableStateOf(true) } // true = Oldest First, false = Newest First
         var showDialog by remember { mutableStateOf(false) }
 
@@ -76,7 +78,16 @@ class CarDetailsScreen(val plate: String) : Screen {
                 }
             },
         ) { innerPadding ->
-            if (car == null) {
+            if (isCarLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (car == null) {
                 Text(stringResource(R.string.car_not_found), modifier = Modifier.padding(16.dp))
             } else {
                 Column(
@@ -137,7 +148,7 @@ class CarDetailsScreen(val plate: String) : Screen {
                     )
 
                     // Only show sort UI if there are reviews
-                    if (reviews.isNotEmpty()) {
+                    if (reviewsAndReviewers.isNotEmpty()) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -154,29 +165,25 @@ class CarDetailsScreen(val plate: String) : Screen {
                     }
 
                     // Apply sorting to reviews (by date only)
-                    val sortedReviews = reviews.let {
-                        if (sortAsc) {
-                            it.sortedBy { review -> review.createdAt }
-                        } else {
-                            it.sortedByDescending { review -> review.createdAt }
-                        }
+                    val sortedReviews = if (sortAsc) {
+                        reviewsAndReviewers.entries
+                            .sortedBy { it.key.createdAt }
+                            .associate { it.toPair() }
+                    } else {
+                        reviewsAndReviewers.entries
+                            .sortedByDescending { it.key.createdAt }
+                            .associate { it.toPair() }
                     }
 
-                    if (sortedReviews.isEmpty()) {
+                    if (isReviewsLoading) {
+                        CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                    } else if (sortedReviews.isEmpty()) {
                         Text(stringResource(R.string.no_reviews), modifier = Modifier.padding(16.dp))
                     } else {
-                        LazyColumn(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
-                        ) {
-                            items(sortedReviews) { review ->
-                                ReviewCard(
-                                    review,
-                                    supabaseClient = supabaseClient,
-                                )
-                            }
-                        }
+                        ReviewsDisplay(
+                            Modifier,
+                            sortedReviews,
+                        )
                     }
                 }
             }

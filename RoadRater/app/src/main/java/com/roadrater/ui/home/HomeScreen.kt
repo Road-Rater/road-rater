@@ -28,6 +28,7 @@ import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import com.roadrater.presentation.Screen
 import com.roadrater.presentation.util.Tab
+import com.roadrater.ui.home.tabs.AddReviewTab
 import com.roadrater.ui.home.tabs.HomeTab
 import com.roadrater.ui.home.tabs.MoreTab
 import com.roadrater.ui.home.tabs.ProfileTab
@@ -45,6 +46,7 @@ object HomeScreen : Screen() {
     override fun Content() {
         val tabs = buildList {
             add(HomeTab)
+            add(AddReviewTab)
             add(ProfileTab)
             add(MoreTab)
         }

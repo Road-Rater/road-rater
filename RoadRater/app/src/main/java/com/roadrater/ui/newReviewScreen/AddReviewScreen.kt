@@ -2,13 +2,20 @@ package com.roadrater.ui.newReviewScreen
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Star
@@ -29,8 +36,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
@@ -45,11 +54,28 @@ import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import java.time.Instant
 
 class AddReviewScreen(private val numberPlate: String) : Screen {
+
+    // Predefined labels for categorizing reviews
+    private val availableLabels = listOf(
+        "Speeding",
+        "Courteous",
+        "Aggressive",
+        "Road Rage",
+        "Tailgating",
+        "Bad Driving",
+        "Good Driving",
+        "Reckless",
+        "Patient",
+        "Distracted",
+        "Lane Cutting",
+        "Parking Issues",
+    )
+
+    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     override fun Content() {
         val context = LocalContext.current
@@ -58,6 +84,7 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
         var commentText by remember { mutableStateOf(TextFieldValue("")) }
         var reviewTitle by remember { mutableStateOf(TextFieldValue("")) }
         var editableNumberPlate by remember { mutableStateOf(TextFieldValue(numberPlate)) }
+        var selectedLabels by remember { mutableStateOf(setOf<String>()) }
         val isPlateEditable = numberPlate.isEmpty()
         val generalPreferences = koinInject<GeneralPreferences>()
         val user = generalPreferences.user.get()
@@ -103,6 +130,7 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                     },
                 )
 
+                // RATING STARS
                 Row {
                     repeat(5) { index ->
                         IconButton(
@@ -140,6 +168,47 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                     modifier = Modifier.fillMaxWidth(),
                 )
 
+                // LABELS SECTION
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(
+                        text = "Labels (Select all that apply)",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        availableLabels.forEach { label ->
+                            LabelChip(
+                                label = label,
+                                isSelected = selectedLabels.contains(label),
+                                onToggle = {
+                                    selectedLabels = if (selectedLabels.contains(label)) {
+                                        selectedLabels - label
+                                    } else {
+                                        selectedLabels + label
+                                    }
+                                },
+                            )
+                        }
+                    }
+
+                    if (selectedLabels.isNotEmpty()) {
+                        Text(
+                            text = "Selected: ${selectedLabels.joinToString(", ")}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+
                 // SUBMIT BUTTON
                 Button(onClick = {
                     Log.d("NewReviewScreen", "Signed-in user = ${user?.uid}")
@@ -155,6 +224,9 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                         return@Button
                     }
 
+                    // Convert selected labels to list, or use empty list if none selected
+                    val labelsList = selectedLabels.toList().ifEmpty { emptyList() }
+
                     val newReview = Review(
                         createdBy = currentUserId.toString(),
                         numberPlate = editableNumberPlate.text.uppercase(),
@@ -162,25 +234,26 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                         title = reviewTitle.text,
                         description = commentText.text,
                         createdAt = Instant.now().toString(),
-                        labels = listOf(""),
+                        labels = labelsList,
                     )
 
-                    CoroutineScope(Dispatchers.IO).launch {
+                    CoroutineScope(Dispatchers.Main).launch {
                         try {
                             Log.d("NewReviewScreen", "Submitting review: $newReview")
                             val response = supabaseClient.from("reviews").insert(newReview)
                             Log.d("NewReviewScreen", "Supabase insert response: $response")
-                            withContext(Dispatchers.Main) {
+
+                            // Switch to Main thread for UI updates
+                            CoroutineScope(Dispatchers.Main).launch {
                                 Toast.makeText(context, context.getString(R.string.review_submitted), Toast.LENGTH_SHORT).show()
+                                navigator.pop() // Navigate back after successful submission
                             }
                         } catch (e: Exception) {
                             Log.e("NewReviewScreen", "Error submitting review", e)
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.review_insert_failed, e.message ?: "Unknown error"),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+
+                            // Switch to Main thread for UI updates
+                            CoroutineScope(Dispatchers.Main).launch {
+                                Toast.makeText(context, context.getString(R.string.review_insert_failed, e.message ?: "Unknown error"), Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -188,6 +261,51 @@ class AddReviewScreen(private val numberPlate: String) : Screen {
                     Text(stringResource(R.string.submit_review))
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun LabelChip(
+        label: String,
+        isSelected: Boolean,
+        onToggle: () -> Unit,
+    ) {
+        val backgroundColor = if (isSelected) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surface
+        }
+
+        val textColor = if (isSelected) {
+            MaterialTheme.colorScheme.onPrimaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        }
+
+        val borderColor = if (isSelected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.outline
+        }
+
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(backgroundColor)
+                .border(
+                    width = 1.dp,
+                    color = borderColor,
+                    shape = RoundedCornerShape(16.dp),
+                )
+                .clickable { onToggle() }
+                .padding(horizontal = 12.dp, vertical = 6.dp),
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodySmall,
+                color = textColor,
+                fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
+            )
         }
     }
 }
