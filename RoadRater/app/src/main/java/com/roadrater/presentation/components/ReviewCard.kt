@@ -72,7 +72,7 @@ fun ReviewCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .combinedClickable(
-                onClick = onClick,
+                onClick = {},
                 onLongClick = {
                     if (isModerator == true) {
                         showModDialog = true
