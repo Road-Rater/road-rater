@@ -93,6 +93,7 @@ object FlaggedMessagesScreen : Screen() {
                             ReviewCard(
                                 review = review,
                                 onModChange = { reviews.remove(review) },
+                                onClick = { navigator.push(ReviewDetailsScreen(review.id.toString())) },
                                 onPlateClick = { navigator.push(CarDetailsScreen(review.numberPlate)) },
                                 createdBy = user,
                             )

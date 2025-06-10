@@ -49,7 +49,6 @@ import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.User
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.ui.ProfileScreen
-import com.roadrater.ui.ReviewDetailsScreen
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
@@ -61,6 +60,7 @@ import java.time.format.DateTimeFormatter
 fun ReviewCard(
     review: Review,
     createdBy: User,
+    onClick: () -> Unit,
     onPlateClick: () -> Unit = {},
     onModChange: () -> Unit = {},
     currentUser: User? = koinInject<GeneralPreferences>().user.get(),
@@ -83,9 +83,7 @@ fun ReviewCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .combinedClickable(
-                onClick = {
-                    navigator.push(ReviewDetailsScreen(review.id.toString()))
-                },
+                onClick = onClick,
                 onLongClick = {
                     if (isModerator == true) {
                         showModDialog = true
