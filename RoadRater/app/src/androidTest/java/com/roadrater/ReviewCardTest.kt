@@ -1,9 +1,9 @@
 package com.roadrater
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performClick
 import cafe.adriel.voyager.navigator.Navigator
 import com.roadrater.database.entities.Review
 import com.roadrater.database.entities.User
@@ -22,7 +22,6 @@ class ReviewCardTest {
 
         @Composable
         override fun Content() {
-
         }
     }
 
@@ -35,7 +34,7 @@ class ReviewCardTest {
         numberPlate = "abc123",
         rating = 4,
         labels = listOf("Safe"),
-        isFlagged = false
+        isFlagged = false,
     )
 
     private val userWithImage = User(
@@ -44,7 +43,7 @@ class ReviewCardTest {
         email = "jane@example.com",
         nickname = "jdoe",
         profile_pic_url = "https://example.com/image.png",
-        is_moderator = false
+        is_moderator = false,
     )
 
     private val userWithoutImage = userWithImage.copy(profile_pic_url = null)
@@ -57,7 +56,7 @@ class ReviewCardTest {
             Navigator(screen = EmptyScreen) {
                 ReviewCard(
                     review = dummyReview,
-                    createdBy = userWithImage
+                    createdBy = userWithImage,
                 )
             }
         }
@@ -80,7 +79,7 @@ class ReviewCardTest {
             Navigator(screen = EmptyScreen) {
                 ReviewCard(
                     review = dummyReview,
-                    createdBy = userWithImage
+                    createdBy = userWithImage,
                 )
             }
         }
@@ -96,7 +95,7 @@ class ReviewCardTest {
             Navigator(screen = EmptyScreen) {
                 ReviewCard(
                     review = dummyReview,
-                    createdBy = userWithoutImage
+                    createdBy = userWithoutImage,
                 )
             }
         }

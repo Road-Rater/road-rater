@@ -21,7 +21,7 @@ class ProfileScreenTest {
         email = "john@example.com",
         nickname = "johnny",
         profile_pic_url = null,
-        is_moderator = false
+        is_moderator = false,
     )
 
     @Test
