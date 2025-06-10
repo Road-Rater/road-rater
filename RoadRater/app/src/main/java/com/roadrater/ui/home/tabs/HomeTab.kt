@@ -456,7 +456,6 @@ object HomeTab : Tab {
                         }
                     }
 
-
                 // Show filtered count
                 Text(
                     text = "Showing ${filteredReviews.size} of ${reviews.size} reviews",
@@ -483,7 +482,8 @@ object HomeTab : Tab {
                                 onClick = {
                                     review.id?.let { id ->
                                         navigator.push(ReviewDetailsScreen(id.toString()))
-                                }
+                                    } // Fixed missing closing brace
+                                },
                                 supabaseClient = supabaseClient,
                             )
                         }

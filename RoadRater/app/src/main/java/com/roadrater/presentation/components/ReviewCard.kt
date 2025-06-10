@@ -51,6 +51,7 @@ import java.time.format.DateTimeFormatter
 fun ReviewCard(
     review: Review,
     onNumberPlateClick: () -> Unit = {},
+    onClick: () -> Unit = {},
     onModChange: () -> Unit = {},
     supabaseClient: SupabaseClient,
 ) {
