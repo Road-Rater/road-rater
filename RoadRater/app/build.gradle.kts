@@ -163,12 +163,12 @@ dependencies {
     implementation(libs.googleid)
 
     // Mockito core
-    testImplementation ("org.mockito:mockito-core:5.12.0")
-    androidTestImplementation ("org.mockito:mockito-android:5.12.0")
+    testImplementation("org.mockito:mockito-core:5.12.0")
+    androidTestImplementation("org.mockito:mockito-android:5.12.0")
 
 // Mockito-Kotlin
-    testImplementation ("org.mockito.kotlin:mockito-kotlin:5.2.1")
-    androidTestImplementation ("org.mockito.kotlin:mockito-kotlin:5.2.1")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+    androidTestImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
 }
 
 spotless {

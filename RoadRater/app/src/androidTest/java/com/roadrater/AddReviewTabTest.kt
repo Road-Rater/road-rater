@@ -1,40 +1,28 @@
 package com.roadrater
 
 import android.content.Context
-import androidx.compose.runtime.currentCompositionLocalContext
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.roadrater.database.entities.User
 import com.roadrater.preferences.GeneralPreferences
-import com.roadrater.preferences.preference.AndroidPreference
 import com.roadrater.preferences.preference.AndroidPreferenceStore
-import com.roadrater.preferences.preference.Preference
-import com.roadrater.preferences.preference.PreferenceStore
 import com.roadrater.ui.home.tabs.AddReviewTab
 import io.github.jan.supabase.SupabaseClient
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
-import org.junit.Before
+import org.junit.AfterClass
+import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
 import org.koin.dsl.module
-import androidx.test.core.app.ApplicationProvider
-import org.junit.AfterClass
-import org.junit.BeforeClass
+import org.mockito.kotlin.mock
 
 @RunWith(AndroidJUnit4::class)
 class AddReviewTabTest {
-
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -56,7 +44,7 @@ class AddReviewTabTest {
                     module {
                         single<SupabaseClient> { mockSupabaseClient }
                         single<GeneralPreferences> { generalPreferences }
-                    }
+                    },
                 )
             }
         }
@@ -67,9 +55,6 @@ class AddReviewTabTest {
             org.koin.core.context.stopKoin()
         }
     }
-
-
-
 
     @Test
     fun showsValidationMessages_onInvalidSubmission() {
