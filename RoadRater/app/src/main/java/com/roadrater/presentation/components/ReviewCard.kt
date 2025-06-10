@@ -61,7 +61,7 @@ import java.time.format.DateTimeFormatter
 fun ReviewCard(
     review: Review,
     createdBy: User,
-    onClick: () -> Unit = {},
+    onPlateClick: () -> Unit = {},
     onModChange: () -> Unit = {},
 ) {
     val navigator = LocalNavigator.currentOrThrow
@@ -129,7 +129,7 @@ fun ReviewCard(
             Surface(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .clickable(onClick = onClick),
+                    .clickable(onClick = onPlateClick),
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(8.dp),
             ) {
