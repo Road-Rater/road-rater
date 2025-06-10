@@ -26,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,9 +44,11 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import com.roadrater.R
 import com.roadrater.database.entities.Comment
+import com.roadrater.database.entities.User
 import com.roadrater.preferences.GeneralPreferences
 import com.roadrater.presentation.components.ReviewCard
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
 import org.koin.compose.koinInject
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -162,7 +165,17 @@ fun CommentCard(
     onReply: () -> Unit,
 ) {
     val generalPreferences = koinInject<GeneralPreferences>()
-    val currentUser = generalPreferences.user.get()
+    val scope = rememberCoroutineScope()
+    val supabaseClient = koinInject<SupabaseClient>()
+    var author by remember { mutableStateOf<User?>(null) }
+
+    LaunchedEffect(comment.userId) {
+        val fetchedUser = supabaseClient
+            .from("users")
+            .select { filter { eq("uid", comment.userId) } }
+            .decodeSingleOrNull<User>()
+        author = fetchedUser
+    }
 
     Column(
         modifier = Modifier
@@ -174,7 +187,7 @@ fun CommentCard(
             modifier = Modifier.fillMaxWidth(),
         ) {
             AsyncImage(
-                model = currentUser?.profile_pic_url,
+                model = author?.profile_pic_url,
                 contentDescription = stringResource(R.string.pfp),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
