@@ -63,11 +63,11 @@ fun ReviewCard(
     createdBy: User,
     onPlateClick: () -> Unit = {},
     onModChange: () -> Unit = {},
+    currentUser: User? = koinInject<GeneralPreferences>().user.get(),
 ) {
     val navigator = LocalNavigator.currentOrThrow
-    val generalPreferences = koinInject<GeneralPreferences>()
     val supabaseClient = koinInject<SupabaseClient>()
-    val isModerator = generalPreferences.user.get()?.is_moderator
+    val isModerator = currentUser?.is_moderator
     var showReportDialog by remember { mutableStateOf(false) }
     var showModDialog by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
