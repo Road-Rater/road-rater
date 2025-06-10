@@ -1,7 +1,5 @@
 package com.roadrater.di
 
-import com.roadrater.database.repository.DatabaseRepositoryImpl
-import com.roadrater.domain.DatabaseRepository
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.logging.LogLevel
 import io.github.jan.supabase.postgrest.Postgrest
@@ -26,6 +24,4 @@ val SupabaseModule = module {
             install(Realtime)
         }
     }
-
-    single<DatabaseRepository> { DatabaseRepositoryImpl(get()) }
 }

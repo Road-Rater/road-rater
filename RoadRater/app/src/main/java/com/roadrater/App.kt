@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import com.roadrater.di.DatabaseModule
 import com.roadrater.di.PreferencesModule
 import com.roadrater.di.RepositoryModule
+import com.roadrater.di.ScreenModelModule
 import com.roadrater.di.SupabaseModule
 import com.roadrater.preferences.AppearancePreferences
 import com.roadrater.presentation.crash.CrashActivity
@@ -32,6 +33,7 @@ class App : Application() {
                 RepositoryModule,
                 DatabaseModule,
                 SupabaseModule,
+                ScreenModelModule,
             )
         }
 

@@ -1,27 +1,31 @@
 package com.roadrater.presentation.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.DirectionsCar
-import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material.icons.twotone.AccountCircle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,9 +41,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.rememberAsyncImagePainter
 import com.roadrater.R
 import com.roadrater.database.entities.Review
+import com.roadrater.database.entities.User
 import com.roadrater.preferences.GeneralPreferences
+import com.roadrater.ui.ProfileScreen
+import com.roadrater.ui.ReviewDetailsScreen
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
@@ -50,12 +60,13 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ReviewCard(
     review: Review,
-    onNumberPlateClick: () -> Unit = {},
-    onClick: () -> Unit = {},
+    createdBy: User,
+    onPlateClick: () -> Unit = {},
     onModChange: () -> Unit = {},
-    supabaseClient: SupabaseClient,
 ) {
+    val navigator = LocalNavigator.currentOrThrow
     val generalPreferences = koinInject<GeneralPreferences>()
+    val supabaseClient = koinInject<SupabaseClient>()
     val isModerator = generalPreferences.user.get()?.is_moderator
     var showReportDialog by remember { mutableStateOf(false) }
     var showModDialog by remember { mutableStateOf(false) }
@@ -72,7 +83,9 @@ fun ReviewCard(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .combinedClickable(
-                onClick = {},
+                onClick = {
+                    navigator.push(ReviewDetailsScreen(review.id.toString()))
+                },
                 onLongClick = {
                     if (isModerator == true) {
                         showModDialog = true
@@ -87,15 +100,26 @@ fun ReviewCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
         shape = RoundedCornerShape(16.dp),
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row {
-                repeat(5) { index ->
-                    Icon(
-                        imageVector = if (index < review.rating) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                        contentDescription = "Star",
-                        modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
+        Column(modifier = Modifier.padding(16.dp).fillMaxSize()) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                StarRating(review.rating.toInt(), 25.dp)
+                IconButton(
+                    onClick = { navigator.push(ProfileScreen(createdBy)) },
+                    modifier = Modifier.size(30.dp),
+                ) {
+                    if (createdBy.profile_pic_url != null) {
+                        Image(
+                            painter = rememberAsyncImagePainter(createdBy.profile_pic_url),
+                            contentDescription = "Profile picture",
+                            modifier = Modifier.clip(CircleShape),
+                        )
+                    } else {
+                        Icon(Icons.TwoTone.AccountCircle, "Blank Profile Picture")
+                    }
                 }
             }
 
@@ -105,7 +129,7 @@ fun ReviewCard(
             Surface(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .clickable(onClick = onNumberPlateClick),
+                    .clickable(onClick = onPlateClick),
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(8.dp),
             ) {
@@ -174,7 +198,7 @@ fun ReviewCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = review.description,
+                text = review.description.orEmpty(),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )

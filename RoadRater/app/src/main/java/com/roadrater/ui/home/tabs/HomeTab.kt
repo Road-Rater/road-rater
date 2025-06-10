@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -63,10 +62,9 @@ import com.roadrater.R
 import com.roadrater.database.entities.TableUser
 import com.roadrater.database.entities.WatchedCar
 import com.roadrater.preferences.GeneralPreferences
-import com.roadrater.presentation.components.ReviewCard
+import com.roadrater.presentation.components.ReviewsDisplay
 import com.roadrater.presentation.util.Tab
 import com.roadrater.ui.CarDetailsScreen
-import com.roadrater.ui.ReviewDetailsScreen
 import com.roadrater.utils.GetCarInfo
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -74,6 +72,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import org.koin.core.parameter.parametersOf
+import org.koin.java.KoinJavaComponent
 
 object HomeTab : Tab {
     private fun readResolve(): Any = HomeTab
@@ -135,10 +135,7 @@ object HomeTab : Tab {
 
         // ViewModel for managing reviews and state
         val screenModel = rememberScreenModel {
-            HomeTabScreenModel(
-                supabaseClient = supabaseClient,
-                currentUser!!.uid,
-            )
+            KoinJavaComponent.getKoin().get<HomeTabScreenModel>(parameters = { parametersOf(currentUser) })
         }
 
         var searchHistory by rememberSaveable { mutableStateOf(listOf<String>()) }
@@ -150,7 +147,7 @@ object HomeTab : Tab {
         var pendingNavigationPlate by remember { mutableStateOf<String?>(null) }
 
         // List of reviews for the home feed
-        val reviews by screenModel.reviews.collectAsState()
+        val reviewsAndReviewers = screenModel.reviewsAndReviewers.collectAsState()
 
         Scaffold(
             topBar = {
@@ -353,10 +350,10 @@ object HomeTab : Tab {
                     }
                 }
 
-                // Calculate available labels from reviews
-                val availableLabels = remember(reviews) {
+                // Calculate available labels from reviewsAndReviewers
+                val availableLabels = remember(reviewsAndReviewers) {
                     val allLabels = mutableSetOf<String>()
-                    reviews.forEach { review ->
+                    reviewsAndReviewers.value.keys.forEach { review ->
                         review.labels.forEach { label ->
                             if (label.isNotEmpty()) {
                                 allLabels.add(label)
@@ -437,59 +434,36 @@ object HomeTab : Tab {
                 }
 
                 // Filter and sort reviews based on user selection
-                val filteredReviews = reviews
-                    .filter { review ->
+                val filteredReviews = reviewsAndReviewers.value.entries
+                    .filter { (review, _) ->
                         selectedLabel == "All" || review.labels.contains(selectedLabel)
                     }
-                    .let {
+                    .let { entries ->
                         when (sortOption) {
                             "Title" -> if (sortAsc) {
-                                it.sortedBy { review -> review.title }
+                                entries.sortedBy { it.key.title }
                             } else {
-                                it.sortedByDescending { review -> review.title }
+                                entries.sortedByDescending { it.key.title }
                             }
                             else -> if (sortAsc) {
-                                it.sortedBy { review -> review.createdAt }
+                                entries.sortedBy { it.key.createdAt }
                             } else {
-                                it.sortedByDescending { review -> review.createdAt }
+                                entries.sortedByDescending { it.key.createdAt }
                             }
                         }
                     }
+                    .associate { it.toPair() } // Converts the sorted list of Map.Entry back into a Map
 
                 // Show filtered count
                 Text(
-                    text = "Showing ${filteredReviews.size} of ${reviews.size} reviews",
+                    text = "Showing ${filteredReviews.size} of ${reviewsAndReviewers.value.size} reviews",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 )
 
-                // Reviews list
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                ) {
-                    items(filteredReviews) { review ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                        ) {
-                            ReviewCard(
-                                review = review,
-                                onNumberPlateClick = {
-                                    navigator.push(CarDetailsScreen(review.numberPlate))
-                                },
-                                onClick = {
-                                    review.id?.let { id ->
-                                        navigator.push(ReviewDetailsScreen(id.toString()))
-                                    } // Fixed missing closing brace
-                                },
-                                supabaseClient = supabaseClient,
-                            )
-                        }
-                    }
-                }
-
+                // Show a list of reviews on the home screen
+                ReviewsDisplay(Modifier.padding(paddingValues), reviewsAndReviewers.value)
                 // Navigate to car detail screen if needed
                 LaunchedEffect(pendingNavigationPlate) {
                     pendingNavigationPlate?.let { plate ->
